@@ -26,9 +26,9 @@ class Settings(BaseSettings):
     db_max_overflow: int = 40
     db_pool_timeout_seconds: int = 30
 
-    redis_url: str = Field(default='redis://redis:6381/0')
-    celery_broker_url: str = Field(default='redis://redis:6381/1')
-    celery_result_backend: str = Field(default='redis://redis:6381/2')
+    redis_url: str = Field(default='redis://redis:6391/0')
+    celery_broker_url: str = Field(default='redis://redis:6391/1')
+    celery_result_backend: str = Field(default='redis://redis:6391/2')
 
     s3_endpoint: AnyUrl | None = None
     s3_bucket: str = 'premium-house'

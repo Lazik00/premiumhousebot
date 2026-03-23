@@ -45,9 +45,9 @@ services:
       - DEBUG=${DEBUG:-false}
       - SWAGGER_ENABLED=${SWAGGER_ENABLED:-true}
       - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://premium:premium@postgres:5434/premium_house}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6381/0}
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6381/1}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6381/2}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6391/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6391/1}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6391/2}
       - S3_ENDPOINT=${S3_ENDPOINT:-http://minio:9100}
       - SECRET_KEY=${SECRET_KEY:-change-this}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-15}
@@ -97,9 +97,9 @@ services:
       - DEBUG=${DEBUG:-false}
       - SWAGGER_ENABLED=${SWAGGER_ENABLED:-true}
       - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://premium:premium@postgres:5434/premium_house}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6381/0}
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6381/1}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6381/2}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6391/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6391/1}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6391/2}
       - S3_ENDPOINT=${S3_ENDPOINT:-http://minio:9100}
       - SECRET_KEY=${SECRET_KEY:-change-this}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-15}
@@ -126,9 +126,9 @@ services:
       - DEBUG=${DEBUG:-false}
       - SWAGGER_ENABLED=${SWAGGER_ENABLED:-true}
       - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://premium:premium@postgres:5434/premium_house}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6381/0}
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6381/1}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6381/2}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6391/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6391/1}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6391/2}
       - S3_ENDPOINT=${S3_ENDPOINT:-http://minio:9100}
       - SECRET_KEY=${SECRET_KEY:-change-this}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-15}
@@ -162,16 +162,16 @@ services:
 
   redis:
     image: redis:7.4-alpine
-    command: ['redis-server', '--appendonly', 'yes', '--port', '${REDIS_PORT:-6381}']
+    command: ['redis-server', '--appendonly', 'yes', '--port', '${REDIS_PORT:-6391}']
     healthcheck:
-      test: ['CMD', 'redis-cli', '-p', '${REDIS_PORT:-6381}', 'ping']
+      test: ['CMD', 'redis-cli', '-p', '${REDIS_PORT:-6391}', 'ping']
       interval: 5s
       timeout: 3s
       retries: 20
     volumes:
       - redis_data:/data
     ports:
-      - '${REDIS_PORT:-6381}:${REDIS_PORT:-6381}'
+      - '${REDIS_PORT:-6391}:${REDIS_PORT:-6391}'
     restart: unless-stopped
 
   minio:
