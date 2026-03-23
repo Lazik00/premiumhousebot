@@ -21,14 +21,14 @@ class Settings(BaseSettings):
     telegram_bot_token: str = ''
     telegram_auth_max_age_seconds: int = 300
 
-    database_url: str = Field(default='postgresql+asyncpg://premium:premium@postgres:5432/premium_house')
+    database_url: str = Field(default='postgresql+asyncpg://premium:premium@postgres:5434/premium_house')
     db_pool_size: int = 20
     db_max_overflow: int = 40
     db_pool_timeout_seconds: int = 30
 
-    redis_url: str = Field(default='redis://redis:6379/0')
-    celery_broker_url: str = Field(default='redis://redis:6379/1')
-    celery_result_backend: str = Field(default='redis://redis:6379/2')
+    redis_url: str = Field(default='redis://redis:6381/0')
+    celery_broker_url: str = Field(default='redis://redis:6381/1')
+    celery_result_backend: str = Field(default='redis://redis:6381/2')
 
     s3_endpoint: AnyUrl | None = None
     s3_bucket: str = 'premium-house'
