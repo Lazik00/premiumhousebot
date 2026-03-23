@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { createPaymentLink, getBooking, getProperty } from '@/lib/api';
-import type { Booking, PropertyDetail } from '@/lib/types';
-import { getTelegramWebApp, haptic } from '@/lib/telegram';
-import { useAuth } from '@/context/AuthContext';
+import { createPaymentLink, getBooking, getProperty } from '../../../lib/api';
+import type { Booking, PropertyDetail } from '../../../lib/types';
+import { getTelegramWebApp, haptic } from '../../../lib/telegram';
+import { useAuth } from '../../../context/AuthContext';
 
 const adminContact = {
     username: '@premiumhouse_admin',

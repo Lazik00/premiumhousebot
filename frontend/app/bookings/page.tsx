@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getMyBookings } from '@/lib/api';
-import { haptic } from '@/lib/telegram';
-import { useAuth } from '@/context/AuthContext';
-import type { Booking } from '@/lib/types';
-import { BookingCardSkeleton } from '@/components/LoadingSkeleton';
-import BottomNav from '@/components/BottomNav';
+import { getMyBookings } from '../../lib/api';
+import { haptic } from '../../lib/telegram';
+import { useAuth } from '../../context/AuthContext';
+import type { Booking } from '../../lib/types';
+import { BookingCardSkeleton } from '../../components/LoadingSkeleton';
+import BottomNav from '../../components/BottomNav';
 
 function formatPrice(price: number): string {
     return `${new Intl.NumberFormat('uz-UZ').format(price)} so'm`;

@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { haptic } from '@/lib/telegram';
+import { haptic } from '../lib/telegram';
 
 const tabs = [
     {

@@ -2,10 +2,10 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createBooking, createPaymentLink, getProperty } from '@/lib/api';
-import type { PropertyDetail } from '@/lib/types';
-import { useAuth } from '@/context/AuthContext';
-import { getTelegramWebApp, haptic } from '@/lib/telegram';
+import { createBooking, createPaymentLink, getProperty } from '../../lib/api';
+import type { PropertyDetail } from '../../lib/types';
+import { useAuth } from '../../context/AuthContext';
+import { getTelegramWebApp, haptic } from '../../lib/telegram';
 
 function formatPrice(price: number, currency: string): string {
     if (currency === 'UZS') {

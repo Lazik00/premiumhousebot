@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { listProperties } from '@/lib/api';
-import type { PropertySummary } from '@/lib/types';
-import PropertyCard, { PropertyCardSkeleton } from '@/components/PropertyCard';
-import SearchFilter, { type FilterValues } from '@/components/SearchFilter';
-import BottomNav from '@/components/BottomNav';
+import { listProperties } from '../lib/api';
+import type { PropertySummary } from '../lib/types';
+import PropertyCard, { PropertyCardSkeleton } from '../components/PropertyCard';
+import SearchFilter, { type FilterValues } from '../components/SearchFilter';
+import BottomNav from '../components/BottomNav';
 
 const propertyTypes = [
     { key: '', label: 'Barchasi', emoji: 'All' },

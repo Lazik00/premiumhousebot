@@ -1,9 +1,9 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { loginWithTelegram, getMe, logout as apiLogout, loadTokens, getAccessToken, clearTokens } from '@/lib/api';
-import { getInitData, initTelegramApp } from '@/lib/telegram';
-import type { AuthUser, UserMe } from '@/lib/types';
+import { loginWithTelegram, getMe, logout as apiLogout, loadTokens, getAccessToken, clearTokens } from '../lib/api';
+import { getInitData, initTelegramApp } from '../lib/telegram';
+import type { AuthUser, UserMe } from '../lib/types';
 
 interface AuthState {
     user: (AuthUser & Partial<UserMe>) | null;

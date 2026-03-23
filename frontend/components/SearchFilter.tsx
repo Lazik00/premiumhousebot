@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { haptic } from '@/lib/telegram';
+import { haptic } from '../lib/telegram';
 
 interface SearchFilterProps {
     onSearch: (filters: FilterValues) => void;

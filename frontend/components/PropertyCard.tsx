@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { haptic } from '@/lib/telegram';
-import type { PropertySummary } from '@/lib/types';
+import { haptic } from '../lib/telegram';
+import type { PropertySummary } from '../lib/types';
 
 function formatPrice(price: number, currency: string): string {
     if (currency === 'UZS') {

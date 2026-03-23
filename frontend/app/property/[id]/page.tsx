@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getProperty } from '@/lib/api';
-import { haptic } from '@/lib/telegram';
-import type { PropertyDetail } from '@/lib/types';
-import PropertyGallery from '@/components/PropertyGallery';
-import { DetailSkeleton } from '@/components/LoadingSkeleton';
+import { getProperty } from '../../../lib/api';
+import { haptic } from '../../../lib/telegram';
+import type { PropertyDetail } from '../../../lib/types';
+import PropertyGallery from '../../../components/PropertyGallery';
+import { DetailSkeleton } from '../../../components/LoadingSkeleton';
 
 function formatPrice(price: number, currency: string): string {
     if (currency === 'UZS') {

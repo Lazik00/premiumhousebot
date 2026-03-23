@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { PropertyImage } from '@/lib/types';
+import type { PropertyImage } from '../lib/types';
 
 interface PropertyGalleryProps {
     images: PropertyImage[];

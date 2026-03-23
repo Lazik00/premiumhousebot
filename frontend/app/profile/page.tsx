@@ -1,10 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import { haptic } from '@/lib/telegram';
-import { ProfileSkeleton } from '@/components/LoadingSkeleton';
-import BottomNav from '@/components/BottomNav';
+import { useAuth } from '../../context/AuthContext';
+import { haptic } from '../../lib/telegram';
+import { ProfileSkeleton } from '../../components/LoadingSkeleton';
+import BottomNav from '../../components/BottomNav';
 
 export default function ProfilePage() {
     const router = useRouter();
