@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { listProperties } from '../../lib/api';
 import type { PropertySummary } from '../../lib/types';
 import PropertyCard, { PropertyCardSkeleton } from '../../components/PropertyCard';
@@ -33,31 +33,40 @@ export default function SearchPage() {
 
     return (
         <div style={{ minHeight: '100vh' }}>
-            {/* Header */}
             <div style={{ padding: 'calc(20px + var(--tg-safe-top, 60px)) 16px 0' }}>
-                <h1
+                <div
                     style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: 26,
-                        fontWeight: 800,
-                        marginBottom: 4,
+                        padding: '18px 18px 16px',
+                        borderRadius: 24,
+                        background: 'var(--gradient-card)',
+                        border: '1px solid var(--color-line)',
+                        marginBottom: 16,
+                        boxShadow: 'var(--shadow-sm)',
                     }}
                 >
-                    🔍 Qidiruv
-                </h1>
-                <p style={{ fontSize: 14, color: 'var(--color-muted)', marginBottom: 16 }}>
-                    Shahar, sana va mehmonlar soni bo&apos;yicha uylarni toping
-                </p>
+                    <h1
+                        style={{
+                            fontFamily: 'var(--font-display)',
+                            fontSize: 32,
+                            fontWeight: 700,
+                            marginBottom: 6,
+                        }}
+                    >
+                        Qidiruv
+                    </h1>
+                    <p style={{ fontSize: 14, color: 'var(--color-muted)' }}>
+                        Shahar, sana va mehmonlar bo'yicha mos premium uylarni toping
+                    </p>
+                </div>
 
                 <SearchFilter onSearch={handleSearch} isLoading={isLoading} />
 
-                {/* Results */}
                 {hasSearched && !isLoading && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700 }}>
+                        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700 }}>
                             Natijalar
                         </h2>
-                        <span style={{ fontSize: 13, color: 'var(--color-muted)' }}>
+                        <span style={{ fontSize: 13, color: 'var(--color-brand-light)', fontWeight: 800 }}>
                             {total} ta topildi
                         </span>
                     </div>
@@ -72,33 +81,29 @@ export default function SearchPage() {
                     ) : hasSearched ? (
                         properties.length > 0 ? (
                             properties.map((property, index) => (
-                                <div
-                                    key={property.id}
-                                    className="slide-up"
-                                    style={{ animationDelay: `${index * 0.05}s` }}
-                                >
+                                <div key={property.id} className="slide-up" style={{ animationDelay: `${index * 0.05}s` }}>
                                     <PropertyCard property={property} />
                                 </div>
                             ))
                         ) : (
-                            <div className="fade-in" style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--color-muted)', gridColumn: '1 / -1' }}>
+                            <div className="fade-in" style={{ textAlign: 'center', padding: '54px 20px', color: 'var(--color-muted)', gridColumn: '1 / -1', borderRadius: 24, background: 'var(--gradient-card)', border: '1px solid var(--color-line)' }}>
                                 <div style={{ fontSize: 48, marginBottom: 12 }}>🏠</div>
-                                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
+                                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
                                     Natija topilmadi
                                 </h3>
                                 <p style={{ fontSize: 14 }}>
-                                    Boshqa filterlarni sinab ko&apos;ring
+                                    Boshqa sana yoki mehmon sonini sinab ko'ring
                                 </p>
                             </div>
                         )
                     ) : (
-                        <div className="fade-in" style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--color-muted)', gridColumn: '1 / -1' }}>
+                        <div className="fade-in" style={{ textAlign: 'center', padding: '54px 20px', color: 'var(--color-muted)', gridColumn: '1 / -1', borderRadius: 24, background: 'var(--gradient-card)', border: '1px solid var(--color-line)' }}>
                             <div style={{ fontSize: 48, marginBottom: 12, animation: 'float 3s infinite' }}>🏡</div>
-                            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
+                            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
                                 Qidiruvni boshlang
                             </h3>
                             <p style={{ fontSize: 14 }}>
-                                Shahar tanlang yoki filterlarni sozlang
+                                Kerakli sanalarni kiriting va katalogni toraytiring
                             </p>
                         </div>
                     )}

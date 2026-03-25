@@ -22,9 +22,9 @@ function formatDate(dateStr: string): string {
 }
 
 const statusConfig: Record<string, { label: string; color: string; bg: string; emoji: string }> = {
-    pending_payment: { label: 'To\'lov kutilmoqda', color: '#fdcb6e', bg: 'rgba(253,203,110,0.12)', emoji: '⏳' },
+    pending_payment: { label: 'To\'lov kutilmoqda', color: 'var(--color-warning)', bg: 'rgba(210,174,104,0.14)', emoji: '⏳' },
     confirmed: { label: 'Tasdiqlangan', color: '#00b894', bg: 'rgba(0,184,148,0.12)', emoji: '✅' },
-    completed: { label: 'Yakunlangan', color: '#6c5ce7', bg: 'rgba(108,92,231,0.12)', emoji: '🏁' },
+    completed: { label: 'Yakunlangan', color: 'var(--color-brand)', bg: 'rgba(210,174,104,0.12)', emoji: '🏁' },
     cancelled: { label: 'Bekor qilingan', color: '#d63031', bg: 'rgba(214,48,49,0.12)', emoji: '❌' },
     expired: { label: 'Muddati o\'tgan', color: '#636e72', bg: 'rgba(99,110,114,0.12)', emoji: '⌛' },
 };
@@ -119,9 +119,9 @@ export default function BookingsPage() {
                                 borderRadius: 10,
                                 border: 'none',
                                 background: activeTab === tab.key ? 'var(--gradient-brand)' : 'transparent',
-                                color: activeTab === tab.key ? '#fff' : 'var(--color-muted)',
+                                color: activeTab === tab.key ? 'var(--color-ink-soft)' : 'var(--color-muted)',
                                 fontSize: 13,
-                                fontWeight: 600,
+                                fontWeight: 800,
                                 cursor: 'pointer',
                                 fontFamily: 'var(--font-body)',
                             }}
@@ -195,7 +195,7 @@ export default function BookingsPage() {
                                             marginBottom: 12,
                                             padding: '10px 14px',
                                             borderRadius: 10,
-                                            background: 'rgba(108, 92, 231, 0.06)',
+                                            background: 'rgba(210, 174, 104, 0.08)',
                                         }}
                                     >
                                         <div style={{ flex: 1 }}>
@@ -223,9 +223,9 @@ export default function BookingsPage() {
                                             padding: '10px 12px',
                                             borderRadius: 12,
                                             background: booking.status === 'pending_payment'
-                                                ? 'rgba(253,203,110,0.12)'
-                                                : 'rgba(108,92,231,0.08)',
-                                            color: booking.status === 'pending_payment' ? '#fdcb6e' : 'var(--color-brand-light)',
+                                                ? 'rgba(210,174,104,0.14)'
+                                                : 'rgba(210,174,104,0.08)',
+                                            color: booking.status === 'pending_payment' ? 'var(--color-warning)' : 'var(--color-brand-light)',
                                             fontSize: 12,
                                             fontWeight: 700,
                                         }}
@@ -259,9 +259,9 @@ export default function BookingsPage() {
                                 borderRadius: 12,
                                 border: 'none',
                                 background: 'var(--gradient-brand)',
-                                color: '#fff',
+                                color: 'var(--color-ink-soft)',
                                 fontSize: 14,
-                                fontWeight: 600,
+                                fontWeight: 800,
                                 cursor: 'pointer',
                                 fontFamily: 'var(--font-body)',
                             }}

@@ -100,7 +100,11 @@ class AuthService:
             raise ValueError('Invalid refresh token') from exc
 
         token_hash = hash_token(refresh_token)
-        token_result = await db.execute(select(RefreshToken).where(RefreshToken.token_hash == token_hash, RefreshToken.deleted_at.is_(None)))
+        token_result = await db.execute(
+            select(RefreshToken)
+            .where(RefreshToken.token_hash == token_hash, RefreshToken.deleted_at.is_(None))
+            .with_for_update()
+        )
         token_row = token_result.scalar_one_or_none()
 
         if token_row is None or str(token_row.user_id) != subject:

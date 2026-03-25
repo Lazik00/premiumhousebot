@@ -38,7 +38,7 @@ function CounterRow({
         borderRadius: '50%',
         border: filled ? 'none' : '1px solid var(--color-brand)',
         background: disabled ? 'var(--color-line)' : filled ? 'var(--color-brand)' : 'transparent',
-        color: disabled ? 'var(--color-muted)' : filled ? '#fff' : 'var(--color-brand)',
+        color: disabled ? 'var(--color-muted)' : filled ? 'var(--color-ink-soft)' : 'var(--color-brand)',
         fontSize: 18,
         display: 'flex',
         alignItems: 'center',
@@ -264,9 +264,9 @@ function BookingContent() {
                         borderRadius: 12,
                         border: 'none',
                         background: 'var(--gradient-brand)',
-                        color: '#fff',
+                        color: 'var(--color-ink-soft)',
                         fontSize: 14,
-                        fontWeight: 700,
+                        fontWeight: 800,
                         cursor: 'pointer',
                         fontFamily: 'var(--font-body)',
                     }}
@@ -338,7 +338,7 @@ function BookingContent() {
                                     width: 34,
                                     height: 34,
                                     borderRadius: 10,
-                                    background: 'rgba(108, 92, 231, 0.12)',
+                                    background: 'rgba(210, 174, 104, 0.12)',
                                     display: 'inline-flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -415,7 +415,7 @@ function BookingContent() {
                             style={{
                                 padding: '5px 10px',
                                 borderRadius: 999,
-                                background: 'rgba(108, 92, 231, 0.1)',
+                                background: 'rgba(210, 174, 104, 0.1)',
                                 color: 'var(--color-brand)',
                                 fontSize: 12,
                                 fontWeight: 700,
@@ -529,7 +529,7 @@ function BookingContent() {
                                     marginTop: 14,
                                     padding: '14px 16px',
                                     borderRadius: 16,
-                                    background: 'rgba(108, 92, 231, 0.08)',
+                                    background: 'rgba(210, 174, 104, 0.08)',
                                     color: totalNights > 0 ? 'var(--color-text)' : 'var(--color-muted)',
                                     fontSize: 13,
                                 }}
@@ -543,12 +543,12 @@ function BookingContent() {
                                 padding: '18px 18px 16px',
                                 borderRadius: 20,
                                 border: '1px solid var(--color-line)',
-                                background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(108,92,231,0.12) 100%)',
+                                background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(210,174,104,0.12) 100%)',
                             }}
                         >
-                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.62)', marginBottom: 6 }}>
-                                Tanlangan sanalar bo'yicha summa
-                            </div>
+                                <div style={{ fontSize: 12, color: 'rgba(255,247,232,0.62)', marginBottom: 6 }}>
+                                    Tanlangan sanalar bo'yicha summa
+                                </div>
                             <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800, marginBottom: 6 }}>
                                 {formatPrice(estimatedTotal, property.currency)}
                             </div>
@@ -568,7 +568,7 @@ function BookingContent() {
                                     borderRadius: 14,
                                     border: 'none',
                                     background: totalNights > 0 ? 'var(--gradient-brand)' : 'var(--color-surface)',
-                                    color: totalNights > 0 ? '#fff' : 'var(--color-muted)',
+                                    color: totalNights > 0 ? 'var(--color-ink-soft)' : 'var(--color-muted)',
                                     fontSize: 15,
                                     fontWeight: 800,
                                     cursor: totalNights > 0 ? 'pointer' : 'not-allowed',
@@ -620,7 +620,7 @@ function BookingContent() {
                                 borderRadius: 14,
                                 border: 'none',
                                 background: 'var(--gradient-brand)',
-                                color: '#fff',
+                                color: 'var(--color-ink-soft)',
                                 fontSize: 15,
                                 fontWeight: 800,
                                 cursor: 'pointer',
@@ -776,7 +776,7 @@ function BookingContent() {
                                 borderRadius: 14,
                                 border: 'none',
                                 background: guestBreakdownValid ? 'var(--gradient-brand)' : 'var(--color-surface)',
-                                color: guestBreakdownValid ? '#fff' : 'var(--color-muted)',
+                                color: guestBreakdownValid ? 'var(--color-ink-soft)' : 'var(--color-muted)',
                                 fontSize: 15,
                                 fontWeight: 800,
                                 cursor: guestBreakdownValid ? 'pointer' : 'not-allowed',
@@ -795,7 +795,7 @@ function BookingContent() {
                         position: 'fixed',
                         inset: 0,
                         zIndex: 100,
-                        background: 'rgba(8, 10, 16, 0.76)',
+                        background: 'rgba(8, 6, 3, 0.82)',
                         display: 'flex',
                         alignItems: 'flex-end',
                         justifyContent: 'center',
@@ -809,9 +809,9 @@ function BookingContent() {
                             maxHeight: '88vh',
                             borderTopLeftRadius: 24,
                             borderTopRightRadius: 24,
-                            background: '#11141c',
-                            border: '1px solid rgba(255,255,255,0.06)',
-                            boxShadow: '0 -18px 40px rgba(0,0,0,0.35)',
+                            background: 'linear-gradient(180deg, rgba(24,18,12,0.98) 0%, rgba(10,8,6,1) 100%)',
+                            border: '1px solid rgba(210,174,104,0.14)',
+                            boxShadow: '0 -20px 44px rgba(0,0,0,0.42)',
                             overflow: 'hidden',
                         }}
                     >
@@ -821,14 +821,14 @@ function BookingContent() {
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 padding: '18px 18px 12px',
-                                borderBottom: '1px solid rgba(255,255,255,0.06)',
+                                borderBottom: '1px solid rgba(210,174,104,0.12)',
                             }}
                         >
                             <div>
                                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 800 }}>
                                     Maxfiylik siyosati
                                 </div>
-                                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.62)' }}>
+                                <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>
                                     Pastgacha o'qib, keyin qabul qiling
                                 </div>
                             </div>
@@ -839,9 +839,9 @@ function BookingContent() {
                                     width: 38,
                                     height: 38,
                                     borderRadius: 12,
-                                    border: '1px solid rgba(255,255,255,0.08)',
-                                    background: 'rgba(255,255,255,0.04)',
-                                    color: '#fff',
+                                    border: '1px solid rgba(210,174,104,0.14)',
+                                    background: 'rgba(255,247,232,0.04)',
+                                    color: 'var(--color-text)',
                                     cursor: 'pointer',
                                     fontSize: 18,
                                 }}
@@ -859,7 +859,7 @@ function BookingContent() {
                                 padding: '18px',
                                 fontSize: 13,
                                 lineHeight: 1.7,
-                                color: 'rgba(255,255,255,0.76)',
+                                color: 'rgba(255,247,232,0.78)',
                             }}
                         >
                             <p>
@@ -883,7 +883,7 @@ function BookingContent() {
                             </p>
                         </div>
 
-                        <div style={{ padding: 18, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div style={{ padding: 18, borderTop: '1px solid rgba(210,174,104,0.12)' }}>
                             <label
                                 style={{
                                     display: 'flex',
@@ -891,8 +891,8 @@ function BookingContent() {
                                     gap: 10,
                                     padding: '12px 14px',
                                     borderRadius: 14,
-                                    background: 'rgba(255,255,255,0.04)',
-                                    border: '1px solid rgba(255,255,255,0.06)',
+                                    background: 'rgba(255,247,232,0.04)',
+                                    border: '1px solid rgba(210,174,104,0.12)',
                                     marginBottom: 14,
                                     opacity: hasReadPrivacy ? 1 : 0.65,
                                     cursor: hasReadPrivacy ? 'pointer' : 'not-allowed',
@@ -905,13 +905,13 @@ function BookingContent() {
                                     onChange={(e) => setAcceptedPrivacy(e.target.checked)}
                                     style={{ width: 18, height: 18, marginTop: 2, accentColor: 'var(--color-brand)' }}
                                 />
-                                <span style={{ fontSize: 13, lineHeight: 1.5, color: '#fff' }}>
+                                <span style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--color-text)' }}>
                                     Men maxfiylik siyosatini o'qib chiqdim va shartlarini qabul qilaman.
                                 </span>
                             </label>
 
                             {!hasReadPrivacy && (
-                                <div style={{ fontSize: 12, color: '#f8c291', marginBottom: 12 }}>
+                                <div style={{ fontSize: 12, color: 'var(--color-warning)', marginBottom: 12 }}>
                                     Bron qilishdan oldin matnni pastgacha o'qib chiqing.
                                 </div>
                             )}
@@ -925,8 +925,8 @@ function BookingContent() {
                                     padding: '15px 0',
                                     borderRadius: 14,
                                     border: 'none',
-                                    background: acceptedPrivacy && !isBooking ? 'var(--gradient-brand)' : 'rgba(255,255,255,0.08)',
-                                    color: acceptedPrivacy && !isBooking ? '#fff' : 'rgba(255,255,255,0.45)',
+                                    background: acceptedPrivacy && !isBooking ? 'var(--gradient-brand)' : 'rgba(255,247,232,0.08)',
+                                    color: acceptedPrivacy && !isBooking ? 'var(--color-ink-soft)' : 'rgba(255,247,232,0.45)',
                                     fontSize: 15,
                                     fontWeight: 800,
                                     cursor: acceptedPrivacy && !isBooking ? 'pointer' : 'not-allowed',

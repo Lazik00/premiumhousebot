@@ -60,10 +60,10 @@ export default function PropertyDetailPage() {
                         padding: '10px 24px',
                         borderRadius: 12,
                         background: 'var(--gradient-brand)',
-                        color: '#fff',
+                        color: 'var(--color-ink-soft)',
                         border: 'none',
                         fontSize: 14,
-                        fontWeight: 600,
+                        fontWeight: 800,
                         cursor: 'pointer',
                         fontFamily: 'var(--font-body)',
                     }}
@@ -87,16 +87,16 @@ export default function PropertyDetailPage() {
                     width: 40,
                     height: 40,
                     borderRadius: 12,
-                    background: 'rgba(0,0,0,0.5)',
-                    backdropFilter: 'blur(10px)',
-                    border: 'none',
+                    background: 'rgba(12,9,6,0.62)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(242,217,162,0.14)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
                 }}
             >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff7e8" strokeWidth="2">
                     <polyline points="15 18 9 12 15 6" />
                 </svg>
             </button>
@@ -114,9 +114,9 @@ export default function PropertyDetailPage() {
                     style={{
                         padding: '18px 18px 16px',
                         borderRadius: 24,
-                        background: 'linear-gradient(180deg, rgba(20,25,36,0.96) 0%, rgba(17,20,28,0.98) 100%)',
-                        border: '1px solid rgba(255,255,255,0.06)',
-                        boxShadow: '0 22px 40px rgba(0,0,0,0.22)',
+                        background: 'linear-gradient(180deg, rgba(20,16,12,0.96) 0%, rgba(10,8,6,0.98) 100%)',
+                        border: '1px solid rgba(242,217,162,0.12)',
+                        boxShadow: 'var(--shadow-lg)',
                         marginBottom: 18,
                     }}
                 >
@@ -126,10 +126,11 @@ export default function PropertyDetailPage() {
                                 style={{
                                     padding: '6px 12px',
                                     borderRadius: 999,
-                                    background: 'rgba(108, 92, 231, 0.18)',
-                                    color: '#f3edff',
+                                    background: 'rgba(210, 174, 104, 0.16)',
+                                    color: 'var(--color-brand-light)',
                                     fontSize: 12,
-                                    fontWeight: 700,
+                                    fontWeight: 800,
+                                    letterSpacing: '0.06em',
                                     textTransform: 'capitalize',
                                 }}
                             >
@@ -139,8 +140,8 @@ export default function PropertyDetailPage() {
                                 style={{
                                     padding: '6px 12px',
                                     borderRadius: 999,
-                                    background: 'rgba(255,255,255,0.06)',
-                                    color: 'rgba(255,255,255,0.82)',
+                                    background: 'rgba(255,255,255,0.04)',
+                                    color: 'rgba(255,247,232,0.82)',
                                     fontSize: 12,
                                     fontWeight: 700,
                                 }}
@@ -149,8 +150,8 @@ export default function PropertyDetailPage() {
                             </span>
                         </div>
                         {property.average_rating > 0 && (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.06)' }}>
-                                <span style={{ fontSize: 16, color: '#ffeaa7' }}>★</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.04)' }}>
+                                <span style={{ fontSize: 16, color: 'var(--color-gold)' }}>★</span>
                                 <span style={{ fontSize: 14, fontWeight: 800 }}>{property.average_rating.toFixed(1)}</span>
                                 <span style={{ fontSize: 12, color: 'var(--color-muted)' }}>({property.review_count})</span>
                             </div>
@@ -190,8 +191,8 @@ export default function PropertyDetailPage() {
                         style={{
                             padding: '14px 16px',
                             borderRadius: 18,
-                            background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(108,92,231,0.12) 100%)',
-                            border: '1px solid rgba(255,255,255,0.06)',
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(210,174,104,0.12) 100%)',
+                            border: '1px solid rgba(242,217,162,0.12)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
@@ -199,12 +200,12 @@ export default function PropertyDetailPage() {
                         }}
                     >
                         <div>
-                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.62)', marginBottom: 4 }}>Bir kecha narxi</div>
+                            <div style={{ fontSize: 12, color: 'rgba(255,247,232,0.62)', marginBottom: 4 }}>Bir kecha narxi</div>
                             <div style={{ fontSize: 24, fontWeight: 800 }}>
                                 <span className="text-gradient">{formatPrice(property.price_per_night, property.currency)}</span>
                             </div>
                         </div>
-                        <div style={{ textAlign: 'right', fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+                        <div style={{ textAlign: 'right', fontSize: 12, color: 'rgba(255,247,232,0.7)', lineHeight: 1.5 }}>
                             <div>Faqat uy narxi</div>
                             <div>Yashirin servis to'lovi yo'q</div>
                         </div>
@@ -237,7 +238,7 @@ export default function PropertyDetailPage() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 fontSize: 20,
-                                color: '#fff',
+                                color: 'var(--color-ink-soft)',
                                 fontWeight: 700,
                             }}
                         >
@@ -383,8 +384,8 @@ export default function PropertyDetailPage() {
                             style={{
                                 padding: '16px 18px',
                                 borderRadius: 18,
-                                background: 'rgba(253, 203, 110, 0.08)',
-                                border: '1px solid rgba(253, 203, 110, 0.15)',
+                                background: 'rgba(210, 174, 104, 0.1)',
+                                border: '1px solid rgba(210, 174, 104, 0.18)',
                                 fontSize: 14,
                                 lineHeight: 1.7,
                                 color: 'var(--color-muted)',
@@ -437,7 +438,7 @@ export default function PropertyDetailPage() {
                     left: 0,
                     right: 0,
                     zIndex: 50,
-                    background: 'rgba(15, 15, 20, 0.9)',
+                    background: 'rgba(8, 6, 3, 0.9)',
                     backdropFilter: 'blur(20px)',
                     borderTop: '1px solid var(--color-line)',
                     padding: '12px 16px',
@@ -469,9 +470,9 @@ export default function PropertyDetailPage() {
                             borderRadius: 14,
                             border: 'none',
                             background: 'var(--gradient-brand)',
-                            color: '#fff',
+                            color: 'var(--color-ink-soft)',
                             fontSize: 15,
-                            fontWeight: 700,
+                            fontWeight: 800,
                             cursor: 'pointer',
                             fontFamily: 'var(--font-body)',
                             boxShadow: 'var(--shadow-glow)',

@@ -1,9 +1,10 @@
 import uuid
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user
+from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.booking import BookingCancelRequest, BookingCreateRequest, BookingListResponse, BookingResponse
@@ -14,7 +15,9 @@ booking_service = BookingService()
 
 
 @router.post('', response_model=BookingResponse)
+@limiter.limit('20/minute')
 async def create_booking(
+    request: Request,
     payload: BookingCreateRequest,
     idempotency_key: str = Header(..., alias='Idempotency-Key'),
     db: AsyncSession = Depends(get_db),

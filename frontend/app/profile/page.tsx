@@ -85,7 +85,7 @@ export default function ProfilePage() {
                         width: 300,
                         height: 300,
                         borderRadius: '50%',
-                        background: 'radial-gradient(circle, rgba(108, 92, 231, 0.15) 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, rgba(210, 174, 104, 0.15) 0%, transparent 70%)',
                         pointerEvents: 'none',
                     }}
                 />
@@ -106,9 +106,9 @@ export default function ProfilePage() {
                             justifyContent: 'center',
                             fontSize: 36,
                             fontWeight: 800,
-                            color: '#fff',
+                            color: 'var(--color-ink-soft)',
                             boxShadow: 'var(--shadow-glow)',
-                            border: '3px solid rgba(108, 92, 231, 0.3)',
+                            border: '3px solid rgba(210, 174, 104, 0.24)',
                         }}
                     >
                         {!user.photo_url && user.first_name[0]}
@@ -190,7 +190,7 @@ export default function ProfilePage() {
                                 width: 40,
                                 height: 40,
                                 borderRadius: 10,
-                                background: 'rgba(108, 92, 231, 0.1)',
+                                background: 'rgba(210, 174, 104, 0.1)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',

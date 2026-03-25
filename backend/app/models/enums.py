@@ -33,6 +33,7 @@ class PaymentProvider(str, Enum):
     RAHMAT = 'rahmat'
     CLICK = 'click'
     PAYME = 'payme'
+    OCTO = 'octo'
 
 
 class PaymentStatus(str, Enum):

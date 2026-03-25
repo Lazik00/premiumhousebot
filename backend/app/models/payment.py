@@ -13,7 +13,7 @@ class Payment(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = 'payments'
     __table_args__ = (
         UniqueConstraint('provider', 'provider_payment_id', name='uq_provider_payment_id'),
-        UniqueConstraint('idempotency_key', name='uq_payment_idempotency_key'),
+        UniqueConstraint('booking_id', 'provider', 'idempotency_key', name='uq_payment_booking_provider_idempotency'),
         Index('idx_payments_booking', 'booking_id'),
         Index('idx_payments_status', 'status'),
     )

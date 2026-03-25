@@ -13,9 +13,9 @@ const adminContact = {
 };
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-    pending_payment: { label: 'To\'lov kutilmoqda', color: '#fdcb6e', bg: 'rgba(253,203,110,0.12)' },
+    pending_payment: { label: 'To\'lov kutilmoqda', color: 'var(--color-warning)', bg: 'rgba(210,174,104,0.14)' },
     confirmed: { label: 'Tasdiqlangan', color: '#00b894', bg: 'rgba(0,184,148,0.12)' },
-    completed: { label: 'Yakunlangan', color: '#6c5ce7', bg: 'rgba(108,92,231,0.12)' },
+    completed: { label: 'Yakunlangan', color: 'var(--color-brand)', bg: 'rgba(210,174,104,0.12)' },
     cancelled: { label: 'Bekor qilingan', color: '#d63031', bg: 'rgba(214,48,49,0.12)' },
     expired: { label: 'Muddati o\'tgan', color: '#636e72', bg: 'rgba(99,110,114,0.12)' },
 };
@@ -201,7 +201,7 @@ export default function BookingDetailPage() {
                     style={{
                         height: 190,
                         background: property?.cover_image
-                            ? `linear-gradient(180deg, rgba(7,10,18,0.1) 0%, rgba(7,10,18,0.6) 100%), url(${property.cover_image}) center/cover`
+                            ? `linear-gradient(180deg, rgba(8,6,3,0.08) 0%, rgba(8,6,3,0.62) 100%), url(${property.cover_image}) center/cover`
                             : 'var(--gradient-brand)',
                     }}
                 />
@@ -236,12 +236,12 @@ export default function BookingDetailPage() {
                 style={{
                     padding: 18,
                     borderRadius: 20,
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(108,92,231,0.12) 100%)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(210,174,104,0.12) 100%)',
                     border: '1px solid var(--color-line)',
                     marginBottom: 16,
                 }}
             >
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.62)', marginBottom: 8 }}>Umumiy summa</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,247,232,0.62)', marginBottom: 8 }}>Umumiy summa</div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 30, fontWeight: 800, marginBottom: 8 }}>
                     <span className="text-gradient">{formatPrice(booking.total_price, property?.currency || 'UZS')}</span>
                 </div>
@@ -316,8 +316,8 @@ export default function BookingDetailPage() {
                     style={{
                         padding: 18,
                         borderRadius: 20,
-                        border: '1px solid rgba(253,203,110,0.2)',
-                        background: 'rgba(253,203,110,0.08)',
+                        border: '1px solid rgba(210,174,104,0.22)',
+                        background: 'rgba(210,174,104,0.1)',
                         marginBottom: 16,
                     }}
                 >
@@ -341,9 +341,9 @@ export default function BookingDetailPage() {
                                     width: '100%',
                                     padding: '14px 16px',
                                     borderRadius: 14,
-                                    border: '1px solid rgba(255,255,255,0.06)',
-                                    background: '#151922',
-                                    color: '#fff',
+                                    border: '1px solid rgba(242,217,162,0.12)',
+                                    background: 'rgba(12,9,6,0.72)',
+                                    color: '#fff7e8',
                                     fontSize: 14,
                                     fontWeight: 700,
                                     cursor: isPaying ? 'not-allowed' : 'pointer',
@@ -394,7 +394,7 @@ export default function BookingDetailPage() {
                             borderRadius: 14,
                             border: 'none',
                             background: 'var(--gradient-brand)',
-                            color: '#fff',
+                            color: 'var(--color-ink-soft)',
                             fontSize: 14,
                             fontWeight: 800,
                             cursor: 'pointer',

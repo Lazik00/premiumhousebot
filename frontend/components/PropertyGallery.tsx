@@ -15,9 +15,9 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
     const [touchEnd, setTouchEnd] = useState(0);
 
     const placeholderGradients = [
-        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        'linear-gradient(135deg, #5f4320 0%, #1b140d 100%)',
+        'linear-gradient(135deg, #c79b53 0%, #322314 100%)',
+        'linear-gradient(135deg, #f2d9a2 0%, #6e4f28 100%)',
     ];
 
     const hasImages = images.length > 0;
@@ -48,17 +48,16 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
             style={{
                 position: 'relative',
                 width: '100%',
-                height: 'calc(300px + var(--tg-safe-top, 60px))',
+                height: 'calc(320px + var(--tg-safe-top, 60px))',
                 paddingTop: 'var(--tg-safe-top, 60px)',
                 overflow: 'hidden',
-                borderRadius: '0 0 24px 24px',
+                borderRadius: '0 0 32px 32px',
                 background: 'var(--color-surface)',
             }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
         >
-            {/* Slide container */}
             <div
                 style={{
                     display: 'flex',
@@ -91,31 +90,26 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
                             gap: 12,
                         }}
                     >
-                        <span style={{ fontSize: 64, opacity: 0.5 }}>{icons[propertyType || ''] || '🏠'}</span>
-                        <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>{title}</span>
+                        <span style={{ fontSize: 64, opacity: 0.6 }}>{icons[propertyType || ''] || '🏠'}</span>
+                        <span style={{ fontSize: 16, color: 'rgba(255,247,232,0.76)', fontFamily: 'var(--font-display)' }}>{title}</span>
                     </div>
                 )}
             </div>
 
-            {/* Gradient overlay */}
             <div
                 style={{
                     position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: 100,
-                    background: 'linear-gradient(to top, rgba(15,15,20,0.8), transparent)',
+                    inset: 0,
+                    background: 'linear-gradient(180deg, rgba(8,6,3,0.05) 0%, rgba(8,6,3,0.2) 50%, rgba(8,6,3,0.82) 100%)',
                     pointerEvents: 'none',
                 }}
             />
 
-            {/* Dots indicator */}
             {hasImages && images.length > 1 && (
                 <div
                     style={{
                         position: 'absolute',
-                        bottom: 16,
+                        bottom: 18,
                         left: '50%',
                         transform: 'translateX(-50%)',
                         display: 'flex',
@@ -127,11 +121,11 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
                             key={i}
                             onClick={() => goTo(i)}
                             style={{
-                                width: i === currentIndex ? 20 : 6,
-                                height: 6,
-                                borderRadius: 3,
+                                width: i === currentIndex ? 22 : 7,
+                                height: 7,
+                                borderRadius: 999,
                                 border: 'none',
-                                background: i === currentIndex ? '#fff' : 'rgba(255,255,255,0.4)',
+                                background: i === currentIndex ? 'var(--gradient-brand)' : 'rgba(255,247,232,0.34)',
                                 transition: 'all 0.3s ease',
                                 cursor: 'pointer',
                                 padding: 0,
@@ -141,7 +135,6 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
                 </div>
             )}
 
-            {/* Navigation Arrows */}
             {hasImages && images.length > 1 && (
                 <>
                     <button
@@ -152,13 +145,13 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
                             left: 16,
                             top: 'max(50%, calc(var(--tg-safe-top, 60px) + 50%))',
                             transform: 'translateY(-50%)',
-                            width: 36,
-                            height: 36,
+                            width: 38,
+                            height: 38,
                             borderRadius: 18,
-                            background: 'rgba(0,0,0,0.5)',
+                            background: 'rgba(12,9,6,0.62)',
                             backdropFilter: 'blur(8px)',
-                            border: 'none',
-                            color: '#fff',
+                            border: '1px solid rgba(242,217,162,0.14)',
+                            color: '#fff7e8',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -179,13 +172,13 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
                             right: 16,
                             top: 'max(50%, calc(var(--tg-safe-top, 60px) + 50%))',
                             transform: 'translateY(-50%)',
-                            width: 36,
-                            height: 36,
+                            width: 38,
+                            height: 38,
                             borderRadius: 18,
-                            background: 'rgba(0,0,0,0.5)',
+                            background: 'rgba(12,9,6,0.62)',
                             backdropFilter: 'blur(8px)',
-                            border: 'none',
-                            color: '#fff',
+                            border: '1px solid rgba(242,217,162,0.14)',
+                            color: '#fff7e8',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -201,20 +194,20 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
                 </>
             )}
 
-            {/* Counter badge */}
             {hasImages && images.length > 1 && (
                 <div
                     style={{
                         position: 'absolute',
-                        bottom: 16,
+                        bottom: 18,
                         right: 16,
-                        background: 'rgba(0,0,0,0.5)',
+                        background: 'rgba(12,9,6,0.64)',
                         backdropFilter: 'blur(8px)',
-                        borderRadius: 8,
+                        borderRadius: 10,
                         padding: '4px 10px',
                         fontSize: 12,
-                        color: 'rgba(255,255,255,0.8)',
-                        fontWeight: 500,
+                        color: 'rgba(255,247,232,0.84)',
+                        fontWeight: 600,
+                        border: '1px solid rgba(242,217,162,0.12)',
                     }}
                 >
                     {currentIndex + 1} / {images.length}

@@ -1,4 +1,4 @@
-from pydantic import AnyUrl, Field
+from pydantic import AnyUrl, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     app_name: str = 'Premium House API'
     api_prefix: str = '/api/v1'
     environment: str = 'development'
-    debug: bool = True
-    swagger_enabled: bool = True
+    debug: bool = False
+    swagger_enabled: bool = False
 
     secret_key: str = Field(default='change-me-in-production')
     access_token_expire_minutes: int = 15
@@ -17,6 +17,7 @@ class Settings(BaseSettings):
 
     default_commission_percent: float = 12.0
     booking_pending_expiry_minutes: int = 15
+    cors_allowed_origins: str = 'http://localhost:3000,http://localhost:3100,http://localhost:8089'
 
     telegram_bot_token: str = ''
     telegram_auth_max_age_seconds: int = 300
@@ -58,6 +59,35 @@ class Settings(BaseSettings):
     rahmat_merchant_id: str | None = None
     rahmat_return_url: str | None = None
     rahmat_callback_url: str | None = None
+
+    octo_prepare_url: str = 'https://secure.octo.uz/prepare_payment'
+    octo_status_url: str = 'https://secure.octo.uz/prepare_payment'
+    octo_refund_url: str = 'https://secure.octo.uz/refund'
+    octo_shop_id: int | None = None
+    octo_secret: str | None = None
+    octo_unique_key: str | None = None
+    octo_return_url: str | None = None
+    octo_notify_url: str | None = None
+    octo_auto_capture: bool = True
+    octo_test_mode: bool = False
+    octo_ttl_minutes: int = 15
+    octo_language: str = 'uz'
+    octo_payment_methods: str = 'bank_card,uzcard,humo'
+
+    @field_validator('octo_shop_id', mode='before')
+    @classmethod
+    def _blank_int_to_none(cls, value):
+        if value in ('', None):
+            return None
+        return value
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_allowed_origins.split(',') if origin.strip()]
+
+    @property
+    def octo_payment_method_list(self) -> list[str]:
+        return [method.strip() for method in self.octo_payment_methods.split(',') if method.strip()]
 
 
 settings = Settings()

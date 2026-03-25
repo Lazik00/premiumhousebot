@@ -15,17 +15,6 @@ export interface FilterValues {
     check_out?: string;
 }
 
-// const popularCities = [
-//     { uz: 'Toshkent', emoji: '🏙️' },
-//     { uz: 'Samarqand', emoji: '🕌' },
-//     { uz: 'Buxoro', emoji: '🏰' },
-//     { uz: 'Xiva', emoji: '🏛️' },
-//     { uz: 'Farg\'ona', emoji: '🌄' },
-//     { uz: 'Namangan', emoji: '🌸' },
-//     { uz: 'Andijon', emoji: '🌿' },
-//     { uz: 'Nukus', emoji: '🏜️' },
-// ];
-
 export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps) {
     const [city, setCity] = useState('');
     const [guests, setGuests] = useState<number | undefined>();
@@ -43,12 +32,6 @@ export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps)
         });
     };
 
-    const handleCityClick = (cityName: string) => {
-        haptic('light');
-        setCity(cityName);
-        onSearch({ city: cityName, guests });
-    };
-
     const handleReset = () => {
         haptic('light');
         setCity('');
@@ -60,146 +43,115 @@ export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps)
 
     const inputStyle: React.CSSProperties = {
         width: '100%',
-        padding: '10px 14px',
-        borderRadius: 10,
+        padding: '12px 14px',
+        borderRadius: 14,
         border: '1px solid var(--color-line)',
-        background: 'var(--color-surface)',
+        background: 'rgba(255,255,255,0.02)',
         color: 'var(--color-text)',
         fontSize: 13,
         outline: 'none',
         fontFamily: 'var(--font-body)',
-        transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)',
     };
 
     const labelStyle: React.CSSProperties = {
         fontSize: 11,
-        fontWeight: 600,
-        color: 'var(--color-muted)',
-        textTransform: 'uppercase' as const,
-        letterSpacing: '0.05em',
+        fontWeight: 700,
+        color: 'var(--color-brand-light)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.08em',
         marginBottom: 6,
         display: 'block',
     };
 
     return (
-        <div className="slide-up" style={{ marginBottom: 14 }}>
-            {/* Search bar */}
+        <div className="slide-up" style={{ marginBottom: 16 }}>
             <div
                 style={{
-                    display: 'flex',
-                    gap: 8,
+                    padding: 12,
+                    borderRadius: 22,
+                    background: 'linear-gradient(180deg, rgba(20,16,12,0.9) 0%, rgba(20,16,12,0.78) 100%)',
+                    border: '1px solid var(--color-line)',
+                    boxShadow: 'var(--shadow-md)',
                     marginBottom: 10,
                 }}
             >
-                <div style={{ flex: 1, position: 'relative' }}>
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="var(--color-muted)"
-                        strokeWidth="2"
-                        style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }}
-                    >
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                    <input
-                        type="text"
-                        placeholder="Shahar yoki hudud qidiring..."
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                        style={{
-                            ...inputStyle,
-                            paddingLeft: 38,
+                <div style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ flex: 1, position: 'relative' }}>
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="var(--color-brand-light)"
+                            strokeWidth="2"
+                            style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.9 }}
+                        >
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input
+                            type="text"
+                            placeholder="Shahar yoki hudud qidiring..."
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            style={{
+                                ...inputStyle,
+                                paddingLeft: 42,
+                                background: 'rgba(255,255,255,0.03)',
+                            }}
+                        />
+                    </div>
+                    <button
+                        onClick={() => {
+                            setShowFilters(!showFilters);
+                            haptic('light');
                         }}
-                    />
+                        style={{
+                            width: 46,
+                            height: 46,
+                            borderRadius: 14,
+                            border: showFilters ? 'none' : '1px solid var(--color-line)',
+                            background: showFilters ? 'var(--gradient-brand)' : 'rgba(255,255,255,0.03)',
+                            color: showFilters ? 'var(--color-ink-soft)' : 'var(--color-brand-light)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            flexShrink: 0,
+                            boxShadow: showFilters ? 'var(--shadow-glow)' : 'none',
+                        }}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="4" y1="21" x2="4" y2="14" />
+                            <line x1="4" y1="10" x2="4" y2="3" />
+                            <line x1="12" y1="21" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12" y2="3" />
+                            <line x1="20" y1="21" x2="20" y2="16" />
+                            <line x1="20" y1="12" x2="20" y2="3" />
+                            <line x1="1" y1="14" x2="7" y2="14" />
+                            <line x1="9" y1="8" x2="15" y2="8" />
+                            <line x1="17" y1="16" x2="23" y2="16" />
+                        </svg>
+                    </button>
                 </div>
-                <button
-                    onClick={() => { setShowFilters(!showFilters); haptic('light'); }}
-                    style={{
-                        width: 42,
-                        height: 42,
-                        borderRadius: 10,
-                        border: '1px solid var(--color-line)',
-                        background: showFilters ? 'var(--color-brand)' : 'var(--color-surface)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        flexShrink: 0,
-                    }}
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={showFilters ? '#fff' : 'var(--color-muted)'} strokeWidth="2">
-                        <line x1="4" y1="21" x2="4" y2="14" />
-                        <line x1="4" y1="10" x2="4" y2="3" />
-                        <line x1="12" y1="21" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12" y2="3" />
-                        <line x1="20" y1="21" x2="20" y2="16" />
-                        <line x1="20" y1="12" x2="20" y2="3" />
-                        <line x1="1" y1="14" x2="7" y2="14" />
-                        <line x1="9" y1="8" x2="15" y2="8" />
-                        <line x1="17" y1="16" x2="23" y2="16" />
-                    </svg>
-                </button>
             </div>
 
-            {/* Quick city chips */}
-            <div
-                style={{
-                    display: 'flex',
-                    gap: 8,
-                    overflowX: 'auto',
-                    scrollbarWidth: 'none',
-                    paddingBottom: 4,
-                    marginBottom: showFilters ? 12 : 0,
-                }}
-                className="hide-scrollbar"
-            >
-                {/*{popularCities.map((c) => (*/}
-                {/*    <button*/}
-                {/*        key={c.uz}*/}
-                {/*        onClick={() => handleCityClick(c.uz)}*/}
-                {/*        style={{*/}
-                {/*            display: 'flex',*/}
-                {/*            alignItems: 'center',*/}
-                {/*            gap: 6,*/}
-                {/*            padding: '7px 12px',*/}
-                {/*            borderRadius: 20,*/}
-                {/*            border: city === c.uz ? '1px solid var(--color-brand)' : '1px solid var(--color-line)',*/}
-                {/*            background: city === c.uz ? 'rgba(108, 92, 231, 0.15)' : 'var(--color-surface)',*/}
-                {/*            color: city === c.uz ? 'var(--color-brand-light)' : 'var(--color-text)',*/}
-                {/*            fontSize: 12,*/}
-                {/*            fontWeight: 500,*/}
-                {/*            whiteSpace: 'nowrap',*/}
-                {/*            cursor: 'pointer',*/}
-                {/*            transition: 'all 0.2s ease',*/}
-                {/*            fontFamily: 'var(--font-body)',*/}
-                {/*        }}*/}
-                {/*    >*/}
-                {/*        <span>{c.emoji}</span>*/}
-                {/*        <span>{c.uz}</span>*/}
-                {/*    </button>*/}
-                {/*))}*/}
-            </div>
-
-            {/* Expanded filters */}
             {showFilters && (
                 <div
                     className="fade-in"
                     style={{
-                        background: 'var(--color-surface)',
-                        borderRadius: 14,
-                        padding: 14,
+                        background: 'var(--gradient-card)',
+                        borderRadius: 20,
+                        padding: 16,
                         border: '1px solid var(--color-line)',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 12,
+                        boxShadow: 'var(--shadow-sm)',
                     }}
                 >
-                    {/* Guests */}
                     <div>
                         <label style={labelStyle}>Mehmonlar soni</label>
                         <input
@@ -213,41 +165,29 @@ export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps)
                         />
                     </div>
 
-                    {/* Dates */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         <div>
                             <label style={labelStyle}>Kirish sanasi</label>
-                            <input
-                                type="date"
-                                value={checkIn}
-                                onChange={(e) => setCheckIn(e.target.value)}
-                                style={inputStyle}
-                            />
+                            <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} style={inputStyle} />
                         </div>
                         <div>
                             <label style={labelStyle}>Chiqish sanasi</label>
-                            <input
-                                type="date"
-                                value={checkOut}
-                                onChange={(e) => setCheckOut(e.target.value)}
-                                style={inputStyle}
-                            />
+                            <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} style={inputStyle} />
                         </div>
                     </div>
 
-                    {/* Actions */}
                     <div style={{ display: 'flex', gap: 8 }}>
                         <button
                             onClick={handleReset}
                             style={{
                                 flex: 1,
-                                padding: '11px 14px',
-                                borderRadius: 10,
+                                padding: '12px 14px',
+                                borderRadius: 14,
                                 border: '1px solid var(--color-line)',
-                                background: 'transparent',
+                                background: 'rgba(255,255,255,0.02)',
                                 color: 'var(--color-muted)',
                                 fontSize: 13,
-                                fontWeight: 600,
+                                fontWeight: 700,
                                 cursor: 'pointer',
                                 fontFamily: 'var(--font-body)',
                             }}
@@ -259,13 +199,13 @@ export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps)
                             disabled={isLoading}
                             style={{
                                 flex: 2,
-                                padding: '11px 14px',
-                                borderRadius: 10,
+                                padding: '12px 14px',
+                                borderRadius: 14,
                                 border: 'none',
                                 background: 'var(--gradient-brand)',
-                                color: '#fff',
+                                color: 'var(--color-ink-soft)',
                                 fontSize: 13,
-                                fontWeight: 600,
+                                fontWeight: 800,
                                 cursor: isLoading ? 'not-allowed' : 'pointer',
                                 opacity: isLoading ? 0.7 : 1,
                                 fontFamily: 'var(--font-body)',

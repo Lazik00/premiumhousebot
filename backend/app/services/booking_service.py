@@ -48,8 +48,8 @@ class BookingService:
             raise ValueError('Kamida 1 nafar mehmon kiritilishi kerak')
         if known_guests > total_guests:
             raise ValueError('Mehmonlar tarkibi jami mehmonlardan oshib ketdi')
-        if total_adults <= 0:
-            raise ValueError('Kamida 1 nafar katta yoshli mehmon kiritilishi kerak')
+        if known_guests > 0 and total_adults <= 0:
+            raise ValueError('Tarkib ko‘rsatilsa, kamida 1 nafar katta yoshli mehmon bo‘lishi kerak')
 
         lock_key = f'lock:booking:property:{property_id}'
         async with redis_lock(lock_key, timeout_seconds=15) as acquired:

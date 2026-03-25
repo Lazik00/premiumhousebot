@@ -8,16 +8,16 @@ import SearchFilter, { type FilterValues } from '../components/SearchFilter';
 import BottomNav from '../components/BottomNav';
 
 const propertyTypes = [
-    { key: '', label: 'Barchasi', emoji: 'All' },
-    { key: 'apartment', label: 'Kvartira', emoji: 'Apt' },
-    { key: 'house', label: 'Uy', emoji: 'Home' },
-    { key: 'villa', label: 'Villa', emoji: 'Villa' },
+    { key: '', label: 'Barchasi', emoji: 'PH' },
+    { key: 'apartment', label: 'Kvartira', emoji: 'APT' },
+    { key: 'house', label: 'Uy', emoji: 'HSE' },
+    { key: 'villa', label: 'Villa', emoji: 'VLA' },
 ];
 
 const heroFallbacks = [
-    'linear-gradient(135deg, rgba(205, 223, 255, 0.22) 0%, rgba(0, 112, 243, 0.1) 100%)',
-    'linear-gradient(135deg, rgba(255, 214, 170, 0.2) 0%, rgba(255, 120, 80, 0.08) 100%)',
-    'linear-gradient(135deg, rgba(202, 255, 214, 0.18) 0%, rgba(32, 191, 107, 0.08) 100%)',
+    'linear-gradient(135deg, rgba(215,176,107,0.24) 0%, rgba(34,24,14,0.1) 100%)',
+    'linear-gradient(135deg, rgba(255,230,176,0.12) 0%, rgba(139,99,44,0.18) 100%)',
+    'linear-gradient(135deg, rgba(200,157,84,0.2) 0%, rgba(17,12,8,0.08) 100%)',
 ];
 
 export default function HomePage() {
@@ -61,15 +61,23 @@ export default function HomePage() {
         ? properties.filter((property) => property.property_type === activeType)
         : properties;
 
+    const stats = [
+        { label: 'Premium uylar', value: total || properties.length || 0 },
+        { label: 'Shaharlar', value: new Set(properties.map((item) => item.city)).size || 1 },
+        { label: 'Band qilish', value: '24/7' },
+    ];
+
     return (
         <div style={{ minHeight: '100vh' }}>
             <section
                 style={{
                     position: 'relative',
                     overflow: 'hidden',
-                    minHeight: 352,
-                    padding: 'calc(36px + var(--tg-safe-top, 60px)) 16px 30px',
-                    background: 'linear-gradient(180deg, #11141c 0%, #131926 48%, var(--color-canvas) 100%)',
+                    minHeight: 440,
+                    padding: 'calc(34px + var(--tg-safe-top, 60px)) 16px 34px',
+                    background: 'var(--gradient-hero)',
+                    borderBottomLeftRadius: 32,
+                    borderBottomRightRadius: 32,
                 }}
             >
                 <div
@@ -77,7 +85,7 @@ export default function HomePage() {
                         position: 'absolute',
                         inset: 0,
                         background: heroFallbacks[heroImageIndex % heroFallbacks.length],
-                        opacity: 0.85,
+                        opacity: 0.95,
                     }}
                 />
 
@@ -87,11 +95,11 @@ export default function HomePage() {
                         className="hero-image-float"
                         style={{
                             position: 'absolute',
-                            inset: '-4%',
+                            inset: '-5%',
                             background: `url(${image}) center/cover no-repeat`,
-                            opacity: index === heroImageIndex ? 0.2 : 0,
+                            opacity: index === heroImageIndex ? 0.26 : 0,
                             transition: 'opacity 1.4s ease',
-                            filter: 'saturate(0.9) contrast(0.95)',
+                            filter: 'saturate(0.86) contrast(0.94) brightness(0.7)',
                         }}
                     />
                 ))}
@@ -100,7 +108,7 @@ export default function HomePage() {
                     style={{
                         position: 'absolute',
                         inset: 0,
-                        background: 'linear-gradient(180deg, rgba(10,12,18,0.52) 0%, rgba(10,12,18,0.74) 45%, rgba(10,12,18,0.96) 100%)',
+                        background: 'linear-gradient(180deg, rgba(8,6,3,0.28) 0%, rgba(8,6,3,0.76) 48%, rgba(8,6,3,0.98) 100%)',
                     }}
                 />
 
@@ -109,9 +117,9 @@ export default function HomePage() {
                         position: 'absolute',
                         left: 0,
                         right: 0,
-                        top: 'calc(98px + var(--tg-safe-top, 60px))',
+                        top: 'calc(138px + var(--tg-safe-top, 60px))',
                         overflow: 'hidden',
-                        opacity: 0.2,
+                        opacity: 0.16,
                         pointerEvents: 'none',
                     }}
                 >
@@ -120,14 +128,14 @@ export default function HomePage() {
                         style={{
                             display: 'flex',
                             width: 'max-content',
-                            gap: 28,
+                            gap: 32,
                             whiteSpace: 'nowrap',
                             fontFamily: 'var(--font-display)',
-                            fontSize: 42,
-                            fontWeight: 800,
-                            letterSpacing: '0.08em',
+                            fontSize: 56,
+                            fontWeight: 700,
+                            letterSpacing: '0.12em',
                             textTransform: 'uppercase',
-                            color: '#fff',
+                            color: 'var(--color-brand-light)',
                         }}
                     >
                         <span>Premium House</span>
@@ -139,87 +147,87 @@ export default function HomePage() {
                     </div>
                 </div>
 
-                <div style={{ position: 'relative', zIndex: 1, paddingTop: 54 }}>
+                <div style={{ position: 'relative', zIndex: 1, paddingTop: 42 }}>
                     <div
                         style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: 8,
-                            padding: '6px 12px',
+                            padding: '7px 14px',
                             borderRadius: 999,
-                            border: '1px solid rgba(255,255,255,0.12)',
-                            background: 'rgba(255,255,255,0.06)',
-                            color: 'rgba(255,255,255,0.78)',
+                            border: '1px solid rgba(242,217,162,0.18)',
+                            background: 'rgba(20,16,12,0.5)',
+                            color: 'var(--color-brand-light)',
                             fontSize: 11,
-                            fontWeight: 700,
-                            letterSpacing: '0.08em',
+                            fontWeight: 800,
+                            letterSpacing: '0.14em',
                             textTransform: 'uppercase',
-                            marginBottom: 16,
+                            marginBottom: 18,
+                            boxShadow: 'var(--shadow-sm)',
                         }}
                     >
-                        <span>Premium House</span>
-                        <span style={{ width: 6, height: 6, alignItems:"end" , borderRadius: '50%', background: '#7ef3cb' }} />
+                        <span>Luxury Telegram Booking</span>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-gold)' }} />
                     </div>
 
                     {/*<h1*/}
                     {/*    style={{*/}
-                    {/*        maxWidth: 320,*/}
+                    {/*        maxWidth: 340,*/}
                     {/*        fontFamily: 'var(--font-display)',*/}
-                    {/*        fontSize: 38,*/}
-                    {/*        lineHeight: 1.02,*/}
-                    {/*        fontWeight: 800,*/}
-                    {/*        letterSpacing: '-0.03em',*/}
+                    {/*        fontSize: 50,*/}
+                    {/*        lineHeight: 0.94,*/}
+                    {/*        fontWeight: 700,*/}
+                    {/*        letterSpacing: '-0.04em',*/}
                     {/*        marginBottom: 12,*/}
+                    {/*        color: '#fff7e8',*/}
+                    {/*        textShadow: '0 10px 30px rgba(0,0,0,0.28)',*/}
                     {/*    }}*/}
                     {/*>*/}
-                    {/*    Toshkentdan*/}
+                    {/*    Premium uylarni*/}
                     {/*    <br />*/}
-                    {/*    Buxorogacha*/}
+                    {/*    oltin uslubda*/}
                     {/*</h1>*/}
                     {/*<p*/}
                     {/*    style={{*/}
-                    {/*        maxWidth: 320,*/}
+                    {/*        maxWidth: 332,*/}
                     {/*        fontSize: 14,*/}
-                    {/*        lineHeight: 1.6,*/}
-                    {/*        color: 'rgba(255,255,255,0.72)',*/}
-                    {/*        marginBottom: 24,*/}
+                    {/*        lineHeight: 1.7,*/}
+                    {/*        color: 'rgba(247,239,222,0.76)',*/}
+                    {/*        marginBottom: 22,*/}
                     {/*    }}*/}
                     {/*>*/}
-                    {/*    Kunlik va oylik premium uylarni tez toping. Rasmlar banner ortida almashadi, kartalar esa ikki qatorda chiqadi.*/}
+                    {/*    Telegram ichida tez ishlaydigan, premium ko'rinishdagi ijara platformasi. Har qatorda 2 ta uy, silliq bron oqimi va chiroyli detail sahifalar.*/}
                     {/*</p>*/}
 
-                    {/*<div*/}
-                    {/*    style={{*/}
-                    {/*        display: 'grid',*/}
-                    {/*        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',*/}
-                    {/*        gap: 10,*/}
-                    {/*        maxWidth: 332,*/}
-                    {/*    }}*/}
-                    {/*>*/}
-                    {/*    {[*/}
-                    {/*        { label: 'Uylar', value: total || properties.length || 0 },*/}
-                    {/*        { label: 'Shaharlar', value: new Set(properties.map((item) => item.city)).size || 4 },*/}
-                    {/*        { label: 'Top villa', value: '24/7' },*/}
-                    {/*    ].map((item) => (*/}
-                    {/*        <div*/}
-                    {/*            key={item.label}*/}
-                    {/*            style={{*/}
-                    {/*                padding: '12px 10px',*/}
-                    {/*                borderRadius: 16,*/}
-                    {/*                background: 'rgba(255,255,255,0.07)',*/}
-                    {/*                border: '1px solid rgba(255,255,255,0.08)',*/}
-                    {/*                backdropFilter: 'blur(14px)',*/}
-                    {/*            }}*/}
-                    {/*        >*/}
-                    {/*            <div style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>{item.value}</div>*/}
-                    {/*            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{item.label}</div>*/}
-                    {/*        </div>*/}
-                    {/*    ))}*/}
-                    {/*</div>*/}
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                            gap: 10,
+                            maxWidth: 348,
+                        }}
+                    >
+                        {stats.map((item) => (
+                            <div
+                                key={item.label}
+                                style={{
+                                    padding: '12px 10px',
+                                    borderRadius: 18,
+                                    background: 'rgba(20,16,12,0.68)',
+                                    border: '1px solid rgba(242,217,162,0.14)',
+                                    backdropFilter: 'blur(18px)',
+                                    boxShadow: 'var(--shadow-sm)',
+                                }}
+                            >
+                                <div style={{ fontSize: 18, fontWeight: 800, color: '#fff5df' }}>{item.value}</div>
+                                <div style={{ fontSize: 11, color: 'rgba(242,217,162,0.72)' }}>{item.label}</div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
 
-            <div style={{ padding: '14px 16px 0' }}>
+            <div style={{ padding: '16px 16px 0' }}>
                 <SearchFilter onSearch={fetchProperties} isLoading={isLoading} />
 
                 <div
@@ -228,7 +236,7 @@ export default function HomePage() {
                         display: 'flex',
                         gap: 8,
                         overflowX: 'auto',
-                        marginBottom: 16,
+                        marginBottom: 18,
                         paddingBottom: 2,
                     }}
                 >
@@ -237,16 +245,18 @@ export default function HomePage() {
                             key={type.key}
                             onClick={() => setActiveType(type.key)}
                             style={{
-                                border: activeType === type.key ? '1px solid rgba(255,255,255,0.12)' : '1px solid var(--color-line)',
-                                background: activeType === type.key ? '#f7f3ea' : 'var(--color-surface)',
-                                color: activeType === type.key ? '#11141c' : 'var(--color-text)',
+                                border: activeType === type.key ? '1px solid rgba(242,217,162,0.28)' : '1px solid var(--color-line)',
+                                background: activeType === type.key ? 'var(--gradient-brand)' : 'var(--color-surface)',
+                                color: activeType === type.key ? 'var(--color-ink-soft)' : 'var(--color-text)',
                                 borderRadius: 999,
-                                padding: '8px 14px',
+                                padding: '9px 16px',
                                 fontSize: 12,
-                                fontWeight: 700,
+                                fontWeight: 800,
+                                letterSpacing: '0.06em',
                                 whiteSpace: 'nowrap',
                                 cursor: 'pointer',
                                 fontFamily: 'var(--font-body)',
+                                boxShadow: activeType === type.key ? 'var(--shadow-glow)' : 'none',
                             }}
                         >
                             {type.emoji} {type.label}
@@ -259,19 +269,19 @@ export default function HomePage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        marginBottom: 12,
+                        marginBottom: 14,
                     }}
                 >
                     <div>
-                        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 19, fontWeight: 700 }}>
+                        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700 }}>
                             Tavsiya etilgan uylar
                         </h2>
                         <p style={{ fontSize: 12, color: 'var(--color-muted)' }}>
-                            Har qatorda 2 ta uy ko&apos;rinadi
+                            Premium House katalogi, har qatorda 2 ta uy
                         </p>
                     </div>
                     {!isLoading && (
-                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-muted)' }}>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-brand-light)' }}>
                             {filteredProperties.length} ta
                         </span>
                     )}
@@ -302,16 +312,16 @@ export default function HomePage() {
                         <div
                             style={{
                                 gridColumn: '1 / -1',
-                                padding: '50px 18px',
-                                borderRadius: 20,
+                                padding: '52px 18px',
+                                borderRadius: 24,
                                 textAlign: 'center',
-                                background: 'var(--color-surface)',
+                                background: 'var(--gradient-card)',
                                 border: '1px solid var(--color-line)',
                                 color: 'var(--color-muted)',
                             }}
                         >
                             <div style={{ fontSize: 40, marginBottom: 10 }}>No homes</div>
-                            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--color-text)' }}>
+                            <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: 'var(--color-text)' }}>
                                 Mos uy topilmadi
                             </div>
                         </div>
