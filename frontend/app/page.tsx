@@ -35,12 +35,14 @@ export default function HomePage() {
     const [isDraggingHero, setIsDraggingHero] = useState(false);
     const [isHeroAnimating, setIsHeroAnimating] = useState(false);
     const [dragOffsetX, setDragOffsetX] = useState(0);
+    const [heroVisualOffsetX, setHeroVisualOffsetX] = useState(0);
     const [touchStartX, setTouchStartX] = useState<number | null>(null);
     const [touchCurrentX, setTouchCurrentX] = useState<number | null>(null);
     const [touchStartY, setTouchStartY] = useState<number | null>(null);
     const [touchCurrentY, setTouchCurrentY] = useState<number | null>(null);
 
     const heroTimeoutsRef = useRef<number[]>([]);
+    const heroAnimationFrameRef = useRef<number | null>(null);
 
     const fetchProperties = useCallback(async (filters: FilterValues = {}) => {
         setIsLoading(true);
@@ -78,8 +80,39 @@ export default function HomePage() {
         return () => {
             heroTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
             heroTimeoutsRef.current = [];
+            if (heroAnimationFrameRef.current !== null) {
+                window.cancelAnimationFrame(heroAnimationFrameRef.current);
+            }
         };
     }, []);
+
+    useEffect(() => {
+        if (heroAnimationFrameRef.current !== null) {
+            window.cancelAnimationFrame(heroAnimationFrameRef.current);
+        }
+
+        const animate = () => {
+            setHeroVisualOffsetX((current) => {
+                const delta = dragOffsetX - current;
+                const easing = isDraggingHero ? 0.32 : isHeroAnimating ? 0.18 : 0.14;
+                const next = current + delta * easing;
+                if (Math.abs(delta) < 0.4) {
+                    return dragOffsetX;
+                }
+                heroAnimationFrameRef.current = window.requestAnimationFrame(animate);
+                return next;
+            });
+        };
+
+        heroAnimationFrameRef.current = window.requestAnimationFrame(animate);
+
+        return () => {
+            if (heroAnimationFrameRef.current !== null) {
+                window.cancelAnimationFrame(heroAnimationFrameRef.current);
+                heroAnimationFrameRef.current = null;
+            }
+        };
+    }, [dragOffsetX, isDraggingHero, isHeroAnimating]);
 
     const filteredProperties = activeType
         ? properties.filter((property) => property.property_type === activeType)
@@ -197,11 +230,11 @@ export default function HomePage() {
         setTouchCurrentY(null);
     };
 
-    const heroDragProgress = Math.max(Math.min(dragOffsetX / 120, 1), -1);
-    const heroTransition = isDraggingHero ? 'none' : 'transform 620ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease, filter 420ms ease';
-    const centerTransform = `translateX(calc(-50% + ${dragOffsetX}px)) rotateY(${-heroDragProgress * 14}deg) rotateZ(${heroDragProgress * 1.8}deg) scale(${isDraggingHero ? 1.015 : 1})`;
-    const previousTransform = `translateX(${dragOffsetX * 0.28}px) rotate(${(-10 + heroDragProgress * 8).toFixed(2)}deg) scale(${(0.9 + Math.max(heroDragProgress, 0) * 0.1).toFixed(3)})`;
-    const nextTransform = `translateX(${dragOffsetX * 0.28}px) rotate(${(10 + heroDragProgress * 8).toFixed(2)}deg) scale(${(0.92 + Math.max(-heroDragProgress, 0) * 0.1).toFixed(3)})`;
+    const heroDragProgress = Math.max(Math.min(heroVisualOffsetX / 120, 1), -1);
+    const heroTransition = isDraggingHero ? 'none' : 'transform 780ms cubic-bezier(0.19, 1, 0.22, 1), opacity 520ms ease, filter 520ms ease';
+    const centerTransform = `translateX(calc(-50% + ${heroVisualOffsetX}px)) rotateY(${-heroDragProgress * 14}deg) rotateZ(${heroDragProgress * 1.8}deg) scale(${isDraggingHero ? 1.018 : 1})`;
+    const previousTransform = `translateX(${heroVisualOffsetX * 0.28}px) rotate(${(-10 + heroDragProgress * 8).toFixed(2)}deg) scale(${(0.9 + Math.max(heroDragProgress, 0) * 0.1).toFixed(3)})`;
+    const nextTransform = `translateX(${heroVisualOffsetX * 0.28}px) rotate(${(10 + heroDragProgress * 8).toFixed(2)}deg) scale(${(0.92 + Math.max(-heroDragProgress, 0) * 0.1).toFixed(3)})`;
     const previousOpacity = Math.max(0.18, 0.4 + Math.max(heroDragProgress, 0) * 0.44);
     const nextOpacity = Math.max(0.18, 0.44 + Math.max(-heroDragProgress, 0) * 0.42);
 
