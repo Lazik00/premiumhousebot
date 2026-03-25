@@ -33,6 +33,7 @@ export interface TelegramWebApp {
         destructive_text_color?: string;
     };
     isExpanded: boolean;
+    isFullscreen?: boolean;
     viewportHeight: number;
     viewportStableHeight: number;
     MainButton: {
@@ -67,6 +68,8 @@ export interface TelegramWebApp {
     };
     ready: () => void;
     expand: () => void;
+    requestFullscreen?: () => void;
+    exitFullscreen?: () => void;
     close: () => void;
     setHeaderColor: (color: string) => void;
     setBackgroundColor: (color: string) => void;
@@ -74,6 +77,10 @@ export interface TelegramWebApp {
     disableClosingConfirmation: () => void;
     openLink: (url: string, options?: { try_instant_view?: boolean }) => void;
     openTelegramLink: (url: string) => void;
+    enableVerticalSwipes?: () => void;
+    disableVerticalSwipes?: () => void;
+    onEvent?: (eventType: string, eventHandler: (...args: any[]) => void) => void;
+    offEvent?: (eventType: string, eventHandler: (...args: any[]) => void) => void;
 }
 
 declare global {
@@ -148,12 +155,19 @@ export function initTelegramApp() {
         }
         // Prevent swipe down from closing the app (useful for scrolling)
         try {
+            if (versionAtLeast(tg.version, '8.0') && typeof tg.requestFullscreen === 'function' && !tg.isFullscreen) {
+                tg.requestFullscreen();
+            }
+        } catch {
+            // Ignore unsupported fullscreen requests and continue with expanded mode.
+        }
+        try {
             if (
                 versionAtLeast(tg.version, '7.7') &&
                 'disableVerticalSwipes' in tg &&
-                typeof (tg as any).disableVerticalSwipes === 'function'
+                typeof tg.disableVerticalSwipes === 'function'
             ) {
-                (tg as any).disableVerticalSwipes();
+                tg.disableVerticalSwipes();
             }
         } catch (e) {
             console.warn('disableVerticalSwipes skipped:', e);
@@ -163,8 +177,8 @@ export function initTelegramApp() {
         }
         try {
             if (versionAtLeast(tg.version, '6.1')) {
-                tg.setHeaderColor('#0f0f14');
-                tg.setBackgroundColor('#0f0f14');
+                tg.setHeaderColor('#080603');
+                tg.setBackgroundColor('#080603');
             }
         } catch { /* older SDK versions may not support */ }
     }

@@ -168,13 +168,22 @@ export default function PropertyCard({ property }: { property: PropertySummary }
                             gap: 5,
                             color: 'var(--color-muted)',
                             fontSize: 11,
+                            marginBottom: 5,
                         }}
                     >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                        </svg>
+                        <img src="/brand/icon-location-gold.svg" alt="Lokatsiya" style={{ width: 12, height: 12, flexShrink: 0 }} />
                         <span className="truncate">{property.city}</span>
+                    </div>
+                    <div
+                        className="line-clamp-2"
+                        style={{
+                            fontSize: 11,
+                            lineHeight: 1.5,
+                            color: 'rgba(247,239,222,0.64)',
+                            minHeight: 32,
+                        }}
+                    >
+                        {property.address}
                     </div>
                 </div>
             </div>

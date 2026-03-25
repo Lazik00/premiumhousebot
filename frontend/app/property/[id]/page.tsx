@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getProperty } from '../../../lib/api';
-import { haptic } from '../../../lib/telegram';
+import { getTelegramWebApp, haptic } from '../../../lib/telegram';
 import type { PropertyDetail } from '../../../lib/types';
 import PropertyGallery from '../../../components/PropertyGallery';
 import { DetailSkeleton } from '../../../components/LoadingSkeleton';
@@ -22,6 +22,15 @@ const amenityIcons: Record<string, string> = {
     pets_allowed: '🐾', smoking_allowed: '🚬', breakfast: '🍞', airport_transfer: '✈️',
     spa: '💆', sauna: '🧖', playground: '🎠', concierge: '🛎️',
 };
+
+function openExternalLink(url: string) {
+    const tg = getTelegramWebApp();
+    if (tg?.openLink) {
+        tg.openLink(url);
+        return;
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
+}
 
 export default function PropertyDetailPage() {
     const params = useParams();
@@ -73,6 +82,9 @@ export default function PropertyDetailPage() {
             </div>
         );
     }
+
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`;
+    const yandexMapsUrl = `https://yandex.com/maps/?ll=${property.longitude}%2C${property.latitude}&z=16&pt=${property.longitude},${property.latitude},pm2dgl`;
 
     return (
         <div style={{ minHeight: '100vh', paddingBottom: 100 }}>
@@ -282,6 +294,106 @@ export default function PropertyDetailPage() {
                             <div style={{ fontSize: 11, color: 'var(--color-muted)' }}>{f.label}</div>
                         </div>
                     ))}
+                </div>
+
+                <div
+                    style={{
+                        marginBottom: 20,
+                        padding: '18px',
+                        borderRadius: 24,
+                        background: 'linear-gradient(180deg, rgba(20,16,12,0.96) 0%, rgba(13,10,7,0.98) 100%)',
+                        border: '1px solid rgba(242,217,162,0.12)',
+                        boxShadow: 'var(--shadow-sm)',
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+                        <div
+                            style={{
+                                width: 56,
+                                height: 56,
+                                borderRadius: 18,
+                                background: 'rgba(255,247,232,0.04)',
+                                border: '1px solid rgba(242,217,162,0.12)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                            }}
+                        >
+                            <img src="/brand/icon-location-gold.svg" alt="Lokatsiya" style={{ width: 28, height: 28 }} />
+                        </div>
+                        <div>
+                            <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-brand-light)', marginBottom: 4 }}>
+                                Lokatsiya
+                            </div>
+                            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, lineHeight: 1 }}>
+                                Uy qayerda joylashgan
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div
+                        style={{
+                            padding: '14px 16px',
+                            borderRadius: 18,
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(210,174,104,0.12) 100%)',
+                            border: '1px solid rgba(242,217,162,0.12)',
+                            marginBottom: 14,
+                        }}
+                    >
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff7e8', marginBottom: 6 }}>
+                            {property.address}
+                        </div>
+                        <div style={{ fontSize: 13, color: 'var(--color-muted)', lineHeight: 1.7 }}>
+                            {property.city}, {property.region}
+                            <br />
+                            Koordinata: {property.latitude.toFixed(5)}, {property.longitude.toFixed(5)}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                haptic('medium');
+                                openExternalLink(googleMapsUrl);
+                            }}
+                            style={{
+                                padding: '14px 12px',
+                                borderRadius: 16,
+                                border: 'none',
+                                background: 'var(--gradient-brand)',
+                                color: 'var(--color-ink-soft)',
+                                fontSize: 13,
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                fontFamily: 'var(--font-body)',
+                                boxShadow: 'var(--shadow-glow)',
+                            }}
+                        >
+                            Google Maps
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                haptic('light');
+                                openExternalLink(yandexMapsUrl);
+                            }}
+                            style={{
+                                padding: '14px 12px',
+                                borderRadius: 16,
+                                border: '1px solid var(--color-line)',
+                                background: 'rgba(255,247,232,0.04)',
+                                color: 'var(--color-text)',
+                                fontSize: 13,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                fontFamily: 'var(--font-body)',
+                            }}
+                        >
+                            Yandex xarita
+                        </button>
+                    </div>
                 </div>
 
                 {/* Description */}
