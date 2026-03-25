@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user
@@ -30,6 +30,7 @@ def _extract_client_ip(x_forwarded_for: str | None) -> str | None:
 @limiter.limit('10/minute')
 async def telegram_auth(
     request: Request,
+    response: Response,
     payload: TelegramAuthRequest,
     db: AsyncSession = Depends(get_db),
     user_agent: str | None = Header(default=None, alias='User-Agent'),
@@ -50,6 +51,7 @@ async def telegram_auth(
 @limiter.limit('20/minute')
 async def refresh_tokens(
     request: Request,
+    response: Response,
     payload: RefreshTokenRequest,
     db: AsyncSession = Depends(get_db),
     user_agent: str | None = Header(default=None, alias='User-Agent'),
@@ -68,7 +70,7 @@ async def refresh_tokens(
 
 @router.post('/logout', status_code=status.HTTP_204_NO_CONTENT)
 @limiter.limit('20/minute')
-async def logout(request: Request, payload: LogoutRequest, db: AsyncSession = Depends(get_db)) -> None:
+async def logout(request: Request, response: Response, payload: LogoutRequest, db: AsyncSession = Depends(get_db)) -> None:
     await auth_service.logout(db=db, refresh_token=payload.refresh_token)
 
 

@@ -2,7 +2,7 @@ import hashlib
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -66,6 +66,7 @@ def _payment_service() -> PaymentService:
 @limiter.limit('30/minute')
 async def create_payment_link(
     request: Request,
+    response: Response,
     payload: PaymentCreateRequest,
     idempotency_key: str | None = Header(default=None, alias='Idempotency-Key'),
     db: AsyncSession = Depends(get_db),
@@ -159,6 +160,7 @@ async def payment_callback(
 @limiter.limit('10/minute')
 async def refund_payment(
     request: Request,
+    response: Response,
     payment_id: str,
     payload: PaymentRefundRequest,
     idempotency_key: str = Header(..., alias='Idempotency-Key'),
