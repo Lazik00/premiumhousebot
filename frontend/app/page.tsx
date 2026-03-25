@@ -61,11 +61,11 @@ export default function HomePage() {
         ? properties.filter((property) => property.property_type === activeType)
         : properties;
 
-    const stats = [
-        { label: 'Premium uylar', value: total || properties.length || 0 },
-        { label: 'Shaharlar', value: new Set(properties.map((item) => item.city)).size || 1 },
-        { label: 'Band qilish', value: '24/7' },
-    ];
+    // const stats = [
+    //     { label: 'Premium uylar', value: total || properties.length || 0 },
+    //     { label: 'Shaharlar', value: new Set(properties.map((item) => item.city)).size || 1 },
+    //     { label: 'Band qilish', value: '24/7' },
+    // ];
 
     return (
         <div style={{ minHeight: '100vh' }}>
@@ -199,31 +199,31 @@ export default function HomePage() {
                     {/*    Telegram ichida tez ishlaydigan, premium ko'rinishdagi ijara platformasi. Har qatorda 2 ta uy, silliq bron oqimi va chiroyli detail sahifalar.*/}
                     {/*</p>*/}
 
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                            gap: 10,
-                            maxWidth: 348,
-                        }}
-                    >
-                        {stats.map((item) => (
-                            <div
-                                key={item.label}
-                                style={{
-                                    padding: '12px 10px',
-                                    borderRadius: 18,
-                                    background: 'rgba(20,16,12,0.68)',
-                                    border: '1px solid rgba(242,217,162,0.14)',
-                                    backdropFilter: 'blur(18px)',
-                                    boxShadow: 'var(--shadow-sm)',
-                                }}
-                            >
-                                <div style={{ fontSize: 18, fontWeight: 800, color: '#fff5df' }}>{item.value}</div>
-                                <div style={{ fontSize: 11, color: 'rgba(242,217,162,0.72)' }}>{item.label}</div>
-                            </div>
-                        ))}
-                    </div>
+                    {/*<div*/}
+                    {/*    style={{*/}
+                    {/*        display: 'grid',*/}
+                    {/*        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',*/}
+                    {/*        gap: 10,*/}
+                    {/*        maxWidth: 348,*/}
+                    {/*    }}*/}
+                    {/*>*/}
+                    {/*    {stats.map((item) => (*/}
+                    {/*        <div*/}
+                    {/*            key={item.label}*/}
+                    {/*            style={{*/}
+                    {/*                padding: '12px 10px',*/}
+                    {/*                borderRadius: 18,*/}
+                    {/*                background: 'rgba(20,16,12,0.68)',*/}
+                    {/*                border: '1px solid rgba(242,217,162,0.14)',*/}
+                    {/*                backdropFilter: 'blur(18px)',*/}
+                    {/*                boxShadow: 'var(--shadow-sm)',*/}
+                    {/*            }}*/}
+                    {/*        >*/}
+                    {/*            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff5df' }}>{item.value}</div>*/}
+                    {/*            <div style={{ fontSize: 11, color: 'rgba(242,217,162,0.72)' }}>{item.label}</div>*/}
+                    {/*        </div>*/}
+                    {/*    ))}*/}
+                    {/*</div>*/}
                 </div>
             </section>
 
