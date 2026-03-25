@@ -32,8 +32,12 @@ export default function HomePage() {
     const [isLoading, setIsLoading] = useState(true);
     const [activeType, setActiveType] = useState('');
     const [heroImageIndex, setHeroImageIndex] = useState(0);
+    const [isDraggingHero, setIsDraggingHero] = useState(false);
+    const [dragOffsetX, setDragOffsetX] = useState(0);
     const [touchStartX, setTouchStartX] = useState<number | null>(null);
     const [touchCurrentX, setTouchCurrentX] = useState<number | null>(null);
+    const [touchStartY, setTouchStartY] = useState<number | null>(null);
+    const [touchCurrentY, setTouchCurrentY] = useState<number | null>(null);
 
     const fetchProperties = useCallback(async (filters: FilterValues = {}) => {
         setIsLoading(true);
@@ -60,12 +64,12 @@ export default function HomePage() {
     const nextHero = heroCount > 1 ? heroProperties[(safeHeroIndex + 1) % heroCount] : null;
 
     useEffect(() => {
-        if (heroCount <= 1) return;
+        if (heroCount <= 1 || isDraggingHero) return;
         const interval = setInterval(() => {
             setHeroImageIndex((prev) => (prev + 1) % heroCount);
         }, 3200);
         return () => clearInterval(interval);
-    }, [heroCount]);
+    }, [heroCount, isDraggingHero]);
 
     const filteredProperties = activeType
         ? properties.filter((property) => property.property_type === activeType)
@@ -88,28 +92,66 @@ export default function HomePage() {
 
     const handleHeroTouchStart = (event: TouchEvent<HTMLDivElement>) => {
         const x = event.targetTouches[0]?.clientX ?? null;
+        const y = event.targetTouches[0]?.clientY ?? null;
+        setIsDraggingHero(true);
+        setDragOffsetX(0);
         setTouchStartX(x);
         setTouchCurrentX(x);
+        setTouchStartY(y);
+        setTouchCurrentY(y);
     };
 
     const handleHeroTouchMove = (event: TouchEvent<HTMLDivElement>) => {
-        setTouchCurrentX(event.targetTouches[0]?.clientX ?? null);
+        const nextX = event.targetTouches[0]?.clientX ?? null;
+        const nextY = event.targetTouches[0]?.clientY ?? null;
+        setTouchCurrentX(nextX);
+        setTouchCurrentY(nextY);
+
+        if (touchStartX !== null && touchStartY !== null && nextX !== null && nextY !== null) {
+            const deltaX = Math.abs(touchStartX - nextX);
+            const deltaY = Math.abs(touchStartY - nextY);
+            const signedDeltaX = nextX - touchStartX;
+
+            setDragOffsetX(Math.max(Math.min(signedDeltaX, 130), -130));
+
+            if (deltaX > 8 && deltaX > deltaY) {
+                event.preventDefault();
+            }
+        }
     };
 
     const handleHeroTouchEnd = () => {
-        if (touchStartX === null || touchCurrentX === null) {
+        if (touchStartX === null || touchCurrentX === null || touchStartY === null || touchCurrentY === null) {
+            setIsDraggingHero(false);
+            setDragOffsetX(0);
             setTouchStartX(null);
             setTouchCurrentX(null);
+            setTouchStartY(null);
+            setTouchCurrentY(null);
             return;
         }
-        const delta = touchStartX - touchCurrentX;
-        if (Math.abs(delta) > 36) {
-            if (delta > 0) goToNextHero();
+        const deltaX = touchStartX - touchCurrentX;
+        const deltaY = touchStartY - touchCurrentY;
+
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 34) {
+            if (deltaX > 0) goToNextHero();
             else goToPreviousHero();
         }
+        setIsDraggingHero(false);
+        setDragOffsetX(0);
         setTouchStartX(null);
         setTouchCurrentX(null);
+        setTouchStartY(null);
+        setTouchCurrentY(null);
     };
+
+    const heroDragProgress = Math.max(Math.min(dragOffsetX / 120, 1), -1);
+    const heroTransition = isDraggingHero ? 'none' : 'transform 420ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms ease, filter 320ms ease';
+    const centerTransform = `translateX(calc(-50% + ${dragOffsetX}px)) rotateY(${-heroDragProgress * 14}deg) rotateZ(${heroDragProgress * 1.8}deg) scale(${isDraggingHero ? 1.015 : 1})`;
+    const previousTransform = `translateX(${dragOffsetX * 0.28}px) rotate(${(-10 + heroDragProgress * 8).toFixed(2)}deg) scale(${(0.9 + Math.max(heroDragProgress, 0) * 0.1).toFixed(3)})`;
+    const nextTransform = `translateX(${dragOffsetX * 0.28}px) rotate(${(10 + heroDragProgress * 8).toFixed(2)}deg) scale(${(0.92 + Math.max(-heroDragProgress, 0) * 0.1).toFixed(3)})`;
+    const previousOpacity = Math.max(0.18, 0.4 + Math.max(heroDragProgress, 0) * 0.44);
+    const nextOpacity = Math.max(0.18, 0.44 + Math.max(-heroDragProgress, 0) * 0.42);
 
     return (
         <div style={{ minHeight: '100vh' }}>
@@ -213,7 +255,14 @@ export default function HomePage() {
                     />
 
                     <div
-                        style={{ position: 'relative', height: 278, touchAction: 'pan-y' }}
+                        style={{
+                            position: 'relative',
+                            height: 278,
+                            touchAction: 'none',
+                            overscrollBehavior: 'contain',
+                            WebkitUserSelect: 'none',
+                            userSelect: 'none',
+                        }}
                         onTouchStart={handleHeroTouchStart}
                         onTouchMove={handleHeroTouchMove}
                         onTouchEnd={handleHeroTouchEnd}
@@ -233,10 +282,11 @@ export default function HomePage() {
                                         : heroFallbacks[(safeHeroIndex + 1) % heroFallbacks.length],
                                     border: '1px solid rgba(242,217,162,0.14)',
                                     boxShadow: 'var(--shadow-md)',
-                                    transform: 'rotate(-10deg) scale(0.9)',
-                                    opacity: 0.4,
-                                    filter: 'blur(1.6px) saturate(0.85)',
+                                    transform: previousTransform,
+                                    opacity: previousOpacity,
+                                    filter: `blur(${(1.6 - Math.max(heroDragProgress, 0) * 1.2).toFixed(2)}px) saturate(${(0.85 + Math.max(heroDragProgress, 0) * 0.25).toFixed(2)})`,
                                     zIndex: 1,
+                                    transition: heroTransition,
                                 }}
                             >
                                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.24) 0%, rgba(8,6,3,0.9) 100%)' }} />
@@ -248,7 +298,8 @@ export default function HomePage() {
                                 position: 'absolute',
                                 left: '50%',
                                 top: 0,
-                                transform: 'translateX(-50%)',
+                                transform: centerTransform,
+                                transformStyle: 'preserve-3d',
                                 width: 'min(100%, 332px)',
                                 height: 258,
                                 borderRadius: 30,
@@ -257,11 +308,21 @@ export default function HomePage() {
                                 background: currentHero?.cover_image
                                     ? `url(${currentHero.cover_image}) center/cover no-repeat`
                                     : heroFallbacks[safeHeroIndex % heroFallbacks.length],
-                                boxShadow: '0 34px 70px rgba(0,0,0,0.46)',
+                                boxShadow: isDraggingHero ? '0 40px 84px rgba(0,0,0,0.54)' : '0 34px 70px rgba(0,0,0,0.46)',
                                 zIndex: 3,
+                                transition: heroTransition,
                             }}
                         >
                             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.02) 0%, rgba(8,6,3,0.14) 24%, rgba(8,6,3,0.82) 100%)' }} />
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    background: `linear-gradient(${100 - heroDragProgress * 16}deg, rgba(255,247,232,${isDraggingHero ? 0.12 : 0.05}) 0%, transparent 34%, transparent 68%, rgba(210,174,104,${isDraggingHero ? 0.18 : 0.08}) 100%)`,
+                                    mixBlendMode: 'screen',
+                                    pointerEvents: 'none',
+                                }}
+                            />
                             <img
                                 src="/brand/logo-mark-gold.svg"
                                 alt="Premium House mark"
@@ -337,10 +398,11 @@ export default function HomePage() {
                                         : heroFallbacks[(safeHeroIndex + 2) % heroFallbacks.length],
                                     border: '1px solid rgba(242,217,162,0.14)',
                                     boxShadow: 'var(--shadow-md)',
-                                    transform: 'rotate(10deg) scale(0.92)',
-                                    opacity: 0.44,
-                                    filter: 'blur(1.6px) saturate(0.85)',
+                                    transform: nextTransform,
+                                    opacity: nextOpacity,
+                                    filter: `blur(${(1.6 - Math.max(-heroDragProgress, 0) * 1.2).toFixed(2)}px) saturate(${(0.85 + Math.max(-heroDragProgress, 0) * 0.25).toFixed(2)})`,
                                     zIndex: 1,
+                                    transition: heroTransition,
                                 }}
                             >
                                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.24) 0%, rgba(8,6,3,0.9) 100%)' }} />
