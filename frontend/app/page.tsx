@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, type TouchEvent } from 'react';
+import { useEffect, useState, useCallback, useRef, type TouchEvent } from 'react';
 import { listProperties } from '../lib/api';
 import type { PropertySummary } from '../lib/types';
 import PropertyCard, { PropertyCardSkeleton } from '../components/PropertyCard';
@@ -33,11 +33,14 @@ export default function HomePage() {
     const [activeType, setActiveType] = useState('');
     const [heroImageIndex, setHeroImageIndex] = useState(0);
     const [isDraggingHero, setIsDraggingHero] = useState(false);
+    const [isHeroAnimating, setIsHeroAnimating] = useState(false);
     const [dragOffsetX, setDragOffsetX] = useState(0);
     const [touchStartX, setTouchStartX] = useState<number | null>(null);
     const [touchCurrentX, setTouchCurrentX] = useState<number | null>(null);
     const [touchStartY, setTouchStartY] = useState<number | null>(null);
     const [touchCurrentY, setTouchCurrentY] = useState<number | null>(null);
+
+    const heroTimeoutsRef = useRef<number[]>([]);
 
     const fetchProperties = useCallback(async (filters: FilterValues = {}) => {
         setIsLoading(true);
@@ -64,12 +67,19 @@ export default function HomePage() {
     const nextHero = heroCount > 1 ? heroProperties[(safeHeroIndex + 1) % heroCount] : null;
 
     useEffect(() => {
-        if (heroCount <= 1 || isDraggingHero) return;
+        if (heroCount <= 1 || isDraggingHero || isHeroAnimating) return;
         const interval = setInterval(() => {
             setHeroImageIndex((prev) => (prev + 1) % heroCount);
         }, 3200);
         return () => clearInterval(interval);
-    }, [heroCount, isDraggingHero]);
+    }, [heroCount, isDraggingHero, isHeroAnimating]);
+
+    useEffect(() => {
+        return () => {
+            heroTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+            heroTimeoutsRef.current = [];
+        };
+    }, []);
 
     const filteredProperties = activeType
         ? properties.filter((property) => property.property_type === activeType)
@@ -90,7 +100,48 @@ export default function HomePage() {
         setHeroImageIndex((prev) => (prev - 1 + heroCount) % heroCount);
     };
 
+    const clearHeroTimeouts = () => {
+        heroTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+        heroTimeoutsRef.current = [];
+    };
+
+    const queueHeroTimeout = (callback: () => void, delay: number) => {
+        const timeoutId = window.setTimeout(() => {
+            heroTimeoutsRef.current = heroTimeoutsRef.current.filter((id) => id !== timeoutId);
+            callback();
+        }, delay);
+        heroTimeoutsRef.current.push(timeoutId);
+    };
+
+    const animateHeroChange = (direction: 'next' | 'previous') => {
+        if (heroCount <= 1) return;
+
+        clearHeroTimeouts();
+        setIsDraggingHero(false);
+        setIsHeroAnimating(true);
+
+        const exitOffset = direction === 'next' ? -250 : 250;
+        const enterOffset = direction === 'next' ? 110 : -110;
+
+        setDragOffsetX(exitOffset);
+
+        queueHeroTimeout(() => {
+            if (direction === 'next') goToNextHero();
+            else goToPreviousHero();
+
+            setDragOffsetX(enterOffset);
+
+            queueHeroTimeout(() => {
+                setDragOffsetX(0);
+                queueHeroTimeout(() => {
+                    setIsHeroAnimating(false);
+                }, 420);
+            }, 18);
+        }, 170);
+    };
+
     const handleHeroTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+        if (isHeroAnimating) return;
         const x = event.targetTouches[0]?.clientX ?? null;
         const y = event.targetTouches[0]?.clientY ?? null;
         setIsDraggingHero(true);
@@ -134,11 +185,12 @@ export default function HomePage() {
         const deltaY = touchStartY - touchCurrentY;
 
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 34) {
-            if (deltaX > 0) goToNextHero();
-            else goToPreviousHero();
+            if (deltaX > 0) animateHeroChange('next');
+            else animateHeroChange('previous');
+        } else {
+            setIsDraggingHero(false);
+            setDragOffsetX(0);
         }
-        setIsDraggingHero(false);
-        setDragOffsetX(0);
         setTouchStartX(null);
         setTouchCurrentX(null);
         setTouchStartY(null);
@@ -146,7 +198,7 @@ export default function HomePage() {
     };
 
     const heroDragProgress = Math.max(Math.min(dragOffsetX / 120, 1), -1);
-    const heroTransition = isDraggingHero ? 'none' : 'transform 420ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms ease, filter 320ms ease';
+    const heroTransition = isDraggingHero ? 'none' : 'transform 620ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease, filter 420ms ease';
     const centerTransform = `translateX(calc(-50% + ${dragOffsetX}px)) rotateY(${-heroDragProgress * 14}deg) rotateZ(${heroDragProgress * 1.8}deg) scale(${isDraggingHero ? 1.015 : 1})`;
     const previousTransform = `translateX(${dragOffsetX * 0.28}px) rotate(${(-10 + heroDragProgress * 8).toFixed(2)}deg) scale(${(0.9 + Math.max(heroDragProgress, 0) * 0.1).toFixed(3)})`;
     const nextTransform = `translateX(${dragOffsetX * 0.28}px) rotate(${(10 + heroDragProgress * 8).toFixed(2)}deg) scale(${(0.92 + Math.max(-heroDragProgress, 0) * 0.1).toFixed(3)})`;
