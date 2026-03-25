@@ -21,6 +21,39 @@ function formatDate(dateStr: string): string {
     });
 }
 
+function getRemainingMs(expiresAt: string | undefined, nowMs: number): number {
+    if (!expiresAt) return 0;
+    return Math.max(new Date(expiresAt).getTime() - nowMs, 0);
+}
+
+function formatCountdown(ms: number): string {
+    const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function formatCountdownText(ms: number): string {
+    const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+        return `${hours} soat ${minutes} daqiqa ${seconds} soniyada eskiradi`;
+    }
+    if (minutes > 0) {
+        return `${minutes} daqiqa ${seconds} soniyada eskiradi`;
+    }
+    return `${seconds} soniyada eskiradi`;
+}
+
 const statusConfig: Record<string, { label: string; color: string; bg: string; emoji: string }> = {
     pending_payment: { label: 'To\'lov kutilmoqda', color: 'var(--color-warning)', bg: 'rgba(210,174,104,0.14)', emoji: '⏳' },
     confirmed: { label: 'Tasdiqlangan', color: '#00b894', bg: 'rgba(0,184,148,0.12)', emoji: '✅' },
@@ -41,6 +74,7 @@ export default function BookingsPage() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('active');
+    const [nowMs, setNowMs] = useState(() => Date.now());
 
     const fetchBookings = useCallback(async () => {
         setIsLoading(true);
@@ -61,6 +95,14 @@ export default function BookingsPage() {
             setIsLoading(false);
         }
     }, [authLoading, isAuthenticated, fetchBookings]);
+
+    useEffect(() => {
+        const interval = window.setInterval(() => {
+            setNowMs(Date.now());
+        }, 1000);
+
+        return () => window.clearInterval(interval);
+    }, []);
 
     const filteredBookings = bookings.filter((booking) => {
         if (activeTab === 'active') return ['pending_payment', 'confirmed'].includes(booking.status);
@@ -142,8 +184,11 @@ export default function BookingsPage() {
                 ) : filteredBookings.length > 0 ? (
                     filteredBookings.map((booking, index) => {
                         const status = statusConfig[booking.status] || statusConfig.expired;
+                        const remainingMs = booking.status === 'pending_payment' ? getRemainingMs(booking.expires_at, nowMs) : 0;
+                        const countdown = remainingMs > 0 ? formatCountdown(remainingMs) : null;
+                        const countdownText = remainingMs > 0 ? formatCountdownText(remainingMs) : 'To\'lov oynasi eskirgan';
                         const helperText = booking.status === 'pending_payment'
-                            ? 'Ichiga kirib to\'lovni davom ettiring'
+                            ? countdownText
                             : booking.status === 'confirmed'
                                 ? 'Ichida buyurtma ma\'lumotlari va bekor qilish tugmasi bor'
                                 : 'Buyurtma tafsilotlarini ko\'rish';
@@ -166,21 +211,40 @@ export default function BookingsPage() {
                                     className="hover-lift"
                                 >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                                        <div
-                                            style={{
-                                                padding: '4px 10px',
-                                                borderRadius: 8,
-                                                background: status.bg,
-                                                color: status.color,
-                                                fontSize: 12,
-                                                fontWeight: 700,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 4,
-                                            }}
-                                        >
-                                            <span>{status.emoji}</span>
-                                            <span>{status.label}</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                            <div
+                                                style={{
+                                                    padding: '4px 10px',
+                                                    borderRadius: 8,
+                                                    background: status.bg,
+                                                    color: status.color,
+                                                    fontSize: 12,
+                                                    fontWeight: 700,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 4,
+                                                }}
+                                            >
+                                                <span>{status.emoji}</span>
+                                                <span>{status.label}</span>
+                                            </div>
+                                            {booking.status === 'pending_payment' && (
+                                                <div
+                                                    style={{
+                                                        padding: '4px 10px',
+                                                        borderRadius: 999,
+                                                        background: remainingMs > 0 ? 'rgba(255,247,232,0.06)' : 'rgba(214,48,49,0.12)',
+                                                        border: `1px solid ${remainingMs > 0 ? 'rgba(242,217,162,0.14)' : 'rgba(214,48,49,0.2)'}`,
+                                                        color: remainingMs > 0 ? '#fff7e8' : 'var(--color-danger)',
+                                                        fontSize: 12,
+                                                        fontWeight: 800,
+                                                        fontFamily: 'monospace',
+                                                        letterSpacing: '0.04em',
+                                                    }}
+                                                >
+                                                    {remainingMs > 0 ? countdown : '00:00'}
+                                                </div>
+                                            )}
                                         </div>
                                         <span style={{ fontSize: 12, color: 'var(--color-muted)', fontFamily: 'monospace' }}>
                                             #{booking.booking_code}
@@ -228,9 +292,19 @@ export default function BookingsPage() {
                                             color: booking.status === 'pending_payment' ? 'var(--color-warning)' : 'var(--color-brand-light)',
                                             fontSize: 12,
                                             fontWeight: 700,
+                                            lineHeight: 1.5,
                                         }}
                                     >
-                                        {helperText}
+                                        {booking.status === 'pending_payment' ? (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                <span>Ichiga kirib to'lovni davom ettiring</span>
+                                                <span style={{ color: remainingMs > 0 ? 'var(--color-brand-light)' : 'var(--color-danger)' }}>
+                                                    {helperText}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            helperText
+                                        )}
                                     </div>
                                 </div>
                             </div>

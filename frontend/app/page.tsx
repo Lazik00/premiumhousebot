@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, type TouchEvent } from 'react';
 import { listProperties } from '../lib/api';
 import type { PropertySummary } from '../lib/types';
 import PropertyCard, { PropertyCardSkeleton } from '../components/PropertyCard';
@@ -29,17 +29,17 @@ function formatPrice(price: number, currency: string): string {
 
 export default function HomePage() {
     const [properties, setProperties] = useState<PropertySummary[]>([]);
-    const [total, setTotal] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [activeType, setActiveType] = useState('');
     const [heroImageIndex, setHeroImageIndex] = useState(0);
+    const [touchStartX, setTouchStartX] = useState<number | null>(null);
+    const [touchCurrentX, setTouchCurrentX] = useState<number | null>(null);
 
     const fetchProperties = useCallback(async (filters: FilterValues = {}) => {
         setIsLoading(true);
         try {
             const res = await listProperties({ ...filters, limit: 20, offset: 0 });
             setProperties(res.items);
-            setTotal(res.total);
         } catch (err) {
             console.error('Failed to fetch properties:', err);
         } finally {
@@ -71,24 +71,45 @@ export default function HomePage() {
         ? properties.filter((property) => property.property_type === activeType)
         : properties;
 
-    const cityCount = new Set(properties.map((item) => item.city)).size || 1;
-    const featureTiles = [
-        {
-            icon: '/brand/icon-location-gold.svg',
-            title: 'Aniq lokatsiya',
-            description: 'Har bir uy detailida xarita bilan ko\'rsatiladi.',
-        },
-        {
-            icon: '/brand/icon-people-gold.svg',
-            title: 'Mos sig\'im',
-            description: 'Mehmon soni va tarkibi bron oldidan aniq bilinadi.',
-        },
-        {
-            icon: '/brand/icon-chat-gold.svg',
-            title: 'Telegram ichida',
-            description: 'To\'lov, aloqa va buyurtma oqimi Mini App ichida ishlaydi.',
-        },
-    ];
+    const goToHero = (index: number) => {
+        if (heroCount <= 0) return;
+        setHeroImageIndex((index + heroCount) % heroCount);
+    };
+
+    const goToNextHero = () => {
+        if (heroCount <= 1) return;
+        setHeroImageIndex((prev) => (prev + 1) % heroCount);
+    };
+
+    const goToPreviousHero = () => {
+        if (heroCount <= 1) return;
+        setHeroImageIndex((prev) => (prev - 1 + heroCount) % heroCount);
+    };
+
+    const handleHeroTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+        const x = event.targetTouches[0]?.clientX ?? null;
+        setTouchStartX(x);
+        setTouchCurrentX(x);
+    };
+
+    const handleHeroTouchMove = (event: TouchEvent<HTMLDivElement>) => {
+        setTouchCurrentX(event.targetTouches[0]?.clientX ?? null);
+    };
+
+    const handleHeroTouchEnd = () => {
+        if (touchStartX === null || touchCurrentX === null) {
+            setTouchStartX(null);
+            setTouchCurrentX(null);
+            return;
+        }
+        const delta = touchStartX - touchCurrentX;
+        if (Math.abs(delta) > 36) {
+            if (delta > 0) goToNextHero();
+            else goToPreviousHero();
+        }
+        setTouchStartX(null);
+        setTouchCurrentX(null);
+    };
 
     return (
         <div style={{ minHeight: '100vh' }}>
@@ -186,98 +207,25 @@ export default function HomePage() {
                             width: 'min(100%, 236px)',
                             height: 'auto',
                             display: 'block',
-                            marginBottom: 12,
+                            marginBottom: 18,
                             filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.4))',
                         }}
                     />
 
-                    <div style={{ maxWidth: 340, marginBottom: 18 }}>
-                        <div
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 8,
-                                padding: '8px 14px',
-                                borderRadius: 999,
-                                border: '1px solid rgba(242,217,162,0.18)',
-                                background: 'rgba(20,16,12,0.52)',
-                                color: 'var(--color-brand-light)',
-                                fontSize: 11,
-                                fontWeight: 800,
-                                letterSpacing: '0.12em',
-                                textTransform: 'uppercase',
-                                marginBottom: 14,
-                            }}
-                        >
-                            <span>Telegram Mini App</span>
-                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-gold)' }} />
-                        </div>
-                        <h1
-                            style={{
-                                fontFamily: 'var(--font-display)',
-                                fontSize: 44,
-                                lineHeight: 0.95,
-                                fontWeight: 700,
-                                letterSpacing: '-0.04em',
-                                marginBottom: 10,
-                                color: '#fff7e8',
-                                textShadow: '0 10px 30px rgba(0,0,0,0.28)',
-                            }}
-                        >
-                            Uy qayerda ekanligi,
-                            <br />
-                            bron va to\'lov bir joyda
-                        </h1>
-                        <p
-                            style={{
-                                fontSize: 14,
-                                lineHeight: 1.72,
-                                color: 'rgba(247,239,222,0.78)',
-                            }}
-                        >
-                            Endi foydalanuvchi uy manzilini faqat nomidan emas, detail ichidagi lokatsiya kartasi va xarita tugmalari orqali aniq ko\'radi.
-                        </p>
-                    </div>
-
                     <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                            gap: 10,
-                            marginBottom: 22,
-                        }}
+                        style={{ position: 'relative', height: 278, touchAction: 'pan-y' }}
+                        onTouchStart={handleHeroTouchStart}
+                        onTouchMove={handleHeroTouchMove}
+                        onTouchEnd={handleHeroTouchEnd}
                     >
-                        {[
-                            { label: 'Premium uylar', value: total || properties.length || 0 },
-                            { label: 'Shaharlar', value: cityCount },
-                            { label: 'Band qilish', value: '24/7' },
-                        ].map((item) => (
-                            <div
-                                key={item.label}
-                                style={{
-                                    padding: '12px 10px',
-                                    borderRadius: 18,
-                                    background: 'rgba(20,16,12,0.68)',
-                                    border: '1px solid rgba(242,217,162,0.14)',
-                                    backdropFilter: 'blur(16px)',
-                                    boxShadow: 'var(--shadow-sm)',
-                                }}
-                            >
-                                <div style={{ fontSize: 18, fontWeight: 800, color: '#fff5df' }}>{item.value}</div>
-                                <div style={{ fontSize: 11, color: 'rgba(242,217,162,0.72)' }}>{item.label}</div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div style={{ position: 'relative', height: 248 }}>
                         {previousHero && (
                             <div
                                 style={{
                                     position: 'absolute',
-                                    left: 0,
-                                    bottom: 16,
-                                    width: 108,
-                                    height: 148,
+                                    left: -22,
+                                    bottom: 26,
+                                    width: 96,
+                                    height: 136,
                                     borderRadius: 22,
                                     overflow: 'hidden',
                                     background: previousHero.cover_image
@@ -285,11 +233,13 @@ export default function HomePage() {
                                         : heroFallbacks[(safeHeroIndex + 1) % heroFallbacks.length],
                                     border: '1px solid rgba(242,217,162,0.14)',
                                     boxShadow: 'var(--shadow-md)',
-                                    transform: 'rotate(-8deg)',
-                                    opacity: 0.76,
+                                    transform: 'rotate(-10deg) scale(0.9)',
+                                    opacity: 0.4,
+                                    filter: 'blur(1.6px) saturate(0.85)',
+                                    zIndex: 1,
                                 }}
                             >
-                                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.06) 0%, rgba(8,6,3,0.82) 100%)' }} />
+                                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.24) 0%, rgba(8,6,3,0.9) 100%)' }} />
                             </div>
                         )}
 
@@ -299,18 +249,19 @@ export default function HomePage() {
                                 left: '50%',
                                 top: 0,
                                 transform: 'translateX(-50%)',
-                                width: 'min(100%, 320px)',
-                                height: 236,
-                                borderRadius: 28,
+                                width: 'min(100%, 332px)',
+                                height: 258,
+                                borderRadius: 30,
                                 overflow: 'hidden',
-                                border: '1px solid rgba(242,217,162,0.18)',
+                                border: '1px solid rgba(242,217,162,0.22)',
                                 background: currentHero?.cover_image
                                     ? `url(${currentHero.cover_image}) center/cover no-repeat`
                                     : heroFallbacks[safeHeroIndex % heroFallbacks.length],
-                                boxShadow: 'var(--shadow-lg)',
+                                boxShadow: '0 34px 70px rgba(0,0,0,0.46)',
+                                zIndex: 3,
                             }}
                         >
-                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.02) 0%, rgba(8,6,3,0.2) 34%, rgba(8,6,3,0.9) 100%)' }} />
+                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.02) 0%, rgba(8,6,3,0.14) 24%, rgba(8,6,3,0.82) 100%)' }} />
                             <img
                                 src="/brand/logo-mark-gold.svg"
                                 alt="Premium House mark"
@@ -365,19 +316,7 @@ export default function HomePage() {
                                                 {formatPrice(currentHero.price_per_night, currentHero.currency)}
                                             </div>
                                         </div>
-                                        <div
-                                            style={{
-                                                padding: '10px 14px',
-                                                borderRadius: 14,
-                                                background: 'var(--gradient-brand)',
-                                                color: 'var(--color-ink-soft)',
-                                                fontSize: 12,
-                                                fontWeight: 800,
-                                                boxShadow: 'var(--shadow-glow)',
-                                            }}
-                                        >
-                                            Lokatsiya ochiladi
-                                        </div>
+                                        <div />
                                     </div>
                                 </div>
                             )}
@@ -387,10 +326,10 @@ export default function HomePage() {
                             <div
                                 style={{
                                     position: 'absolute',
-                                    right: 0,
-                                    bottom: 22,
-                                    width: 116,
-                                    height: 156,
+                                    right: -28,
+                                    bottom: 30,
+                                    width: 102,
+                                    height: 144,
                                     borderRadius: 22,
                                     overflow: 'hidden',
                                     background: nextHero.cover_image
@@ -398,11 +337,13 @@ export default function HomePage() {
                                         : heroFallbacks[(safeHeroIndex + 2) % heroFallbacks.length],
                                     border: '1px solid rgba(242,217,162,0.14)',
                                     boxShadow: 'var(--shadow-md)',
-                                    transform: 'rotate(8deg)',
-                                    opacity: 0.84,
+                                    transform: 'rotate(10deg) scale(0.92)',
+                                    opacity: 0.44,
+                                    filter: 'blur(1.6px) saturate(0.85)',
+                                    zIndex: 1,
                                 }}
                             >
-                                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.06) 0%, rgba(8,6,3,0.82) 100%)' }} />
+                                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.24) 0%, rgba(8,6,3,0.9) 100%)' }} />
                             </div>
                         )}
                     </div>
@@ -413,7 +354,7 @@ export default function HomePage() {
                                 <button
                                     key={item.id}
                                     type="button"
-                                    onClick={() => setHeroImageIndex(index)}
+                                    onClick={() => goToHero(index)}
                                     style={{
                                         width: index === safeHeroIndex ? 28 : 8,
                                         height: 8,
@@ -435,33 +376,7 @@ export default function HomePage() {
                 <SearchFilter onSearch={fetchProperties} isLoading={isLoading} />
             </div>
 
-            <div style={{ padding: '2px 16px 0' }}>
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                        gap: 10,
-                        marginBottom: 18,
-                    }}
-                >
-                    {featureTiles.map((feature) => (
-                        <div
-                            key={feature.title}
-                            style={{
-                                padding: '14px 10px',
-                                borderRadius: 20,
-                                background: 'linear-gradient(180deg, rgba(20,16,12,0.92) 0%, rgba(20,16,12,0.76) 100%)',
-                                border: '1px solid var(--color-line)',
-                                boxShadow: 'var(--shadow-sm)',
-                            }}
-                        >
-                            <img src={feature.icon} alt={feature.title} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                            <div style={{ fontSize: 12, fontWeight: 800, color: '#fff7e8', marginBottom: 6 }}>{feature.title}</div>
-                            <div style={{ fontSize: 11, lineHeight: 1.5, color: 'var(--color-muted)' }}>{feature.description}</div>
-                        </div>
-                    ))}
-                </div>
-
+            <div style={{ padding: '10px 16px 0' }}>
                 <div
                     className="hide-scrollbar"
                     style={{
@@ -508,9 +423,6 @@ export default function HomePage() {
                         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700 }}>
                             Tavsiya etilgan uylar
                         </h2>
-                        <p style={{ fontSize: 12, color: 'var(--color-muted)' }}>
-                            Asosiy oynada rasmlar avtomatik almashadi va lokatsiya ko\'rinadi
-                        </p>
                     </div>
                     {!isLoading && (
                         <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-brand-light)' }}>
