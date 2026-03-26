@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef, type TouchEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { listProperties } from '../lib/api';
 import type { PropertySummary } from '../lib/types';
 import PropertyCard, { PropertyCardSkeleton } from '../components/PropertyCard';
@@ -25,6 +26,7 @@ const heroFallbacks = [
 ];
 
 export default function HomePage() {
+    const router = useRouter();
     const { t, language } = useAppPreferences();
     const [properties, setProperties] = useState<PropertySummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +41,7 @@ export default function HomePage() {
     const [touchCurrentY, setTouchCurrentY] = useState<number | null>(null);
 
     const heroTimeoutsRef = useRef<number[]>([]);
+    const suppressHeroClickRef = useRef(false);
 
     const fetchProperties = useCallback(async (filters: FilterValues = {}) => {
         setIsLoading(true);
@@ -142,6 +145,7 @@ export default function HomePage() {
         if (isHeroAnimating) return;
         const x = event.targetTouches[0]?.clientX ?? null;
         const y = event.targetTouches[0]?.clientY ?? null;
+        suppressHeroClickRef.current = false;
         setIsDraggingHero(true);
         setDragOffsetX(0);
         setTouchStartX(x);
@@ -163,6 +167,10 @@ export default function HomePage() {
 
             setDragOffsetX(Math.max(Math.min(signedDeltaX, 130), -130));
 
+            if (deltaX > 10 || deltaY > 10) {
+                suppressHeroClickRef.current = true;
+            }
+
             if (deltaX > 8 && deltaX > deltaY) {
                 event.preventDefault();
             }
@@ -183,6 +191,7 @@ export default function HomePage() {
         const deltaY = touchStartY - touchCurrentY;
 
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 34) {
+            suppressHeroClickRef.current = true;
             if (deltaX > 0) animateHeroChange('next');
             else animateHeroChange('previous');
         } else {
@@ -202,6 +211,13 @@ export default function HomePage() {
     const nextTransform = `translateX(${dragOffsetX * 0.28}px) rotate(${(10 + heroDragProgress * 8).toFixed(2)}deg) scale(${(0.92 + Math.max(-heroDragProgress, 0) * 0.1).toFixed(3)})`;
     const previousOpacity = Math.max(0.18, 0.4 + Math.max(heroDragProgress, 0) * 0.44);
     const nextOpacity = Math.max(0.18, 0.44 + Math.max(-heroDragProgress, 0) * 0.42);
+    const handleHeroCardClick = (propertyId: string) => {
+        if (isHeroAnimating || suppressHeroClickRef.current) {
+            suppressHeroClickRef.current = false;
+            return;
+        }
+        router.push(`/property/${propertyId}`);
+    };
 
     return (
         <div style={{ minHeight: '100vh' }}>
@@ -329,6 +345,7 @@ export default function HomePage() {
                     >
                         {previousHero && (
                             <div
+                                onClick={() => handleHeroCardClick(previousHero.id)}
                                 style={{
                                     position: 'absolute',
                                     left: -22,
@@ -347,6 +364,7 @@ export default function HomePage() {
                                     filter: `blur(${(1.6 - Math.max(heroDragProgress, 0) * 1.2).toFixed(2)}px) saturate(${(0.85 + Math.max(heroDragProgress, 0) * 0.25).toFixed(2)})`,
                                     zIndex: 1,
                                     transition: heroTransition,
+                                    cursor: 'pointer',
                                 }}
                             >
                                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.24) 0%, rgba(8,6,3,0.9) 100%)' }} />
@@ -354,6 +372,7 @@ export default function HomePage() {
                         )}
 
                         <div
+                            onClick={() => currentHero && handleHeroCardClick(currentHero.id)}
                             style={{
                                 position: 'absolute',
                                 left: '50%',
@@ -371,6 +390,7 @@ export default function HomePage() {
                                 boxShadow: isDraggingHero ? '0 40px 84px rgba(0,0,0,0.54)' : '0 34px 70px rgba(0,0,0,0.46)',
                                 zIndex: 3,
                                 transition: heroTransition,
+                                cursor: currentHero ? 'pointer' : 'default',
                             }}
                         >
                             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.02) 0%, rgba(8,6,3,0.14) 24%, rgba(8,6,3,0.82) 100%)' }} />
@@ -449,6 +469,7 @@ export default function HomePage() {
 
                         {nextHero && (
                             <div
+                                onClick={() => handleHeroCardClick(nextHero.id)}
                                 style={{
                                     position: 'absolute',
                                     right: -28,
@@ -467,6 +488,7 @@ export default function HomePage() {
                                     filter: `blur(${(1.6 - Math.max(-heroDragProgress, 0) * 1.2).toFixed(2)}px) saturate(${(0.85 + Math.max(-heroDragProgress, 0) * 0.25).toFixed(2)})`,
                                     zIndex: 1,
                                     transition: heroTransition,
+                                    cursor: 'pointer',
                                 }}
                             >
                                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,6,3,0.24) 0%, rgba(8,6,3,0.9) 100%)' }} />

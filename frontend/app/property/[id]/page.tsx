@@ -218,10 +218,7 @@ export default function PropertyDetailPage() {
                                 wrapperStyle={{ gap: 4 }}
                             />
                         </div>
-                        <div style={{ textAlign: 'right', fontSize: 12, color: 'rgba(255,247,232,0.7)', lineHeight: 1.5 }}>
-                            <div>{t('property.onlyHousePrice')}</div>
-                            <div>{t('property.noHiddenFee')}</div>
-                        </div>
+
                     </div>
                 </div>
 
