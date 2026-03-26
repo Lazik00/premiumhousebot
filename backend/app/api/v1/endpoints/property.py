@@ -173,10 +173,16 @@ async def get_property_availability(
         property_id=str(property_uuid),
         blocked_ranges=[
             BlockedRangeResponse(
-                start_date=booking.start_date,
-                end_date=booking.end_date,
-                status=booking.status.value,
+                id=str(item.id) if item.id else None,
+                start_date=item.start_date,
+                end_date=item.end_date,
+                status=item.status,
+                source=item.source,
+                label=item.label,
+                note=item.note,
+                booking_id=str(item.booking_id) if item.booking_id else None,
+                created_at=item.created_at,
             )
-            for booking in bookings
+            for item in bookings
         ],
     )

@@ -1,6 +1,7 @@
 import uuid
+from datetime import date
 
-from sqlalchemy import Boolean, Enum, ForeignKey, Index, Numeric, SmallInteger, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, Enum, ForeignKey, Index, Numeric, SmallInteger, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TSVECTOR, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -77,6 +78,20 @@ class Property(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     search_vector: Mapped[str | None] = mapped_column(TSVECTOR, nullable=True)
+
+
+class PropertyDateBlock(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
+    __tablename__ = 'property_date_blocks'
+    __table_args__ = (
+        Index('idx_property_date_blocks_property_dates', 'property_id', 'start_date', 'end_date'),
+        Index('idx_property_date_blocks_created_by', 'created_by_user_id', 'created_at'),
+    )
+
+    property_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('properties.id'), nullable=False)
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=True)
+    start_date: Mapped[date] = mapped_column(Date, nullable=False)
+    end_date: Mapped[date] = mapped_column(Date, nullable=False)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class PropertyImage(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):

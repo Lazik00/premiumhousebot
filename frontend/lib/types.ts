@@ -77,9 +77,15 @@ export interface PropertyListResponse {
 }
 
 export interface BlockedRange {
+    id?: string | null;
     start_date: string;
     end_date: string;
     status: string;
+    source?: 'booking' | 'manual' | string;
+    label?: string | null;
+    note?: string | null;
+    booking_id?: string | null;
+    created_at?: string | null;
 }
 
 export interface PropertyAvailability {

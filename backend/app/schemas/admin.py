@@ -196,6 +196,31 @@ class AdminPropertyStatusUpdateRequest(BaseModel):
     status: str = Field(pattern='^(draft|pending_review|active|blocked|archived)$')
 
 
+class AdminPropertyAvailabilityBlockResponse(BaseModel):
+    id: str | None = None
+    source: str
+    status: str
+    start_date: date
+    end_date: date
+    label: str | None = None
+    note: str | None = None
+    booking_id: str | None = None
+    booking_code: str | None = None
+    can_delete: bool = False
+    created_at: datetime | None = None
+
+
+class AdminPropertyAvailabilityResponse(BaseModel):
+    property_id: str
+    blocked_ranges: list[AdminPropertyAvailabilityBlockResponse]
+
+
+class AdminPropertyAvailabilityCreateRequest(BaseModel):
+    start_date: date
+    end_date: date
+    note: str | None = Field(default=None, max_length=500)
+
+
 class AdminBookingResponse(BaseModel):
     id: str
     booking_code: str

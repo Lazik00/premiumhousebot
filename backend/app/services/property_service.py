@@ -1,13 +1,28 @@
 import uuid
-from datetime import date
+from dataclasses import dataclass
+from datetime import date, datetime
 
 from sqlalchemy import and_, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.booking import Booking
 from app.models.enums import BookingStatus, PropertyStatus
-from app.models.property import Amenity, City, Property, PropertyAmenity, PropertyImage, Region
+from app.models.property import Amenity, City, Property, PropertyAmenity, PropertyDateBlock, PropertyImage, Region
 from app.models.user import User
+
+
+@dataclass
+class AvailabilityRange:
+    id: uuid.UUID | None
+    source: str
+    start_date: date
+    end_date: date
+    status: str
+    label: str | None = None
+    note: str | None = None
+    booking_id: uuid.UUID | None = None
+    booking_code: str | None = None
+    created_at: datetime | None = None
 
 
 class PropertyService:
@@ -57,7 +72,7 @@ class PropertyService:
             base_query = base_query.where(Property.capacity >= guests)
 
         if check_in and check_out:
-            overlap_exists = exists(
+            booking_overlap_exists = exists(
                 select(Booking.id).where(
                     Booking.property_id == Property.id,
                     Booking.deleted_at.is_(None),
@@ -71,7 +86,14 @@ class PropertyService:
                     and_(Booking.start_date < check_out, Booking.end_date > check_in),
                 )
             )
-            base_query = base_query.where(~overlap_exists)
+            manual_overlap_exists = exists(
+                select(PropertyDateBlock.id).where(
+                    PropertyDateBlock.property_id == Property.id,
+                    PropertyDateBlock.deleted_at.is_(None),
+                    and_(PropertyDateBlock.start_date < check_out, PropertyDateBlock.end_date > check_in),
+                )
+            )
+            base_query = base_query.where(~booking_overlap_exists, ~manual_overlap_exists)
 
         total_query = select(func.count()).select_from(base_query.subquery())
         total = int((await db.execute(total_query)).scalar_one())
@@ -161,8 +183,8 @@ class PropertyService:
         property_id: uuid.UUID,
         from_date: date | None,
         to_date: date | None,
-    ) -> list[Booking]:
-        query = select(Booking).where(
+    ) -> list[AvailabilityRange]:
+        booking_query = select(Booking).where(
             Booking.property_id == property_id,
             Booking.deleted_at.is_(None),
             Booking.status.in_(
@@ -173,14 +195,51 @@ class PropertyService:
                 ]
             ),
         )
+        manual_query = select(PropertyDateBlock).where(
+            PropertyDateBlock.property_id == property_id,
+            PropertyDateBlock.deleted_at.is_(None),
+        )
 
         if from_date and to_date:
-            query = query.where(and_(Booking.start_date < to_date, Booking.end_date > from_date))
+            booking_query = booking_query.where(and_(Booking.start_date < to_date, Booking.end_date > from_date))
+            manual_query = manual_query.where(and_(PropertyDateBlock.start_date < to_date, PropertyDateBlock.end_date > from_date))
         elif from_date:
-            query = query.where(Booking.end_date > from_date)
+            booking_query = booking_query.where(Booking.end_date > from_date)
+            manual_query = manual_query.where(PropertyDateBlock.end_date > from_date)
         elif to_date:
-            query = query.where(Booking.start_date < to_date)
+            booking_query = booking_query.where(Booking.start_date < to_date)
+            manual_query = manual_query.where(PropertyDateBlock.start_date < to_date)
 
-        query = query.order_by(Booking.start_date.asc())
-        result = await db.execute(query)
-        return list(result.scalars().all())
+        booking_query = booking_query.order_by(Booking.start_date.asc())
+        manual_query = manual_query.order_by(PropertyDateBlock.start_date.asc())
+        booking_rows = list((await db.execute(booking_query)).scalars().all())
+        manual_rows = list((await db.execute(manual_query)).scalars().all())
+
+        combined = [
+            AvailabilityRange(
+                id=booking.id,
+                source='booking',
+                start_date=booking.start_date,
+                end_date=booking.end_date,
+                status=booking.status.value,
+                label=booking.booking_code,
+                booking_id=booking.id,
+                booking_code=booking.booking_code,
+                created_at=booking.created_at,
+            )
+            for booking in booking_rows
+        ] + [
+            AvailabilityRange(
+                id=block.id,
+                source='manual',
+                start_date=block.start_date,
+                end_date=block.end_date,
+                status='blocked',
+                label='manual_block',
+                note=block.note,
+                created_at=block.created_at,
+            )
+            for block in manual_rows
+        ]
+        combined.sort(key=lambda item: (item.start_date, item.end_date, item.source))
+        return combined

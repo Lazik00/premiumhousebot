@@ -2,7 +2,7 @@ from app.models.balance import BalanceLedgerEntry, HostBalance, PlatformBalance
 from app.models.base import Base
 from app.models.booking import Booking, BookingEvent
 from app.models.payment import Payment, PaymentCallback, Refund, Transaction
-from app.models.property import Amenity, City, Property, PropertyAmenity, PropertyImage, Region
+from app.models.property import Amenity, City, Property, PropertyAmenity, PropertyDateBlock, PropertyImage, Region
 from app.models.user import AuthAuditLog, Permission, RefreshToken, Role, RolePermission, User, UserRole
 
 __all__ = [
@@ -18,6 +18,7 @@ __all__ = [
     'Permission',
     'PlatformBalance',
     'Property',
+    'PropertyDateBlock',
     'Refund',
     'RefreshToken',
     'Region',

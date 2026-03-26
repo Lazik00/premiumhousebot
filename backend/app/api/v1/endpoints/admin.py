@@ -1,4 +1,5 @@
 import uuid
+from datetime import date
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,6 +18,9 @@ from app.schemas.admin import (
     AdminMetaOptionsResponse,
     AdminPaymentDetailResponse,
     AdminPaymentListResponse,
+    AdminPropertyAvailabilityBlockResponse,
+    AdminPropertyAvailabilityCreateRequest,
+    AdminPropertyAvailabilityResponse,
     AdminPropertyCreateRequest,
     AdminPropertyDetailResponse,
     AdminUploadedImageResponse,
@@ -191,6 +195,62 @@ async def get_property_detail(
     del current_user
     try:
         return await admin_service.get_property_detail(db, _to_uuid(property_id, 'property_id'))
+    except ValueError as exc:
+        _raise_service_error(exc)
+
+
+@router.get('/properties/{property_id}/availability', response_model=AdminPropertyAvailabilityResponse)
+async def get_property_availability(
+    property_id: str,
+    from_date: date | None = Query(default=None),
+    to_date: date | None = Query(default=None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminPropertyAvailabilityResponse:
+    del current_user
+    try:
+        return await admin_service.get_property_availability(
+            db=db,
+            property_id=_to_uuid(property_id, 'property_id'),
+            from_date=from_date,
+            to_date=to_date,
+        )
+    except ValueError as exc:
+        _raise_service_error(exc)
+
+
+@router.post('/properties/{property_id}/availability/blocks', response_model=AdminPropertyAvailabilityBlockResponse, status_code=status.HTTP_201_CREATED)
+async def create_property_availability_block(
+    property_id: str,
+    payload: AdminPropertyAvailabilityCreateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminPropertyAvailabilityBlockResponse:
+    try:
+        return await admin_service.create_property_availability_block(
+            db=db,
+            property_id=_to_uuid(property_id, 'property_id'),
+            payload=payload,
+            created_by_user_id=current_user.id,
+        )
+    except ValueError as exc:
+        _raise_service_error(exc)
+
+
+@router.delete('/properties/{property_id}/availability/blocks/{block_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_property_availability_block(
+    property_id: str,
+    block_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> None:
+    del current_user
+    try:
+        await admin_service.delete_property_availability_block(
+            db=db,
+            property_id=_to_uuid(property_id, 'property_id'),
+            block_id=_to_uuid(block_id, 'block_id'),
+        )
     except ValueError as exc:
         _raise_service_error(exc)
 

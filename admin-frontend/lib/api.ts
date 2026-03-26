@@ -8,6 +8,9 @@ import type {
   AdminMetaOptions,
   AdminPaymentDetail,
   AdminPaymentRow,
+  AdminPropertyAvailabilityBlock,
+  AdminPropertyAvailability,
+  AdminPropertyAvailabilityCreatePayload,
   AdminPropertyDetail,
   AdminPropertyPayload,
   AdminPropertyRow,
@@ -216,6 +219,23 @@ export async function updatePropertyStatus(propertyId: string, status: string): 
   return request(`/admin/properties/${propertyId}/status`, {
     method: 'PUT',
     body: JSON.stringify({ status }),
+  });
+}
+
+export async function getPropertyAvailability(propertyId: string, params: { from_date?: string; to_date?: string } = {}): Promise<AdminPropertyAvailability> {
+  return request<AdminPropertyAvailability>(`/admin/properties/${propertyId}/availability${queryString(params)}`);
+}
+
+export async function createPropertyAvailabilityBlock(propertyId: string, payload: AdminPropertyAvailabilityCreatePayload): Promise<AdminPropertyAvailabilityBlock> {
+  return request<AdminPropertyAvailabilityBlock>(`/admin/properties/${propertyId}/availability/blocks`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deletePropertyAvailabilityBlock(propertyId: string, blockId: string): Promise<void> {
+  return request<void>(`/admin/properties/${propertyId}/availability/blocks/${blockId}`, {
+    method: 'DELETE',
   });
 }
 

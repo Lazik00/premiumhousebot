@@ -1,5 +1,5 @@
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,7 +17,7 @@ from app.models.enums import (
     UserStatus,
 )
 from app.models.payment import Payment, PaymentCallback, Refund, Transaction
-from app.models.property import Amenity, City, Property, PropertyAmenity, PropertyImage, Region
+from app.models.property import Amenity, City, Property, PropertyAmenity, PropertyDateBlock, PropertyImage, Region
 from app.models.user import Role, User, UserRole
 from app.schemas.admin import (
     AdminAmenityOptionResponse,
@@ -39,6 +39,9 @@ from app.schemas.admin import (
     AdminPaymentDetailResponse,
     AdminPaymentListResponse,
     AdminPaymentResponse,
+    AdminPropertyAvailabilityBlockResponse,
+    AdminPropertyAvailabilityCreateRequest,
+    AdminPropertyAvailabilityResponse,
     AdminPropertyCreateRequest,
     AdminPropertyDetailResponse,
     AdminPropertyImageResponse,
@@ -53,9 +56,12 @@ from app.schemas.admin import (
     RevenuePointResponse,
     StatusCountResponse,
 )
+from app.services.property_service import PropertyService
 
 
 class AdminService:
+    property_service = PropertyService()
+
     async def get_dashboard(self, db: AsyncSession) -> AdminDashboardResponse:
         now = datetime.now(UTC)
         since = now - timedelta(days=6)
@@ -393,6 +399,122 @@ class AdminService:
             created_at=property_obj.created_at,
             updated_at=property_obj.updated_at,
         )
+
+    async def get_property_availability(
+        self,
+        db: AsyncSession,
+        property_id: uuid.UUID,
+        from_date: date | None = None,
+        to_date: date | None = None,
+    ) -> AdminPropertyAvailabilityResponse:
+        row = await self._load_admin_property_row(db, property_id)
+        if row is None:
+            raise ValueError('Property not found')
+
+        ranges = await self.property_service.get_blocked_ranges(
+            db=db,
+            property_id=property_id,
+            from_date=from_date,
+            to_date=to_date,
+        )
+        return AdminPropertyAvailabilityResponse(
+            property_id=str(property_id),
+            blocked_ranges=[
+                AdminPropertyAvailabilityBlockResponse(
+                    id=str(item.id) if item.source == 'manual' and item.id else None,
+                    source=item.source,
+                    status=item.status,
+                    start_date=item.start_date,
+                    end_date=item.end_date,
+                    label=item.label,
+                    note=item.note,
+                    booking_id=str(item.booking_id) if item.booking_id else None,
+                    booking_code=item.booking_code,
+                    can_delete=item.source == 'manual',
+                    created_at=item.created_at,
+                )
+                for item in ranges
+            ],
+        )
+
+    async def create_property_availability_block(
+        self,
+        db: AsyncSession,
+        property_id: uuid.UUID,
+        payload: AdminPropertyAvailabilityCreateRequest,
+        created_by_user_id: uuid.UUID,
+    ) -> AdminPropertyAvailabilityBlockResponse:
+        row = await self._load_admin_property_row(db, property_id)
+        if row is None:
+            raise ValueError('Property not found')
+        if payload.end_date <= payload.start_date:
+            raise ValueError('end_date must be after start_date')
+
+        overlap_result = await db.execute(
+            select(PropertyDateBlock)
+            .where(
+                PropertyDateBlock.property_id == property_id,
+                PropertyDateBlock.deleted_at.is_(None),
+                and_(PropertyDateBlock.start_date < payload.end_date, PropertyDateBlock.end_date > payload.start_date),
+            )
+            .limit(1)
+        )
+        existing_manual_block = overlap_result.scalar_one_or_none()
+        if existing_manual_block is not None:
+            raise ValueError('Selected dates already contain a manual block')
+
+        existing_ranges = await self.property_service.get_blocked_ranges(
+            db=db,
+            property_id=property_id,
+            from_date=payload.start_date,
+            to_date=payload.end_date,
+        )
+        if any(item.source == 'booking' for item in existing_ranges):
+            raise ValueError('Selected dates overlap with an active booking')
+
+        block = PropertyDateBlock(
+            property_id=property_id,
+            created_by_user_id=created_by_user_id,
+            start_date=payload.start_date,
+            end_date=payload.end_date,
+            note=payload.note.strip() if payload.note else None,
+        )
+        db.add(block)
+        await db.commit()
+        await db.refresh(block)
+        return AdminPropertyAvailabilityBlockResponse(
+            id=str(block.id),
+            source='manual',
+            status='blocked',
+            start_date=block.start_date,
+            end_date=block.end_date,
+            label='manual_block',
+            note=block.note,
+            booking_id=None,
+            booking_code=None,
+            can_delete=True,
+            created_at=block.created_at,
+        )
+
+    async def delete_property_availability_block(
+        self,
+        db: AsyncSession,
+        property_id: uuid.UUID,
+        block_id: uuid.UUID,
+    ) -> None:
+        result = await db.execute(
+            select(PropertyDateBlock).where(
+                PropertyDateBlock.id == block_id,
+                PropertyDateBlock.property_id == property_id,
+                PropertyDateBlock.deleted_at.is_(None),
+            )
+        )
+        block = result.scalar_one_or_none()
+        if block is None:
+            raise ValueError('Availability block not found')
+
+        block.deleted_at = datetime.now(UTC)
+        await db.commit()
 
     async def create_property(
         self,

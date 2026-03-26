@@ -200,6 +200,31 @@ export interface AdminPropertyDetail {
   updated_at: string;
 }
 
+export interface AdminPropertyAvailabilityBlock {
+  id?: string | null;
+  source: 'booking' | 'manual' | string;
+  status: string;
+  start_date: string;
+  end_date: string;
+  label?: string | null;
+  note?: string | null;
+  booking_id?: string | null;
+  booking_code?: string | null;
+  can_delete: boolean;
+  created_at?: string | null;
+}
+
+export interface AdminPropertyAvailability {
+  property_id: string;
+  blocked_ranges: AdminPropertyAvailabilityBlock[];
+}
+
+export interface AdminPropertyAvailabilityCreatePayload {
+  start_date: string;
+  end_date: string;
+  note?: string | null;
+}
+
 export interface AdminPropertyPayload {
   host_id: string;
   region_id: string;

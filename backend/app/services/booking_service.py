@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.models.booking import Booking, BookingEvent
 from app.models.enums import BookingStatus, PropertyStatus
-from app.models.property import Property
+from app.models.property import Property, PropertyDateBlock
 from app.utils.locks import redis_lock
 
 
@@ -89,6 +89,19 @@ class BookingService:
             )
             overlap = overlap_result.scalars().first()
             if overlap:
+                raise ValueError('Selected dates are unavailable')
+
+            manual_block_result = await db.execute(
+                select(PropertyDateBlock)
+                .where(
+                    PropertyDateBlock.property_id == property_id,
+                    PropertyDateBlock.deleted_at.is_(None),
+                    and_(PropertyDateBlock.start_date < end_date, PropertyDateBlock.end_date > start_date),
+                )
+                .limit(1)
+            )
+            manual_block = manual_block_result.scalars().first()
+            if manual_block:
                 raise ValueError('Selected dates are unavailable')
 
             nights = (end_date - start_date).days

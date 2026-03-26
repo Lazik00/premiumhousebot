@@ -2,9 +2,10 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createBooking, createPaymentLink, getProperty } from '../../lib/api';
+import { createBooking, createPaymentLink, getProperty, getPropertyAvailability } from '../../lib/api';
+import BookingAvailabilityCalendar from '../../components/BookingAvailabilityCalendar';
 import PriceDisplay from '../../components/PriceDisplay';
-import type { PropertyDetail } from '../../lib/types';
+import type { BlockedRange, PropertyDetail } from '../../lib/types';
 import { useAuth } from '../../context/AuthContext';
 import { useAppPreferences } from '../../context/AppPreferencesContext';
 import { formatUnitCount } from '../../lib/i18n';
@@ -98,7 +99,10 @@ function BookingContent() {
 
     const [property, setProperty] = useState<PropertyDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAvailabilityLoading, setIsAvailabilityLoading] = useState(true);
     const [step, setStep] = useState(1);
+    const [showCalendarModal, setShowCalendarModal] = useState(false);
+    const [blockedRanges, setBlockedRanges] = useState<BlockedRange[]>([]);
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -114,17 +118,33 @@ function BookingContent() {
     const [isBooking, setIsBooking] = useState(false);
     const [bookingResult, setBookingResult] = useState<{ id: string; code: string; total: number } | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const today = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         if (!propertyId) {
             setIsLoading(false);
+            setIsAvailabilityLoading(false);
             return;
         }
 
-        getProperty(propertyId)
-            .then(setProperty)
+        const fromDate = today;
+        const toDateObject = new Date();
+        toDateObject.setMonth(toDateObject.getMonth() + 12);
+        const toDate = toDateObject.toISOString().split('T')[0];
+
+        Promise.all([
+            getProperty(propertyId),
+            getPropertyAvailability(propertyId, fromDate, toDate),
+        ])
+            .then(([propertyResponse, availabilityResponse]) => {
+                setProperty(propertyResponse);
+                setBlockedRanges(availabilityResponse.blocked_ranges);
+            })
             .catch(() => setError(t('property.notFound')))
-            .finally(() => setIsLoading(false));
+            .finally(() => {
+                setIsLoading(false);
+                setIsAvailabilityLoading(false);
+            });
     }, [propertyId, t]);
 
     useEffect(() => {
@@ -143,8 +163,6 @@ function BookingContent() {
             setHasReadPrivacy(true);
         }
     }, [showPrivacyModal]);
-
-    const today = new Date().toISOString().split('T')[0];
 
     const totalNights = useMemo(() => {
         if (!startDate || !endDate) return 0;
@@ -183,6 +201,10 @@ function BookingContent() {
     }[language];
 
     const progressLabel = t('booking.progress', { step });
+    const dateLabelLocale = language === 'ru' ? 'ru-RU' : language === 'en' ? 'en-US' : 'uz-UZ';
+    const selectedDatesLabel = startDate && endDate
+        ? `${new Date(`${startDate}T00:00:00`).toLocaleDateString(dateLabelLocale, { day: '2-digit', month: 'short' })} → ${new Date(`${endDate}T00:00:00`).toLocaleDateString(dateLabelLocale, { day: '2-digit', month: 'short' })}`
+        : t('booking.selectDatesHint');
 
     const handlePolicyScroll = () => {
         const node = policyContentRef.current;
@@ -499,6 +521,18 @@ function BookingContent() {
 
                 {step === 1 && (
                     <div style={{ padding: '0 16px' }}>
+                        <BookingAvailabilityCalendar
+                            isOpen={showCalendarModal}
+                            blockedRanges={blockedRanges}
+                            initialStartDate={startDate}
+                            initialEndDate={endDate}
+                            onClose={() => setShowCalendarModal(false)}
+                            onApply={(nextStartDate, nextEndDate) => {
+                                setStartDate(nextStartDate);
+                                setEndDate(nextEndDate);
+                            }}
+                        />
+
                         <div
                             style={{
                                 padding: 18,
@@ -511,50 +545,51 @@ function BookingContent() {
                             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800, marginBottom: 14 }}>
                                 {t('booking.selectDates')}
                             </h2>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-muted)', marginBottom: 6 }}>
-                                        {t('search.checkIn')}
-                                    </label>
-                                    <input
-                                        type="date"
-                                        min={today}
-                                        value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    haptic('light');
+                                    setShowCalendarModal(true);
+                                }}
+                                style={{
+                                    width: '100%',
+                                    padding: '16px 18px',
+                                    borderRadius: 18,
+                                    border: '1px solid rgba(242,217,162,0.12)',
+                                    background: 'linear-gradient(180deg, rgba(255,247,232,0.04) 0%, rgba(255,247,232,0.02) 100%)',
+                                    color: 'var(--color-text)',
+                                    textAlign: 'left',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                                    <div>
+                                        <div style={{ fontSize: 12, color: 'var(--color-muted)', marginBottom: 6 }}>{t('booking.openCalendar')}</div>
+                                        <div style={{ fontSize: 17, fontWeight: 800, marginBottom: 6 }}>{selectedDatesLabel}</div>
+                                        <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>
+                                            {isAvailabilityLoading ? t('booking.calendarLoading') : t('booking.calendarSubtitle')}
+                                        </div>
+                                    </div>
+                                    <div
                                         style={{
-                                            width: '100%',
-                                            padding: '14px 16px',
+                                            width: 44,
+                                            height: 44,
                                             borderRadius: 14,
-                                            border: '1px solid var(--color-line)',
-                                            background: 'var(--color-canvas)',
-                                            color: 'var(--color-text)',
-                                            fontSize: 14,
-                                            fontFamily: 'var(--font-body)',
+                                            background: 'rgba(242,217,162,0.12)',
+                                            border: '1px solid rgba(242,217,162,0.16)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            flexShrink: 0,
                                         }}
-                                    />
+                                    >
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <rect x="3.5" y="5" width="17" height="15" rx="3" />
+                                            <path d="M8 3v4M16 3v4M3.5 10h17" />
+                                        </svg>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-muted)', marginBottom: 6 }}>
-                                        {t('search.checkOut')}
-                                    </label>
-                                    <input
-                                        type="date"
-                                        min={startDate || today}
-                                        value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '14px 16px',
-                                            borderRadius: 14,
-                                            border: '1px solid var(--color-line)',
-                                            background: 'var(--color-canvas)',
-                                            color: 'var(--color-text)',
-                                            fontSize: 14,
-                                            fontFamily: 'var(--font-body)',
-                                        }}
-                                    />
-                                </div>
-                            </div>
+                            </button>
 
                             <div
                                 style={{

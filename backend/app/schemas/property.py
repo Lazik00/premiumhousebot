@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from pydantic import BaseModel
 
@@ -64,9 +64,15 @@ class PropertyListResponse(BaseModel):
 
 
 class BlockedRangeResponse(BaseModel):
+    id: str | None = None
     start_date: date
     end_date: date
     status: str
+    source: str = 'booking'
+    label: str | None = None
+    note: str | None = None
+    booking_id: str | None = None
+    created_at: datetime | None = None
 
 
 class PropertyAvailabilityResponse(BaseModel):
