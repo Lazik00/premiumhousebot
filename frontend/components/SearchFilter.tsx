@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAppPreferences } from '../context/AppPreferencesContext';
 import { haptic } from '../lib/telegram';
 
 interface SearchFilterProps {
@@ -16,6 +17,7 @@ export interface FilterValues {
 }
 
 export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps) {
+    const { t } = useAppPreferences();
     const [city, setCity] = useState('');
     const [guests, setGuests] = useState<number | undefined>();
     const [checkIn, setCheckIn] = useState('');
@@ -92,7 +94,7 @@ export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps)
                         </svg>
                         <input
                             type="text"
-                            placeholder="Shahar yoki hudud qidiring..."
+                            placeholder={t('search.placeholder')}
                             value={city}
                             onChange={(e) => setCity(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -153,12 +155,12 @@ export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps)
                     }}
                 >
                     <div>
-                        <label style={labelStyle}>Mehmonlar soni</label>
+                        <label style={labelStyle}>{t('search.guests')}</label>
                         <input
                             type="number"
                             min={1}
                             max={30}
-                            placeholder="Mehmonlar"
+                            placeholder={t('search.guestsPlaceholder')}
                             value={guests ?? ''}
                             onChange={(e) => setGuests(e.target.value ? Number(e.target.value) : undefined)}
                             style={inputStyle}
@@ -167,11 +169,11 @@ export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps)
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         <div>
-                            <label style={labelStyle}>Kirish sanasi</label>
+                            <label style={labelStyle}>{t('search.checkIn')}</label>
                             <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} style={inputStyle} />
                         </div>
                         <div>
-                            <label style={labelStyle}>Chiqish sanasi</label>
+                            <label style={labelStyle}>{t('search.checkOut')}</label>
                             <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} style={inputStyle} />
                         </div>
                     </div>
@@ -192,7 +194,7 @@ export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps)
                                 fontFamily: 'var(--font-body)',
                             }}
                         >
-                            Tozalash
+                            {t('search.clear')}
                         </button>
                         <button
                             onClick={handleSearch}
@@ -212,7 +214,7 @@ export default function SearchFilter({ onSearch, isLoading }: SearchFilterProps)
                                 boxShadow: 'var(--shadow-glow)',
                             }}
                         >
-                            {isLoading ? 'Qidirilmoqda...' : 'Qidirish'}
+                            {isLoading ? t('search.searching') : t('search.submit')}
                         </button>
                     </div>
                 </div>

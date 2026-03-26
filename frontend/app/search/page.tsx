@@ -6,8 +6,10 @@ import type { PropertySummary } from '../../lib/types';
 import PropertyCard, { PropertyCardSkeleton } from '../../components/PropertyCard';
 import SearchFilter, { type FilterValues } from '../../components/SearchFilter';
 import BottomNav from '../../components/BottomNav';
+import { useAppPreferences } from '../../context/AppPreferencesContext';
 
 export default function SearchPage() {
+    const { t } = useAppPreferences();
     const [properties, setProperties] = useState<PropertySummary[]>([]);
     const [total, setTotal] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -52,10 +54,10 @@ export default function SearchPage() {
                             marginBottom: 6,
                         }}
                     >
-                        Qidiruv
+                        {t('search.title')}
                     </h1>
                     <p style={{ fontSize: 14, color: 'var(--color-muted)' }}>
-                        Shahar, sana va mehmonlar bo'yicha mos premium uylarni toping
+                        {t('search.subtitle')}
                     </p>
                 </div>
 
@@ -64,10 +66,10 @@ export default function SearchPage() {
                 {hasSearched && !isLoading && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700 }}>
-                            Natijalar
+                            {t('search.results')}
                         </h2>
                         <span style={{ fontSize: 13, color: 'var(--color-brand-light)', fontWeight: 800 }}>
-                            {total} ta topildi
+                            {t('search.found', { count: total })}
                         </span>
                     </div>
                 )}
@@ -89,10 +91,10 @@ export default function SearchPage() {
                             <div className="fade-in" style={{ textAlign: 'center', padding: '54px 20px', color: 'var(--color-muted)', gridColumn: '1 / -1', borderRadius: 24, background: 'var(--gradient-card)', border: '1px solid var(--color-line)' }}>
                                 <div style={{ fontSize: 48, marginBottom: 12 }}>🏠</div>
                                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
-                                    Natija topilmadi
+                                    {t('search.noResultsTitle')}
                                 </h3>
                                 <p style={{ fontSize: 14 }}>
-                                    Boshqa sana yoki mehmon sonini sinab ko'ring
+                                    {t('search.noResultsDescription')}
                                 </p>
                             </div>
                         )
@@ -100,10 +102,10 @@ export default function SearchPage() {
                         <div className="fade-in" style={{ textAlign: 'center', padding: '54px 20px', color: 'var(--color-muted)', gridColumn: '1 / -1', borderRadius: 24, background: 'var(--gradient-card)', border: '1px solid var(--color-line)' }}>
                             <div style={{ fontSize: 48, marginBottom: 12, animation: 'float 3s infinite' }}>🏡</div>
                             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
-                                Qidiruvni boshlang
+                                {t('search.startTitle')}
                             </h3>
                             <p style={{ fontSize: 14 }}>
-                                Kerakli sanalarni kiriting va katalogni toraytiring
+                                {t('search.startDescription')}
                             </p>
                         </div>
                     )}

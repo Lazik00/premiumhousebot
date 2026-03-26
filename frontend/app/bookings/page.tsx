@@ -3,23 +3,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMyBookings } from '../../lib/api';
+import PriceDisplay from '../../components/PriceDisplay';
 import { haptic } from '../../lib/telegram';
 import { useAuth } from '../../context/AuthContext';
+import { useAppPreferences } from '../../context/AppPreferencesContext';
+import { formatLocalizedDate, formatUnitCount } from '../../lib/i18n';
 import type { Booking } from '../../lib/types';
 import { BookingCardSkeleton } from '../../components/LoadingSkeleton';
 import BottomNav from '../../components/BottomNav';
-
-function formatPrice(price: number): string {
-    return `${new Intl.NumberFormat('uz-UZ').format(price)} so'm`;
-}
-
-function formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('uz-UZ', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    });
-}
 
 function getRemainingMs(expiresAt: string | undefined, nowMs: number): number {
     if (!expiresAt) return 0;
@@ -39,38 +30,34 @@ function formatCountdown(ms: number): string {
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-function formatCountdownText(ms: number): string {
+function formatCountdownText(
+    ms: number,
+    t: (key: string, variables?: Record<string, string | number>) => string,
+): string {
     const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
     if (hours > 0) {
-        return `${hours} soat ${minutes} daqiqa ${seconds} soniyada eskiradi`;
+        return t('bookings.expiresInHours', { hours, minutes, seconds });
     }
     if (minutes > 0) {
-        return `${minutes} daqiqa ${seconds} soniyada eskiradi`;
+        return t('bookings.expiresInMinutes', { minutes, seconds });
     }
-    return `${seconds} soniyada eskiradi`;
+    return t('bookings.expiresInSeconds', { seconds });
 }
 
-const statusConfig: Record<string, { label: string; color: string; bg: string; emoji: string }> = {
-    pending_payment: { label: 'To\'lov kutilmoqda', color: 'var(--color-warning)', bg: 'rgba(210,174,104,0.14)', emoji: '⏳' },
-    confirmed: { label: 'Tasdiqlangan', color: '#00b894', bg: 'rgba(0,184,148,0.12)', emoji: '✅' },
-    completed: { label: 'Yakunlangan', color: 'var(--color-brand)', bg: 'rgba(210,174,104,0.12)', emoji: '🏁' },
-    cancelled: { label: 'Bekor qilingan', color: '#d63031', bg: 'rgba(214,48,49,0.12)', emoji: '❌' },
-    expired: { label: 'Muddati o\'tgan', color: '#636e72', bg: 'rgba(99,110,114,0.12)', emoji: '⌛' },
-};
-
 const tabs = [
-    { key: 'active', label: 'Faol' },
-    { key: 'past', label: 'O\'tgan' },
-    { key: 'all', label: 'Hammasi' },
+    { key: 'active', labelKey: 'bookings.active' },
+    { key: 'past', labelKey: 'bookings.past' },
+    { key: 'all', labelKey: 'bookings.all' },
 ];
 
 export default function BookingsPage() {
     const router = useRouter();
     const { isAuthenticated, isLoading: authLoading } = useAuth();
+    const { t, language } = useAppPreferences();
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('active');
@@ -116,10 +103,10 @@ export default function BookingsPage() {
                 <div style={{ padding: 'calc(60px + var(--tg-safe-top, 60px)) 20px 60px', textAlign: 'center' }}>
                     <div style={{ fontSize: 64, marginBottom: 16 }}>🔐</div>
                     <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
-                        Tizimga kirish kerak
+                        {t('bookings.loginRequiredTitle')}
                     </h2>
                     <p style={{ fontSize: 14, color: 'var(--color-muted)' }}>
-                        Buyurtmalarni ko&apos;rish uchun Telegram orqali tizimga kiring
+                        {t('bookings.loginRequiredDescription')}
                     </p>
                 </div>
                 <BottomNav />
@@ -138,7 +125,7 @@ export default function BookingsPage() {
                         marginBottom: 16,
                     }}
                 >
-                    Buyurtmalarim
+                    {t('bookings.title')}
                 </h1>
 
                 <div
@@ -168,7 +155,7 @@ export default function BookingsPage() {
                                 fontFamily: 'var(--font-body)',
                             }}
                         >
-                            {tab.label}
+                            {t(tab.labelKey)}
                         </button>
                     ))}
                 </div>
@@ -183,15 +170,51 @@ export default function BookingsPage() {
                     </>
                 ) : filteredBookings.length > 0 ? (
                     filteredBookings.map((booking, index) => {
-                        const status = statusConfig[booking.status] || statusConfig.expired;
+                        const statusLabelMap: Record<string, string> = {
+                            pending_payment: t('bookings.pendingPayment'),
+                            confirmed: t('bookings.confirmed'),
+                            completed: t('bookings.completed'),
+                            cancelled: t('bookings.cancelled'),
+                            expired: t('bookings.expired'),
+                        };
+                        const status = {
+                            label: statusLabelMap[booking.status] || t('bookings.expired'),
+                            color: booking.status === 'confirmed'
+                                ? '#00b894'
+                                : booking.status === 'completed'
+                                    ? 'var(--color-brand)'
+                                    : booking.status === 'cancelled'
+                                        ? '#d63031'
+                                        : booking.status === 'expired'
+                                            ? '#636e72'
+                                            : 'var(--color-warning)',
+                            bg: booking.status === 'confirmed'
+                                ? 'rgba(0,184,148,0.12)'
+                                : booking.status === 'completed'
+                                    ? 'rgba(210,174,104,0.12)'
+                                    : booking.status === 'cancelled'
+                                        ? 'rgba(214,48,49,0.12)'
+                                        : booking.status === 'expired'
+                                            ? 'rgba(99,110,114,0.12)'
+                                            : 'rgba(210,174,104,0.14)',
+                            emoji: booking.status === 'confirmed'
+                                ? '✅'
+                                : booking.status === 'completed'
+                                    ? '🏁'
+                                    : booking.status === 'cancelled'
+                                        ? '❌'
+                                        : booking.status === 'expired'
+                                            ? '⌛'
+                                            : '⏳',
+                        };
                         const remainingMs = booking.status === 'pending_payment' ? getRemainingMs(booking.expires_at, nowMs) : 0;
                         const countdown = remainingMs > 0 ? formatCountdown(remainingMs) : null;
-                        const countdownText = remainingMs > 0 ? formatCountdownText(remainingMs) : 'To\'lov oynasi eskirgan';
+                        const countdownText = remainingMs > 0 ? formatCountdownText(remainingMs, t) : t('bookings.expiredWindow');
                         const helperText = booking.status === 'pending_payment'
                             ? countdownText
                             : booking.status === 'confirmed'
-                                ? 'Ichida buyurtma ma\'lumotlari va bekor qilish tugmasi bor'
-                                : 'Buyurtma tafsilotlarini ko\'rish';
+                                ? t('bookings.detailHintConfirmed')
+                                : t('bookings.detailHint');
 
                         return (
                             <div key={booking.id} className="slide-up" style={{ animationDelay: `${index * 0.05}s` }}>
@@ -263,23 +286,30 @@ export default function BookingsPage() {
                                         }}
                                     >
                                         <div style={{ flex: 1 }}>
-                                            <div style={{ fontSize: 11, color: 'var(--color-muted)', marginBottom: 2 }}>Kirish</div>
-                                            <div style={{ fontSize: 14, fontWeight: 600 }}>{formatDate(booking.start_date)}</div>
+                                            <div style={{ fontSize: 11, color: 'var(--color-muted)', marginBottom: 2 }}>{t('bookings.checkIn')}</div>
+                                            <div style={{ fontSize: 14, fontWeight: 600 }}>
+                                                {formatLocalizedDate(booking.start_date, language, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </div>
                                         </div>
                                         <div style={{ color: 'var(--color-muted)' }}>→</div>
                                         <div style={{ flex: 1, textAlign: 'right' }}>
-                                            <div style={{ fontSize: 11, color: 'var(--color-muted)', marginBottom: 2 }}>Chiqish</div>
-                                            <div style={{ fontSize: 14, fontWeight: 600 }}>{formatDate(booking.end_date)}</div>
+                                            <div style={{ fontSize: 11, color: 'var(--color-muted)', marginBottom: 2 }}>{t('bookings.checkOut')}</div>
+                                            <div style={{ fontSize: 14, fontWeight: 600 }}>
+                                                {formatLocalizedDate(booking.end_date, language, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                                         <div style={{ fontSize: 13, color: 'var(--color-muted)' }}>
-                                            {booking.total_nights} kecha • {booking.guests_total} kishi
+                                            {formatUnitCount(language, 'night', booking.total_nights)} • {formatUnitCount(language, 'guest', booking.guests_total)}
                                         </div>
-                                        <div style={{ fontSize: 16, fontWeight: 700 }}>
-                                            <span className="text-gradient">{formatPrice(booking.total_price)}</span>
-                                        </div>
+                                        <PriceDisplay
+                                            amount={booking.total_price}
+                                            primaryStyle={{ fontSize: 16, fontWeight: 700 }}
+                                            secondaryStyle={{ fontSize: 11, color: 'var(--color-muted)' }}
+                                            align="right"
+                                        />
                                     </div>
 
                                     <div
@@ -297,7 +327,7 @@ export default function BookingsPage() {
                                     >
                                         {booking.status === 'pending_payment' ? (
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                <span>Ichiga kirib to'lovni davom ettiring</span>
+                                                <span>{t('bookings.payInside')}</span>
                                                 <span style={{ color: remainingMs > 0 ? 'var(--color-brand-light)' : 'var(--color-danger)' }}>
                                                     {helperText}
                                                 </span>
@@ -321,10 +351,10 @@ export default function BookingsPage() {
                     >
                         <div style={{ fontSize: 48, marginBottom: 12 }}>📭</div>
                         <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
-                            Buyurtmalar yo&apos;q
+                            {t('bookings.noBookingsTitle')}
                         </h3>
                         <p style={{ fontSize: 14, marginBottom: 20 }}>
-                            {activeTab === 'active' ? 'Faol buyurtmalar mavjud emas' : 'Hali buyurtma qilmadingiz'}
+                            {activeTab === 'active' ? t('bookings.noBookingsDescription') : t('bookings.noBookingsDescription')}
                         </p>
                         <button
                             onClick={() => { haptic('light'); router.push('/'); }}
@@ -340,7 +370,7 @@ export default function BookingsPage() {
                                 fontFamily: 'var(--font-body)',
                             }}
                         >
-                            Uylarni ko&apos;rish
+                            {t('booking.browseHomes')}
                         </button>
                     </div>
                 )}

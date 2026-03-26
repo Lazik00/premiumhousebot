@@ -2,12 +2,13 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useAppPreferences } from '../context/AppPreferencesContext';
 import { haptic } from '../lib/telegram';
 
 const tabs = [
     {
         href: '/',
-        label: 'Bosh sahifa',
+        labelKey: 'nav.home',
         icon: (active: boolean) => (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={active ? 'var(--color-brand-light)' : 'var(--color-muted)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -17,7 +18,7 @@ const tabs = [
     },
     {
         href: '/search',
-        label: 'Qidiruv',
+        labelKey: 'nav.search',
         icon: (active: boolean) => (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={active ? 'var(--color-brand-light)' : 'var(--color-muted)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" />
@@ -27,7 +28,7 @@ const tabs = [
     },
     {
         href: '/bookings',
-        label: 'Buyurtmalar',
+        labelKey: 'nav.bookings',
         icon: (active: boolean) => (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={active ? 'var(--color-brand-light)' : 'var(--color-muted)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -39,7 +40,7 @@ const tabs = [
     },
     {
         href: '/profile',
-        label: 'Profil',
+        labelKey: 'nav.profile',
         icon: (active: boolean) => (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={active ? 'var(--color-brand-light)' : 'var(--color-muted)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
@@ -51,6 +52,7 @@ const tabs = [
 
 export default function BottomNav() {
     const pathname = usePathname();
+    const { t } = useAppPreferences();
 
     return (
         <nav
@@ -122,7 +124,7 @@ export default function BottomNav() {
                                     transition: 'color 0.2s ease',
                                 }}
                             >
-                                {tab.label}
+                                {t(tab.labelKey)}
                             </span>
                         </Link>
                     );

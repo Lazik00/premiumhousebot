@@ -30,6 +30,7 @@ from app.schemas.admin import (
     RevenuePointResponse,
     StatusCountResponse,
 )
+from app.schemas.app_config import ExchangeRateResponse, PublicAppConfigResponse
 from app.schemas.booking import BookingCancelRequest, BookingCreateRequest, BookingListResponse, BookingResponse
 from app.schemas.payment import PaymentCallbackRequest, PaymentCallbackResponse, PaymentCreateRequest, PaymentCreateResponse
 from app.schemas.property import (
@@ -68,11 +69,13 @@ __all__ = [
     'BookingListResponse',
     'BookingResponse',
     'BlockedRangeResponse',
+    'ExchangeRateResponse',
     'LogoutRequest',
     'PaymentCallbackRequest',
     'PaymentCallbackResponse',
     'PaymentCreateRequest',
     'PaymentCreateResponse',
+    'PublicAppConfigResponse',
     'PropertyAvailabilityResponse',
     'PropertyDetailResponse',
     'PropertyListResponse',

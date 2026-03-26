@@ -221,7 +221,10 @@ class AdminService:
             select(Region).where(Region.deleted_at.is_(None)).order_by(Region.name_uz.asc())
         )
         city_rows = await db.execute(
-            select(City).where(City.deleted_at.is_(None)).order_by(City.name_uz.asc())
+            select(City, Region.name_uz)
+            .join(Region, Region.id == City.region_id)
+            .where(City.deleted_at.is_(None), Region.deleted_at.is_(None))
+            .order_by(Region.name_uz.asc(), City.name_uz.asc())
         )
         amenity_rows = await db.execute(
             select(Amenity).where(Amenity.deleted_at.is_(None)).order_by(Amenity.name_uz.asc())
@@ -238,7 +241,15 @@ class AdminService:
                 for host_id, first_name, last_name, email, username in host_rows.all()
             ],
             regions=[AdminRegionOptionResponse(id=str(region.id), name=region.name_uz) for region in region_rows.scalars().all()],
-            cities=[AdminCityOptionResponse(id=str(city.id), region_id=str(city.region_id), name=city.name_uz) for city in city_rows.scalars().all()],
+            cities=[
+                AdminCityOptionResponse(
+                    id=str(city.id),
+                    region_id=str(city.region_id),
+                    region_name=region_name,
+                    name=city.name_uz,
+                )
+                for city, region_name in city_rows.all()
+            ],
             amenities=[
                 AdminAmenityOptionResponse(id=str(amenity.id), code=amenity.code, name_uz=amenity.name_uz, icon=amenity.icon)
                 for amenity in amenity_rows.scalars().all()
@@ -313,6 +324,8 @@ class AdminService:
         search: str | None = None,
         status: str | None = None,
         property_type: str | None = None,
+        region_id: uuid.UUID | None = None,
+        city_id: uuid.UUID | None = None,
     ) -> AdminPropertyListResponse:
         stmt = self._admin_property_base_query()
         if search:
@@ -328,6 +341,10 @@ class AdminService:
             stmt = stmt.where(Property.status == PropertyStatus(status))
         if property_type:
             stmt = stmt.where(Property.property_type == PropertyType(property_type))
+        if region_id:
+            stmt = stmt.where(Property.region_id == region_id)
+        if city_id:
+            stmt = stmt.where(Property.city_id == city_id)
 
         total_result = await db.execute(select(func.count()).select_from(stmt.order_by(None).subquery()))
         total = int(total_result.scalar_one() or 0)

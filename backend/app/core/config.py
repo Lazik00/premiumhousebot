@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     redis_url: str = Field(default='redis://redis:6391/0')
     celery_broker_url: str = Field(default='redis://redis:6391/1')
     celery_result_backend: str = Field(default='redis://redis:6391/2')
+    exchange_rate_source_url: str = 'https://cbu.uz/uz/arkhiv-kursov-valyut/json/USD/'
+    exchange_rate_cache_ttl_seconds: int = 3600
+    fallback_usd_to_uzs_rate: float = 12500.0
 
     s3_endpoint: AnyUrl | None = None
     s3_bucket: str = 'premium-house'

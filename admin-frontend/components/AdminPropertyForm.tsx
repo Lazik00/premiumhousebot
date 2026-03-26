@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import AdminCombobox, { type AdminComboboxOption } from './AdminCombobox';
 import { uploadPropertyImage } from '../lib/api';
 import { formatMoney } from '../lib/format';
 import type { AdminMetaOptions, AdminPropertyDetail, AdminPropertyImageInput, AdminPropertyPayload, AdminUploadedImage } from '../lib/types';
@@ -119,6 +120,59 @@ export default function AdminPropertyForm({
   const selectedHost = meta?.hosts.find((item) => item.id === form.host_id);
   const selectedRegion = meta?.regions.find((item) => item.id === form.region_id);
   const selectedCity = meta?.cities.find((item) => item.id === form.city_id);
+  const cityCountByRegion = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const city of meta?.cities || []) {
+      counts.set(city.region_id, (counts.get(city.region_id) || 0) + 1);
+    }
+    return counts;
+  }, [meta?.cities]);
+
+  const hostOptions = useMemo<AdminComboboxOption[]>(
+    () =>
+      (meta?.hosts || []).map((host) => ({
+        value: host.id,
+        label: host.label,
+        description: host.email || (host.username ? `@${host.username}` : 'Email kiritilmagan'),
+        badge: host.username ? `@${host.username}` : 'host',
+        keywords: [host.email || '', host.username || ''],
+      })),
+    [meta?.hosts],
+  );
+  const regionOptions = useMemo<AdminComboboxOption[]>(
+    () =>
+      (meta?.regions || []).map((region) => ({
+        value: region.id,
+        label: region.name,
+        description: `${cityCountByRegion.get(region.id) || 0} ta shahar / tuman mavjud`,
+        badge: `${cityCountByRegion.get(region.id) || 0} ta`,
+        keywords: [region.name],
+      })),
+    [cityCountByRegion, meta?.regions],
+  );
+  const cityOptions = useMemo<AdminComboboxOption[]>(
+    () =>
+      cities.map((city) => ({
+        value: city.id,
+        label: city.name,
+        description: city.region_name,
+        badge: selectedRegion?.name ? 'tanlangan hudud' : null,
+        keywords: [city.region_name, city.name],
+      })),
+    [cities, selectedRegion?.name],
+  );
+  const propertyTypeOptions: AdminComboboxOption[] = [
+    { value: 'apartment', label: 'Apartment', description: 'Kunlik yoki oylik kvartira formatidagi listing' },
+    { value: 'house', label: 'House', description: 'Oilaviy hovli yoki mustaqil uy' },
+    { value: 'villa', label: 'Villa', description: 'Premium hovli, basseynli yoki keng formatdagi uy' },
+  ];
+  const statusOptions: AdminComboboxOption[] = [
+    { value: 'draft', label: 'Draft', description: 'Hali ommaga chiqmagan, ichki tayyor holat' },
+    { value: 'pending_review', label: 'Pending review', description: 'Moderatsiya navbatida turgan listing' },
+    { value: 'active', label: 'Active', description: 'Qidiruv va bron uchun faol holat' },
+    { value: 'blocked', label: 'Blocked', description: 'Admin tomonidan vaqtincha yopilgan listing' },
+    { value: 'archived', label: 'Archived', description: 'Tarix uchun qoldirilgan listing' },
+  ];
 
   const updateField = <K extends keyof AdminPropertyPayload,>(key: K, value: AdminPropertyPayload[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -226,55 +280,75 @@ export default function AdminPropertyForm({
         {loading ? <div style={{ marginTop: 18 }}>Ma'lumotlar yuklanmoqda...</div> : null}
 
         <div className="admin-form-grid admin-form-grid-2" style={{ marginTop: 18 }}>
-          <label className="admin-field">
+          <div className="admin-field">
             <span>Host</span>
-            <select value={form.host_id} onChange={(event) => updateField('host_id', event.target.value)} required>
-              <option value="">Host tanlang</option>
-              {meta?.hosts.map((host) => (
-                <option key={host.id} value={host.id}>{host.label}{host.email ? ` • ${host.email}` : ''}</option>
-              ))}
-            </select>
-          </label>
+            <AdminCombobox
+              value={form.host_id}
+              onChange={(nextValue) => updateField('host_id', nextValue)}
+              options={hostOptions}
+              placeholder="Host tanlang"
+              searchPlaceholder="Host qidiring..."
+              hint="Email va username bilan qidirish mumkin"
+              disabled={!meta}
+            />
+          </div>
 
-          <label className="admin-field">
+          <div className="admin-field">
             <span>Status</span>
-            <select value={form.status} onChange={(event) => updateField('status', event.target.value)} required>
-              <option value="draft">draft</option>
-              <option value="pending_review">pending_review</option>
-              <option value="active">active</option>
-              <option value="blocked">blocked</option>
-              <option value="archived">archived</option>
-            </select>
-          </label>
+            <AdminCombobox
+              value={form.status}
+              onChange={(nextValue) => updateField('status', nextValue)}
+              options={statusOptions}
+              placeholder="Status tanlang"
+              searchPlaceholder="Status qidiring..."
+              disabled={!meta}
+            />
+          </div>
 
-          <label className="admin-field">
+          <div className="admin-field">
             <span>Viloyat</span>
-            <select value={form.region_id} onChange={(event) => updateField('region_id', event.target.value)} required>
-              <option value="">Viloyat tanlang</option>
-              {meta?.regions.map((region) => (
-                <option key={region.id} value={region.id}>{region.name}</option>
-              ))}
-            </select>
-          </label>
+            <AdminCombobox
+              value={form.region_id}
+              onChange={(nextValue) => {
+                setForm((current) => ({
+                  ...current,
+                  region_id: nextValue,
+                  city_id: current.region_id === nextValue ? current.city_id : '',
+                }));
+              }}
+              options={regionOptions}
+              placeholder="Viloyat tanlang"
+              searchPlaceholder="Viloyat qidiring..."
+              hint="Barcha viloyatlar va Toshkent shahri shu yerda"
+              disabled={!meta}
+            />
+          </div>
 
-          <label className="admin-field">
-            <span>Shahar</span>
-            <select value={form.city_id} onChange={(event) => updateField('city_id', event.target.value)} required>
-              <option value="">Shahar tanlang</option>
-              {cities.map((city) => (
-                <option key={city.id} value={city.id}>{city.name}</option>
-              ))}
-            </select>
-          </label>
+          <div className="admin-field">
+            <span>Shahar / tuman</span>
+            <AdminCombobox
+              value={form.city_id}
+              onChange={(nextValue) => updateField('city_id', nextValue)}
+              options={cityOptions}
+              placeholder={form.region_id ? 'Shahar yoki tuman tanlang' : 'Avval viloyatni tanlang'}
+              searchPlaceholder="Shahar yoki tuman qidiring..."
+              hint={form.region_id ? 'Tanlangan hudud ichidagi lokatsiyalar' : "Viloyat tanlangandan keyin ro'yxat ochiladi"}
+              disabled={!meta || !form.region_id}
+              emptyMessage="Bu hudud uchun lokatsiya topilmadi"
+            />
+          </div>
 
-          <label className="admin-field">
+          <div className="admin-field">
             <span>Mulk turi</span>
-            <select value={form.property_type} onChange={(event) => updateField('property_type', event.target.value)} required>
-              <option value="apartment">apartment</option>
-              <option value="house">house</option>
-              <option value="villa">villa</option>
-            </select>
-          </label>
+            <AdminCombobox
+              value={form.property_type}
+              onChange={(nextValue) => updateField('property_type', nextValue)}
+              options={propertyTypeOptions}
+              placeholder="Mulk turini tanlang"
+              searchPlaceholder="Turi bo'yicha qidiring..."
+              disabled={!meta}
+            />
+          </div>
 
           <label className="admin-field">
             <span>Valyuta</span>

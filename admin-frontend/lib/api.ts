@@ -181,7 +181,7 @@ export async function updateUserStatus(userId: string, status: string): Promise<
   });
 }
 
-export async function listProperties(params: { search?: string; status?: string; property_type?: string; limit?: number; offset?: number } = {}): Promise<PaginatedResponse<AdminPropertyRow>> {
+export async function listProperties(params: { search?: string; status?: string; property_type?: string; region_id?: string; city_id?: string; limit?: number; offset?: number } = {}): Promise<PaginatedResponse<AdminPropertyRow>> {
   return request<PaginatedResponse<AdminPropertyRow>>(`/admin/properties${queryString(params)}`);
 }
 

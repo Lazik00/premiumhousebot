@@ -1,0 +1,2022 @@
+{
+  "regions": [
+    {
+      "id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "source_id": 2,
+      "soato_id": 1703,
+      "name_uz": "Andijon viloyati",
+      "name_ru": "Андижанская область",
+      "name_en": "Andijon viloyati",
+      "slug": "andijon-viloyati"
+    },
+    {
+      "id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "source_id": 3,
+      "soato_id": 1706,
+      "name_uz": "Buxoro viloyati",
+      "name_ru": "Бухарская область",
+      "name_en": "Bukhara Region",
+      "slug": "bukhara-region"
+    },
+    {
+      "id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "source_id": 4,
+      "soato_id": 1708,
+      "name_uz": "Jizzax viloyati",
+      "name_ru": "Джизакская область",
+      "name_en": "Jizzax viloyati",
+      "slug": "jizzax-viloyati"
+    },
+    {
+      "id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "source_id": 5,
+      "soato_id": 1710,
+      "name_uz": "Qashqadaryo viloyati",
+      "name_ru": "Кашкадарьинская область",
+      "name_en": "Qashqadaryo viloyati",
+      "slug": "qashqadaryo-viloyati"
+    },
+    {
+      "id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "source_id": 6,
+      "soato_id": 1712,
+      "name_uz": "Navoiy viloyati",
+      "name_ru": "Навоийская область",
+      "name_en": "Navoiy viloyati",
+      "slug": "navoiy-viloyati"
+    },
+    {
+      "id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "source_id": 7,
+      "soato_id": 1714,
+      "name_uz": "Namangan viloyati",
+      "name_ru": "Наманганская область",
+      "name_en": "Namangan viloyati",
+      "slug": "namangan-viloyati"
+    },
+    {
+      "id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "source_id": 8,
+      "soato_id": 1718,
+      "name_uz": "Samarqand viloyati",
+      "name_ru": "Самаркандская область",
+      "name_en": "Samarkand Region",
+      "slug": "samarkand-region"
+    },
+    {
+      "id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "source_id": 10,
+      "soato_id": 1724,
+      "name_uz": "Sirdaryo viloyati",
+      "name_ru": "Сырдарьинская область",
+      "name_en": "Sirdaryo viloyati",
+      "slug": "sirdaryo-viloyati"
+    },
+    {
+      "id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "source_id": 11,
+      "soato_id": 1726,
+      "name_uz": "Toshkent shahri",
+      "name_ru": "город Ташкент",
+      "name_en": "Toshkent shahri",
+      "slug": "toshkent-shahri"
+    },
+    {
+      "id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "source_id": 12,
+      "soato_id": 1727,
+      "name_uz": "Toshkent viloyati",
+      "name_ru": "Ташкентская область",
+      "name_en": "Tashkent Region",
+      "slug": "tashkent-region"
+    },
+    {
+      "id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "source_id": 13,
+      "soato_id": 1730,
+      "name_uz": "Farg'ona viloyati",
+      "name_ru": "Ферганская область",
+      "name_en": "Fergana Region",
+      "slug": "fergana-region"
+    },
+    {
+      "id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "source_id": 14,
+      "soato_id": 1733,
+      "name_uz": "Xorazm viloyati",
+      "name_ru": "Хорезмская область",
+      "name_en": "Xorazm viloyati",
+      "slug": "xorazm-viloyati"
+    },
+    {
+      "id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "source_id": 15,
+      "soato_id": 1735,
+      "name_uz": "Qoraqalpog'iston Respublikasi",
+      "name_ru": "Республика Каракалпакстан",
+      "name_en": "Qoraqalpog'iston Respublikasi",
+      "slug": "qoraqalpogiston-respublikasi"
+    },
+    {
+      "id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "source_id": 5723,
+      "soato_id": 1722,
+      "name_uz": "Surxondaryo viloyati",
+      "name_ru": "Сурхандарьинская область",
+      "name_en": "Surxondaryo viloyati",
+      "slug": "surxondaryo-viloyati"
+    }
+  ],
+  "cities": [
+    {
+      "id": "a9b738d2-6932-4817-8f40-3030299213c6",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": null,
+      "name_uz": "Toshkent",
+      "name_ru": "Ташкент",
+      "name_en": "Tashkent",
+      "slug": "tashkent"
+    },
+    {
+      "id": "9983731c-0e93-50d3-8f9a-ded5ff321090",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703202,
+      "name_uz": "Oltinko'l tumani",
+      "name_ru": "Алтынкульский район",
+      "name_en": "Oltinko'l tumani",
+      "slug": "oltinkol-tumani"
+    },
+    {
+      "id": "aa614f87-4495-5aa7-a9c3-7817b5fc3da1",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703203,
+      "name_uz": "Andijon tumani",
+      "name_ru": "Андижанский район",
+      "name_en": "Andijon tumani",
+      "slug": "andijon-tumani"
+    },
+    {
+      "id": "d49c6842-2284-50ca-92de-6368b4e6a614",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703206,
+      "name_uz": "Baliqchi tumani",
+      "name_ru": "Балыкчинский район",
+      "name_en": "Baliqchi tumani",
+      "slug": "baliqchi-tumani"
+    },
+    {
+      "id": "ce5190c4-c041-529f-89a5-bea6d1824741",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703209,
+      "name_uz": "Bo'z tumani",
+      "name_ru": "Бозский район",
+      "name_en": "Bo'z tumani",
+      "slug": "boz-tumani"
+    },
+    {
+      "id": "4e9b9cbe-68bc-500a-88ba-549a088d2a2d",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703210,
+      "name_uz": "Buloqboshi tumani",
+      "name_ru": "Булакбашинский район",
+      "name_en": "Buloqboshi tumani",
+      "slug": "buloqboshi-tumani"
+    },
+    {
+      "id": "123b04d0-a92e-5cd9-a766-6c941cb9b45d",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703211,
+      "name_uz": "Jalaquduq tumani",
+      "name_ru": "Джалалкудукский район",
+      "name_en": "Jalaquduq tumani",
+      "slug": "jalaquduq-tumani"
+    },
+    {
+      "id": "a7a93b4d-59f3-5f32-b8ff-721d19a3c896",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703214,
+      "name_uz": "Izboskan tumani",
+      "name_ru": "Избасканский район",
+      "name_en": "Izboskan tumani",
+      "slug": "izboskan-tumani"
+    },
+    {
+      "id": "055c8e93-a97a-5730-8349-97ded61b89ee",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703217,
+      "name_uz": "Ulug'nor tumani",
+      "name_ru": "Улугноpский район",
+      "name_en": "Ulug'nor tumani",
+      "slug": "ulugnor-tumani"
+    },
+    {
+      "id": "5eaeb1ee-de09-576e-bc88-982f236f9795",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703220,
+      "name_uz": "Qo'rg'ontepa tumani",
+      "name_ru": "Кургантепинский район",
+      "name_en": "Qo'rg'ontepa tumani",
+      "slug": "qorgontepa-tumani"
+    },
+    {
+      "id": "26a7311c-de7e-5061-80ba-e7d02944a283",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703224,
+      "name_uz": "Asaka tumani",
+      "name_ru": "Асакинский район",
+      "name_en": "Asaka tumani",
+      "slug": "asaka-tumani"
+    },
+    {
+      "id": "944e2288-a0c9-5a59-8bad-d925e3b9c2f5",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703227,
+      "name_uz": "Marxamat tumani",
+      "name_ru": "Мархаматский район",
+      "name_en": "Marxamat tumani",
+      "slug": "marxamat-tumani"
+    },
+    {
+      "id": "d9c1254c-6653-5dcc-929a-54895b36d2ff",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703230,
+      "name_uz": "Shahrixon tumani",
+      "name_ru": "Шахриханский район",
+      "name_en": "Shahrixon tumani",
+      "slug": "shahrixon-tumani"
+    },
+    {
+      "id": "6511b53a-1e66-5a0f-8d82-08b50a740253",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703232,
+      "name_uz": "Paxtaobod tumani",
+      "name_ru": "Пахтаабадский район",
+      "name_en": "Paxtaobod tumani",
+      "slug": "paxtaobod-tumani"
+    },
+    {
+      "id": "5d605573-9027-5afb-9abe-d5862fb07928",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703236,
+      "name_uz": "Xo'jaobod tumani",
+      "name_ru": "Ходжаабадский район",
+      "name_en": "Xo'jaobod tumani",
+      "slug": "xojaobod-tumani"
+    },
+    {
+      "id": "48d0bb2f-29b9-5a0f-b74c-98acf4f69725",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703401,
+      "name_uz": "Andijon",
+      "name_ru": "Андижан",
+      "name_en": "Andijon",
+      "slug": "andijon"
+    },
+    {
+      "id": "62beec71-89dd-5ec3-9440-2432bc0a1db1",
+      "region_id": "4d8e6ff0-79c8-537a-9833-bd574dbc183d",
+      "soato_id": 1703408,
+      "name_uz": "Xonobod",
+      "name_ru": "Ханабад",
+      "name_en": "Xonobod",
+      "slug": "xonobod"
+    },
+    {
+      "id": "08bd7c63-a666-55bd-8202-80289e9df2d2",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706204,
+      "name_uz": "Olot tumani",
+      "name_ru": "Алатский район",
+      "name_en": "Olot tumani",
+      "slug": "olot-tumani"
+    },
+    {
+      "id": "97f43db8-23f9-50f9-98e1-4e19b832b757",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706207,
+      "name_uz": "Buxoro tumani",
+      "name_ru": "Бухарский район",
+      "name_en": "Buxoro tumani",
+      "slug": "buxoro-tumani"
+    },
+    {
+      "id": "261c6a03-9a83-5412-8701-d4a2b6a04e6e",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706212,
+      "name_uz": "Vobkent tumani",
+      "name_ru": "Вабкентский район",
+      "name_en": "Vobkent tumani",
+      "slug": "vobkent-tumani"
+    },
+    {
+      "id": "fbe52b59-bc9c-52a3-ab22-7ffca4be5e87",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706215,
+      "name_uz": "G'ijduvon tumani",
+      "name_ru": "Гиждуванский район",
+      "name_en": "G'ijduvon tumani",
+      "slug": "gijduvon-tumani"
+    },
+    {
+      "id": "b2d0b819-099e-550d-9617-4e620fb6fd54",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706219,
+      "name_uz": "Kogon tumani",
+      "name_ru": "Каганский район",
+      "name_en": "Kogon tumani",
+      "slug": "kogon-tumani"
+    },
+    {
+      "id": "fc7efeb7-1991-58bd-81d4-e1c31422d389",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706230,
+      "name_uz": "Qorako'l tumani",
+      "name_ru": "Каракульский район",
+      "name_en": "Qorako'l tumani",
+      "slug": "qorakol-tumani"
+    },
+    {
+      "id": "1c5df01b-77b8-5231-b571-2e4fccd094a7",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706232,
+      "name_uz": "Qorovulbozor tumani",
+      "name_ru": "Караулбазарский район",
+      "name_en": "Qorovulbozor tumani",
+      "slug": "qorovulbozor-tumani"
+    },
+    {
+      "id": "72dc84a4-45f1-54c1-9635-aac64f58061f",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706240,
+      "name_uz": "Peshku tumani",
+      "name_ru": "Пешкунский район",
+      "name_en": "Peshku tumani",
+      "slug": "peshku-tumani"
+    },
+    {
+      "id": "1e48aef7-ec75-5254-b642-8941847a3733",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706242,
+      "name_uz": "Romitan tumani",
+      "name_ru": "Ромитанский район",
+      "name_en": "Romitan tumani",
+      "slug": "romitan-tumani"
+    },
+    {
+      "id": "0b904549-9cbc-5782-8ce3-f71cc3eefc4c",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706246,
+      "name_uz": "Jondor tumani",
+      "name_ru": "Жандарский район",
+      "name_en": "Jondor tumani",
+      "slug": "jondor-tumani"
+    },
+    {
+      "id": "372c1aac-1daf-5738-aaba-14e674f819ca",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706258,
+      "name_uz": "Shofirkon tumani",
+      "name_ru": "Шафирканский район",
+      "name_en": "Shofirkon tumani",
+      "slug": "shofirkon-tumani"
+    },
+    {
+      "id": "44af7d74-b713-42aa-b35d-e6c70a615640",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706401,
+      "name_uz": "Buxoro",
+      "name_ru": "Бухара",
+      "name_en": "Bukhara",
+      "slug": "bukhara"
+    },
+    {
+      "id": "58ed76fe-f503-5eba-8464-e0226f5fb683",
+      "region_id": "ce943de6-70c0-45cc-a545-ddad8f742551",
+      "soato_id": 1706403,
+      "name_uz": "Kogon",
+      "name_ru": "Каган",
+      "name_en": "Kogon",
+      "slug": "kogon"
+    },
+    {
+      "id": "be56426c-b94b-583a-9acf-7181369df659",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708201,
+      "name_uz": "Arnasoy tumani",
+      "name_ru": "Арнасайский район",
+      "name_en": "Arnasoy tumani",
+      "slug": "arnasoy-tumani"
+    },
+    {
+      "id": "c4582c7e-eef5-5b93-93b8-d1d39906bdc4",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708204,
+      "name_uz": "Baxmal tumani",
+      "name_ru": "Бахмальский район",
+      "name_en": "Baxmal tumani",
+      "slug": "baxmal-tumani"
+    },
+    {
+      "id": "d378ddd8-1f4b-5a4b-8ad7-aef5a9c849c4",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708209,
+      "name_uz": "G'allaorol tumani",
+      "name_ru": "Галляаральский район",
+      "name_en": "G'allaorol tumani",
+      "slug": "gallaorol-tumani"
+    },
+    {
+      "id": "b2a8ba0d-f99e-5a58-9f78-82bccb25e583",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708215,
+      "name_uz": "Do'stlik tumani",
+      "name_ru": "Дустликский район",
+      "name_en": "Do'stlik tumani",
+      "slug": "dostlik-tumani"
+    },
+    {
+      "id": "09dc4a0c-4405-5e08-b05c-883a22809b8d",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708218,
+      "name_uz": "Zomin tumani",
+      "name_ru": "Зааминский район",
+      "name_en": "Zomin tumani",
+      "slug": "zomin-tumani"
+    },
+    {
+      "id": "432927d6-52a3-5582-add1-b70baba6ef35",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708220,
+      "name_uz": "Zarbdor tumani",
+      "name_ru": "Зарбдарский район",
+      "name_en": "Zarbdor tumani",
+      "slug": "zarbdor-tumani"
+    },
+    {
+      "id": "94214029-86f1-593a-99e8-14e1015fe4e6",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708223,
+      "name_uz": "Mirzacho'l tumani",
+      "name_ru": "Мирзачульский район",
+      "name_en": "Mirzacho'l tumani",
+      "slug": "mirzachol-tumani"
+    },
+    {
+      "id": "e262f7e7-0b93-5843-a67d-0215686f3c7c",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708225,
+      "name_uz": "Zafarobod tumani",
+      "name_ru": "Зафарабадский район",
+      "name_en": "Zafarobod tumani",
+      "slug": "zafarobod-tumani"
+    },
+    {
+      "id": "72b1c035-4f17-5531-a7be-bbd44a4899c8",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708228,
+      "name_uz": "Paxtakor tumani",
+      "name_ru": "Пахтакорский район",
+      "name_en": "Paxtakor tumani",
+      "slug": "paxtakor-tumani"
+    },
+    {
+      "id": "48f59d07-9341-53e8-bb50-ad5e1abcea0a",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708235,
+      "name_uz": "Forish tumani",
+      "name_ru": "Фаришский район",
+      "name_en": "Forish tumani",
+      "slug": "forish-tumani"
+    },
+    {
+      "id": "282bc376-6e83-54f4-b2e0-ed157d94b6b4",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708237,
+      "name_uz": "Yangiobod tumani",
+      "name_ru": "Янгиабадский район",
+      "name_en": "Yangiobod tumani",
+      "slug": "yangiobod-tumani"
+    },
+    {
+      "id": "31885c0e-5484-5994-8861-1feb754b822c",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708401,
+      "name_uz": "Jizzax",
+      "name_ru": "Джизак",
+      "name_en": "Jizzax",
+      "slug": "jizzax"
+    },
+    {
+      "id": "310a8e9b-8add-570d-b8f5-d268b1e45b22",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710207,
+      "name_uz": "G'uzor tumani",
+      "name_ru": "Гузарский район",
+      "name_en": "G'uzor tumani",
+      "slug": "guzor-tumani"
+    },
+    {
+      "id": "9439d4c9-6fa3-542d-8034-da77189736c0",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710212,
+      "name_uz": "Dehqonobod tumani",
+      "name_ru": "Дехканабадский район",
+      "name_en": "Dehqonobod tumani",
+      "slug": "dehqonobod-tumani"
+    },
+    {
+      "id": "e60a7789-bdb2-5758-970a-b8da0fb6b02b",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710220,
+      "name_uz": "Qamashi tumani",
+      "name_ru": "Камашинский район",
+      "name_en": "Qamashi tumani",
+      "slug": "qamashi-tumani"
+    },
+    {
+      "id": "6100e979-2c16-565f-ab0f-c253b49a1737",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710224,
+      "name_uz": "Qarshi tumani",
+      "name_ru": "Каршинский район",
+      "name_en": "Qarshi tumani",
+      "slug": "qarshi-tumani"
+    },
+    {
+      "id": "ad86c6c7-e951-54ad-ac7f-44b7e9e34867",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710229,
+      "name_uz": "Koson tumani",
+      "name_ru": "Касанский район",
+      "name_en": "Koson tumani",
+      "slug": "koson-tumani"
+    },
+    {
+      "id": "e494c057-73ec-5e91-8941-e7e070e28894",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710232,
+      "name_uz": "Kitob tumani",
+      "name_ru": "Китабский район",
+      "name_en": "Kitob tumani",
+      "slug": "kitob-tumani"
+    },
+    {
+      "id": "4a305c49-3205-5d0d-964f-089ce3c239bc",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710233,
+      "name_uz": "Mirishkor tumani",
+      "name_ru": "Миришкорский район",
+      "name_en": "Mirishkor tumani",
+      "slug": "mirishkor-tumani"
+    },
+    {
+      "id": "8f3058ad-fc94-563f-8ef5-0fa31a1bccb7",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710234,
+      "name_uz": "Muborak tumani",
+      "name_ru": "Мубарекский район",
+      "name_en": "Muborak tumani",
+      "slug": "muborak-tumani"
+    },
+    {
+      "id": "73c2d1d1-482d-5b83-8066-a3227078f39d",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710235,
+      "name_uz": "Nishon tumani",
+      "name_ru": "Нишанский район",
+      "name_en": "Nishon tumani",
+      "slug": "nishon-tumani"
+    },
+    {
+      "id": "49a95897-ce5f-5e32-8083-7e7a775580d3",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710237,
+      "name_uz": "Kasbi tumani",
+      "name_ru": "Касбинский район",
+      "name_en": "Kasbi tumani",
+      "slug": "kasbi-tumani"
+    },
+    {
+      "id": "ae1f6f35-0281-584e-aa20-937b6c779f69",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710242,
+      "name_uz": "Chiroqchi tumani",
+      "name_ru": "Чиракчинский район",
+      "name_en": "Chiroqchi tumani",
+      "slug": "chiroqchi-tumani"
+    },
+    {
+      "id": "183d453c-3404-52fc-aa4a-ce068210c39a",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710245,
+      "name_uz": "Shahrisabz tumani",
+      "name_ru": "Шахрисабзский район",
+      "name_en": "Shahrisabz tumani",
+      "slug": "shahrisabz-tumani"
+    },
+    {
+      "id": "b8930b24-eb7d-5e73-a56f-14e4ca3df9c5",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710250,
+      "name_uz": "Yakkabog' tumani",
+      "name_ru": "Яккабагский район",
+      "name_en": "Yakkabog' tumani",
+      "slug": "yakkabog-tumani"
+    },
+    {
+      "id": "ea591a57-19ca-54c8-9d28-8050c428b57a",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710401,
+      "name_uz": "Qarshi",
+      "name_ru": "Карши",
+      "name_en": "Qarshi",
+      "slug": "qarshi"
+    },
+    {
+      "id": "6fca3d6b-6d46-5b39-a90c-cbda07c1116f",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710405,
+      "name_uz": "Shahrisabz",
+      "name_ru": "Шахрисабз",
+      "name_en": "Shahrisabz",
+      "slug": "shahrisabz"
+    },
+    {
+      "id": "66a7866e-96ad-5d43-9f3f-f7437ac04298",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712211,
+      "name_uz": "Konimex tumani",
+      "name_ru": "Канимехский район",
+      "name_en": "Konimex tumani",
+      "slug": "konimex-tumani"
+    },
+    {
+      "id": "9d785517-efa7-5cf6-9189-506bbfdd290f",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712216,
+      "name_uz": "Qiziltepa tumani",
+      "name_ru": "Кызылтепинский район",
+      "name_en": "Qiziltepa tumani",
+      "slug": "qiziltepa-tumani"
+    },
+    {
+      "id": "6a7d4d04-a080-5038-a268-aa71f1366802",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712230,
+      "name_uz": "Navbahor tumani",
+      "name_ru": "Навбахорский район",
+      "name_en": "Navbahor tumani",
+      "slug": "navbahor-tumani"
+    },
+    {
+      "id": "0ba486ec-dc5d-5693-991d-f0807ba0680f",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712234,
+      "name_uz": "Karmana tumani",
+      "name_ru": "Карманинский район",
+      "name_en": "Karmana tumani",
+      "slug": "karmana-tumani"
+    },
+    {
+      "id": "d43b62d1-d084-5195-af58-d99e820f2447",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712238,
+      "name_uz": "Nurota tumani",
+      "name_ru": "Нуратинский район",
+      "name_en": "Nurota tumani",
+      "slug": "nurota-tumani"
+    },
+    {
+      "id": "adc645db-8ce4-5959-b3d2-f888be83fa45",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712244,
+      "name_uz": "Tomdi tumani",
+      "name_ru": "Тамдынский район",
+      "name_en": "Tomdi tumani",
+      "slug": "tomdi-tumani"
+    },
+    {
+      "id": "767d1d69-ac4c-5855-ac29-efa67ac7121f",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712248,
+      "name_uz": "Uchquduq tumani",
+      "name_ru": "Учкудукский район",
+      "name_en": "Uchquduq tumani",
+      "slug": "uchquduq-tumani"
+    },
+    {
+      "id": "8d8e2520-d2ec-5960-83bd-055cad399ab4",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712251,
+      "name_uz": "Xatirchi tumani",
+      "name_ru": "Хатырчинский район",
+      "name_en": "Xatirchi tumani",
+      "slug": "xatirchi-tumani"
+    },
+    {
+      "id": "24020e4c-c80f-520f-8402-8a1257a3ad8e",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712401,
+      "name_uz": "Navoiy",
+      "name_ru": "Навои",
+      "name_en": "Navoiy",
+      "slug": "navoiy"
+    },
+    {
+      "id": "35ab64c4-64e8-5292-ada9-75db0e06d8ae",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714204,
+      "name_uz": "Mingbuloq tumani",
+      "name_ru": "Мингбулакский pайон",
+      "name_en": "Mingbuloq tumani",
+      "slug": "mingbuloq-tumani"
+    },
+    {
+      "id": "dc84610d-40e3-567f-b34a-bdab3a41c133",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714207,
+      "name_uz": "Kosonsoy tumani",
+      "name_ru": "Касансайский район",
+      "name_en": "Kosonsoy tumani",
+      "slug": "kosonsoy-tumani"
+    },
+    {
+      "id": "6b908b6b-5c44-5f16-a744-5c7a329368e6",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714212,
+      "name_uz": "Namangan tumani",
+      "name_ru": "Наманганский район",
+      "name_en": "Namangan tumani",
+      "slug": "namangan-tumani"
+    },
+    {
+      "id": "78a90709-37c9-5a2d-833c-f3a958a84703",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714216,
+      "name_uz": "Norin tumani",
+      "name_ru": "Нарынский район",
+      "name_en": "Norin tumani",
+      "slug": "norin-tumani"
+    },
+    {
+      "id": "18e2715f-847a-5a28-824f-6e207b6d393e",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714219,
+      "name_uz": "Pop tumani",
+      "name_ru": "Папский район",
+      "name_en": "Pop tumani",
+      "slug": "pop-tumani"
+    },
+    {
+      "id": "51ff32ab-92c2-56c3-be9b-cb025120b872",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714224,
+      "name_uz": "To'raqo'rg'on tumani",
+      "name_ru": "Туракурганский район",
+      "name_en": "To'raqo'rg'on tumani",
+      "slug": "toraqorgon-tumani"
+    },
+    {
+      "id": "bef78123-a752-5a1d-9d74-bdab9d4a390e",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714229,
+      "name_uz": "Uychi tumani",
+      "name_ru": "Уйчинский район",
+      "name_en": "Uychi tumani",
+      "slug": "uychi-tumani"
+    },
+    {
+      "id": "999df275-40ac-5d70-8786-6208b2d120f6",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714234,
+      "name_uz": "Uchqo'rg'on tumani",
+      "name_ru": "Учкурганский район",
+      "name_en": "Uchqo'rg'on tumani",
+      "slug": "uchqorgon-tumani"
+    },
+    {
+      "id": "eb62a7e6-01d9-5add-9dfb-addc9bb56f5a",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714236,
+      "name_uz": "Chortoq tumani",
+      "name_ru": "Чартакский район",
+      "name_en": "Chortoq tumani",
+      "slug": "chortoq-tumani"
+    },
+    {
+      "id": "2417fdc8-fb32-51c0-8593-ad1edba19d10",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714237,
+      "name_uz": "Chust tumani",
+      "name_ru": "Чустский район",
+      "name_en": "Chust tumani",
+      "slug": "chust-tumani"
+    },
+    {
+      "id": "bd7c905b-c94e-5082-860c-780489d9cf65",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714242,
+      "name_uz": "Yangiqo'rg'on tumani",
+      "name_ru": "Янгикурганский район",
+      "name_en": "Yangiqo'rg'on tumani",
+      "slug": "yangiqorgon-tumani"
+    },
+    {
+      "id": "fc395ec3-73a8-5683-9c0c-fcf963f029aa",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714401,
+      "name_uz": "Namangan",
+      "name_ru": "Наманган",
+      "name_en": "Namangan",
+      "slug": "namangan"
+    },
+    {
+      "id": "872093b5-93f9-514a-974c-69d6e6d1fbda",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718203,
+      "name_uz": "Oqdaryo tumani",
+      "name_ru": "Акдарьинский район",
+      "name_en": "Oqdaryo tumani",
+      "slug": "oqdaryo-tumani"
+    },
+    {
+      "id": "c2043848-ff7a-5f59-b850-ff13cf24685b",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718206,
+      "name_uz": "Bulung'ur tumani",
+      "name_ru": "Булунгурский район",
+      "name_en": "Bulung'ur tumani",
+      "slug": "bulungur-tumani"
+    },
+    {
+      "id": "7942aeee-2a79-5b3c-ad61-38e45757b4c6",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718209,
+      "name_uz": "Jomboy tumani",
+      "name_ru": "Джамбайский район",
+      "name_en": "Jomboy tumani",
+      "slug": "jomboy-tumani"
+    },
+    {
+      "id": "c63dc391-a9a8-5ea7-a46d-243a3a8fa81c",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718212,
+      "name_uz": "Ishtixon tumani",
+      "name_ru": "Иштыханский район",
+      "name_en": "Ishtixon tumani",
+      "slug": "ishtixon-tumani"
+    },
+    {
+      "id": "f2ec1d57-c0b1-5f50-bdd9-ea6deaa8efc8",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718215,
+      "name_uz": "Kattaqo'rg'on tumani",
+      "name_ru": "Каттакурганский район",
+      "name_en": "Kattaqo'rg'on tumani",
+      "slug": "kattaqorgon-tumani"
+    },
+    {
+      "id": "8bca653d-92c0-5a76-a15e-28f0a65274ba",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718216,
+      "name_uz": "Qo'shrabot tumani",
+      "name_ru": "Кушрабадский район",
+      "name_en": "Qo'shrabot tumani",
+      "slug": "qoshrabot-tumani"
+    },
+    {
+      "id": "9a13cb61-3fef-5e7b-866b-d128f73efdfc",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718218,
+      "name_uz": "Narpay tumani",
+      "name_ru": "Нарпайский район",
+      "name_en": "Narpay tumani",
+      "slug": "narpay-tumani"
+    },
+    {
+      "id": "d3896c82-6c9e-5e40-8f62-b343ef8dc625",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718224,
+      "name_uz": "Payariq tumani",
+      "name_ru": "Пайарыкский район",
+      "name_en": "Payariq tumani",
+      "slug": "payariq-tumani"
+    },
+    {
+      "id": "933a0351-9ecf-5a1a-ac7f-568c18be40d5",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718227,
+      "name_uz": "Pastdarg'om tumani",
+      "name_ru": "Пастдаргомский район",
+      "name_en": "Pastdarg'om tumani",
+      "slug": "pastdargom-tumani"
+    },
+    {
+      "id": "20a64194-7ca1-5cd0-80d5-f77b894cd259",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718230,
+      "name_uz": "Paxtachi tumani",
+      "name_ru": "Пахтачийский район",
+      "name_en": "Paxtachi tumani",
+      "slug": "paxtachi-tumani"
+    },
+    {
+      "id": "1ef0318e-26e7-5258-8cc5-ca3b47faebdf",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718233,
+      "name_uz": "Samarqand tumani",
+      "name_ru": "Самаркандский район",
+      "name_en": "Samarqand tumani",
+      "slug": "samarqand-tumani"
+    },
+    {
+      "id": "c15a7e0d-ea6e-5cda-8bc0-ae8d48ed0eaa",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718235,
+      "name_uz": "Nurobod tumani",
+      "name_ru": "Нурабадский район",
+      "name_en": "Nurobod tumani",
+      "slug": "nurobod-tumani"
+    },
+    {
+      "id": "c5e10291-7256-54ed-8bc5-2375f6aaaadd",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718236,
+      "name_uz": "Urgut tumani",
+      "name_ru": "Ургутский район",
+      "name_en": "Urgut tumani",
+      "slug": "urgut-tumani"
+    },
+    {
+      "id": "13c9f18a-5108-5538-a0c8-33dbfcc16a01",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718238,
+      "name_uz": "Tayloq tumani",
+      "name_ru": "Тайлякский район",
+      "name_en": "Tayloq tumani",
+      "slug": "tayloq-tumani"
+    },
+    {
+      "id": "2b4fef09-c105-4f57-8cb5-e45b39771ac6",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718401,
+      "name_uz": "Samarqand",
+      "name_ru": "Самарканд",
+      "name_en": "Samarkand",
+      "slug": "samarkand"
+    },
+    {
+      "id": "bfd20d18-1d46-5a7c-bc39-220f18b2d7f7",
+      "region_id": "34d28d86-1003-4530-ab0c-9cb837d597bf",
+      "soato_id": 1718406,
+      "name_uz": "Kattaqo'rg'on",
+      "name_ru": "Каттакурган",
+      "name_en": "Kattaqo'rg'on",
+      "slug": "kattaqorgon"
+    },
+    {
+      "id": "90ac778f-c9f8-5edc-9175-5a8f46e12853",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722201,
+      "name_uz": "Oltinsoy tumani",
+      "name_ru": "Алтынсайский район",
+      "name_en": "Oltinsoy tumani",
+      "slug": "oltinsoy-tumani"
+    },
+    {
+      "id": "147591ed-45ca-54ca-b036-22f1fe7675be",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722202,
+      "name_uz": "Angor tumani",
+      "name_ru": "Ангорский район",
+      "name_en": "Angor tumani",
+      "slug": "angor-tumani"
+    },
+    {
+      "id": "37559efd-0650-54df-953c-938b096b2d44",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722204,
+      "name_uz": "Boysun tumani",
+      "name_ru": "Байсунский район",
+      "name_en": "Boysun tumani",
+      "slug": "boysun-tumani"
+    },
+    {
+      "id": "99cf9cea-ad14-5677-bc4c-fb17966bedd7",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722207,
+      "name_uz": "Muzrabot tumani",
+      "name_ru": "Музрабадский район",
+      "name_en": "Muzrabot tumani",
+      "slug": "muzrabot-tumani"
+    },
+    {
+      "id": "2ca21cf3-e031-5152-af18-bd5ee0aca360",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722210,
+      "name_uz": "Denov tumani",
+      "name_ru": "Денауский район",
+      "name_en": "Denov tumani",
+      "slug": "denov-tumani"
+    },
+    {
+      "id": "cee1aeae-64f4-5fb0-b3c4-1daf3a51f110",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722212,
+      "name_uz": "Jarqo'rg'on tumani",
+      "name_ru": "Джаркурганский район",
+      "name_en": "Jarqo'rg'on tumani",
+      "slug": "jarqorgon-tumani"
+    },
+    {
+      "id": "120b1a8f-d5af-5b67-89bd-010571a5e89b",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722214,
+      "name_uz": "Qumqo'rg'on tumani",
+      "name_ru": "Кумкурганский район",
+      "name_en": "Qumqo'rg'on tumani",
+      "slug": "qumqorgon-tumani"
+    },
+    {
+      "id": "5e947767-2488-52b8-8d67-c36053fdfdca",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722215,
+      "name_uz": "Qiziriq tumani",
+      "name_ru": "Кизирикский район",
+      "name_en": "Qiziriq tumani",
+      "slug": "qiziriq-tumani"
+    },
+    {
+      "id": "e0ad37fd-a442-582c-a029-df1c46af7e3b",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722217,
+      "name_uz": "Sariosiyo tumani",
+      "name_ru": "Сариасийский район",
+      "name_en": "Sariosiyo tumani",
+      "slug": "sariosiyo-tumani"
+    },
+    {
+      "id": "2be0eda1-bf8b-515e-a8cb-8121297072e4",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722220,
+      "name_uz": "Termiz tumani",
+      "name_ru": "Термезский район",
+      "name_en": "Termiz tumani",
+      "slug": "termiz-tumani"
+    },
+    {
+      "id": "0cfbb8ac-fa15-5597-bf18-0dbe59cd3bfd",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722221,
+      "name_uz": "Uzun tumani",
+      "name_ru": "Узунский район",
+      "name_en": "Uzun tumani",
+      "slug": "uzun-tumani"
+    },
+    {
+      "id": "377df1bd-9920-5e88-830c-c8dafd5e69da",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722223,
+      "name_uz": "Sherobod tumani",
+      "name_ru": "Шерабадский район",
+      "name_en": "Sherobod tumani",
+      "slug": "sherobod-tumani"
+    },
+    {
+      "id": "879e41c2-b4e7-59a0-95b4-20d8020a7292",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722226,
+      "name_uz": "Sho'rchi tumani",
+      "name_ru": "Шурчинский район",
+      "name_en": "Sho'rchi tumani",
+      "slug": "shorchi-tumani"
+    },
+    {
+      "id": "2347c34d-ba96-58e1-a642-faf61b3a8f16",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724206,
+      "name_uz": "Oqoltin tumani",
+      "name_ru": "Акалтынский район",
+      "name_en": "Oqoltin tumani",
+      "slug": "oqoltin-tumani"
+    },
+    {
+      "id": "ee349252-0bff-53ba-a1e6-6cfb3e62f0c9",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724212,
+      "name_uz": "Boyovut tumani",
+      "name_ru": "Баяутский район",
+      "name_en": "Boyovut tumani",
+      "slug": "boyovut-tumani"
+    },
+    {
+      "id": "34cd3ae3-6b2e-524c-b472-b7107aac61d6",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724216,
+      "name_uz": "Sayxunobod tumani",
+      "name_ru": "Сайхунабадский район",
+      "name_en": "Sayxunobod tumani",
+      "slug": "sayxunobod-tumani"
+    },
+    {
+      "id": "7fe26991-ffb8-51e8-b406-9a9315137e0e",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724220,
+      "name_uz": "Guliston tumani",
+      "name_ru": "Гулистанский район",
+      "name_en": "Guliston tumani",
+      "slug": "guliston-tumani"
+    },
+    {
+      "id": "b9b9f891-eaa8-5710-90e3-860de4d8b859",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724226,
+      "name_uz": "Sardoba tumani",
+      "name_ru": "Сардобинский район",
+      "name_en": "Sardoba tumani",
+      "slug": "sardoba-tumani"
+    },
+    {
+      "id": "dd426351-49d0-5d3c-a493-653f7c5e9cba",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724228,
+      "name_uz": "Mirzaobod tumani",
+      "name_ru": "Мирзаабадский район",
+      "name_en": "Mirzaobod tumani",
+      "slug": "mirzaobod-tumani"
+    },
+    {
+      "id": "98c6fcd4-0e09-5951-9649-812bdf80b857",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724231,
+      "name_uz": "Sirdaryo tumani",
+      "name_ru": "Сырдарьинский район",
+      "name_en": "Sirdaryo tumani",
+      "slug": "sirdaryo-tumani"
+    },
+    {
+      "id": "2be462a9-01fc-5c25-82c9-55efdcb2fa12",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724235,
+      "name_uz": "Xovos tumani",
+      "name_ru": "Хавастский район",
+      "name_en": "Xovos tumani",
+      "slug": "xovos-tumani"
+    },
+    {
+      "id": "c8f53572-fd2d-56f8-85e7-f9b018eaca10",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724401,
+      "name_uz": "Guliston",
+      "name_ru": "Гулистан",
+      "name_en": "Guliston",
+      "slug": "guliston"
+    },
+    {
+      "id": "67e63674-b714-5200-9318-e1531ec5e7ba",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724410,
+      "name_uz": "Shirin",
+      "name_ru": "Шиpин",
+      "name_en": "Shirin",
+      "slug": "shirin"
+    },
+    {
+      "id": "a6e77cbc-86fe-525d-8272-5c095710836f",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724413,
+      "name_uz": "Yangiyer",
+      "name_ru": "Янгиеp",
+      "name_en": "Yangiyer",
+      "slug": "yangiyer"
+    },
+    {
+      "id": "f2e7c6a0-f0d3-5f61-bd2e-48c8688c2ac7",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726262,
+      "name_uz": "Uchtepa tumani",
+      "name_ru": "Учтепинский район",
+      "name_en": "Uchtepa tumani",
+      "slug": "uchtepa-tumani"
+    },
+    {
+      "id": "4b8a39d5-e4df-583b-8027-0b8dc794fe3f",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726264,
+      "name_uz": "Bektemir tumani",
+      "name_ru": "Бектемирский район",
+      "name_en": "Bektemir tumani",
+      "slug": "bektemir-tumani"
+    },
+    {
+      "id": "34def729-2596-56e0-8cee-a02a1210cd92",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726266,
+      "name_uz": "Yunusobod tumani",
+      "name_ru": "Юнусабадский район",
+      "name_en": "Yunusobod tumani",
+      "slug": "yunusobod-tumani"
+    },
+    {
+      "id": "65363822-f17a-5909-9be9-4949dcc8f227",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726269,
+      "name_uz": "Mirzo Ulug'bek tumani",
+      "name_ru": "Мирзо-Улугбекский район",
+      "name_en": "Mirzo Ulug'bek tumani",
+      "slug": "mirzo-ulugbek-tumani"
+    },
+    {
+      "id": "d6ca60c0-4fa1-5110-9529-b637ca4bd19f",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726273,
+      "name_uz": "Mirobod tumani",
+      "name_ru": "Мирабадский район",
+      "name_en": "Mirobod tumani",
+      "slug": "mirobod-tumani"
+    },
+    {
+      "id": "58331593-9959-5050-8087-19a0e7e46751",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726277,
+      "name_uz": "Shayxontohur tumani",
+      "name_ru": "Шайхантахурский район",
+      "name_en": "Shayxontohur tumani",
+      "slug": "shayxontohur-tumani"
+    },
+    {
+      "id": "ff174c49-c2b3-5fba-8939-33da34746e75",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726280,
+      "name_uz": "Olmazor tumani",
+      "name_ru": "Алмазарский район",
+      "name_en": "Olmazor tumani",
+      "slug": "olmazor-tumani"
+    },
+    {
+      "id": "55f044b0-3cf8-58c5-b0fc-94122a628b34",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726283,
+      "name_uz": "Sirg'ali tumani",
+      "name_ru": "Сергелийский район",
+      "name_en": "Sirg'ali tumani",
+      "slug": "sirgali-tumani"
+    },
+    {
+      "id": "2be87047-9e37-5039-93f5-f4eb490e2af3",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726287,
+      "name_uz": "Yakkasaroy tumani",
+      "name_ru": "Яккасарайский район",
+      "name_en": "Yakkasaroy tumani",
+      "slug": "yakkasaroy-tumani"
+    },
+    {
+      "id": "2b30143a-96d0-55ad-a420-9afb4ad27a7f",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726290,
+      "name_uz": "Yashnobod tumani",
+      "name_ru": "Яшнабадский район",
+      "name_en": "Yashnobod tumani",
+      "slug": "yashnobod-tumani"
+    },
+    {
+      "id": "150ad27f-e92c-5d71-9825-75a44e61946a",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726294,
+      "name_uz": "Chilonzor tumani",
+      "name_ru": "Чиланзарский район",
+      "name_en": "Chilonzor tumani",
+      "slug": "chilonzor-tumani"
+    },
+    {
+      "id": "d3f39783-f1f4-512b-9f00-cb18d2316c8e",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727206,
+      "name_uz": "Oqqo'rg'on tumani",
+      "name_ru": "Аккурганский район",
+      "name_en": "Oqqo'rg'on tumani",
+      "slug": "oqqorgon-tumani"
+    },
+    {
+      "id": "8fc26e84-bd49-537f-bf88-cb72f74c11e2",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727212,
+      "name_uz": "Ohangaron tumani",
+      "name_ru": "Ахангаранский район",
+      "name_en": "Ohangaron tumani",
+      "slug": "ohangaron-tumani"
+    },
+    {
+      "id": "b8e9a0d0-3868-5e3f-a243-fb24a47e84a0",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727220,
+      "name_uz": "Bekobod tumani",
+      "name_ru": "Бекабадский район",
+      "name_en": "Bekobod tumani",
+      "slug": "bekobod-tumani"
+    },
+    {
+      "id": "dbbbc243-223a-5caf-87ae-2b971e3803ea",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727224,
+      "name_uz": "Bo'stonliq tumani",
+      "name_ru": "Бостанлыкский район",
+      "name_en": "Bo'stonliq tumani",
+      "slug": "bostonliq-tumani"
+    },
+    {
+      "id": "deb7c5fd-9694-5691-88ee-4323ed8b7336",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727228,
+      "name_uz": "Bo'ka tumani",
+      "name_ru": "Букинский район",
+      "name_en": "Bo'ka tumani",
+      "slug": "boka-tumani"
+    },
+    {
+      "id": "af0ae46f-7228-5b1f-8e46-739f2cc90468",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727237,
+      "name_uz": "Zangiota tumani",
+      "name_ru": "Зангиатинский район",
+      "name_en": "Zangiota tumani",
+      "slug": "zangiota-tumani"
+    },
+    {
+      "id": "6e79dea1-6ae9-5582-a280-598c01fc4f98",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727239,
+      "name_uz": "Yuqorichirchiq tumani",
+      "name_ru": "Юкоричирчикский район",
+      "name_en": "Yuqorichirchiq tumani",
+      "slug": "yuqorichirchiq-tumani"
+    },
+    {
+      "id": "10a1fe3e-eb80-5723-b83d-04f49f3cd609",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727248,
+      "name_uz": "Qibray tumani",
+      "name_ru": "Кибрайский район",
+      "name_en": "Qibray tumani",
+      "slug": "qibray-tumani"
+    },
+    {
+      "id": "025a2197-c98c-5efd-9769-ee0af885bb9f",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727249,
+      "name_uz": "Parkent tumani",
+      "name_ru": "Паркентский район",
+      "name_en": "Parkent tumani",
+      "slug": "parkent-tumani"
+    },
+    {
+      "id": "fce18f7a-7222-541e-ac2e-4f5a0758a4a4",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727250,
+      "name_uz": "Piskent tumani",
+      "name_ru": "Пскентский район",
+      "name_en": "Piskent tumani",
+      "slug": "piskent-tumani"
+    },
+    {
+      "id": "b4a0a3d7-3520-5afa-9cca-cb715ea0c222",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727253,
+      "name_uz": "O'rtachirchiq tumani",
+      "name_ru": "Уртачирчикский район",
+      "name_en": "O'rtachirchiq tumani",
+      "slug": "ortachirchiq-tumani"
+    },
+    {
+      "id": "129fdfb3-da6b-58ad-a394-99587fed6673",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727256,
+      "name_uz": "Chinoz tumani",
+      "name_ru": "Чиназский район",
+      "name_en": "Chinoz tumani",
+      "slug": "chinoz-tumani"
+    },
+    {
+      "id": "b00581bc-1c4d-53f0-adb8-a603c66bdddd",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727259,
+      "name_uz": "Yangiyo'l tumani",
+      "name_ru": "Янгиюльский район",
+      "name_en": "Yangiyo'l tumani",
+      "slug": "yangiyol-tumani"
+    },
+    {
+      "id": "8f4c5a0e-0612-57ca-b624-b1f3559dad7a",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727265,
+      "name_uz": "Toshkent tumani",
+      "name_ru": "Ташкентский район",
+      "name_en": "Toshkent tumani",
+      "slug": "toshkent-tumani"
+    },
+    {
+      "id": "6998024c-e5a6-5e75-a7b0-04a654e08fde",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727401,
+      "name_uz": "Nurafshon",
+      "name_ru": "Нурафшон",
+      "name_en": "Nurafshon",
+      "slug": "nurafshon"
+    },
+    {
+      "id": "445dad03-3418-537c-9bcd-4a66fe030113",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727404,
+      "name_uz": "Olmaliq",
+      "name_ru": "Алмалык",
+      "name_en": "Olmaliq",
+      "slug": "olmaliq"
+    },
+    {
+      "id": "1e7cb5e8-193a-5de1-b26f-9ef4bebd8998",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727407,
+      "name_uz": "Angren",
+      "name_ru": "Ангрен",
+      "name_en": "Angren",
+      "slug": "angren"
+    },
+    {
+      "id": "812e6655-aea5-5de3-9765-b1dbdded8d52",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727413,
+      "name_uz": "Bekobod",
+      "name_ru": "Бекабад",
+      "name_en": "Bekobod",
+      "slug": "bekobod"
+    },
+    {
+      "id": "341feffd-9f9f-599c-b075-a55e3b5369b2",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727415,
+      "name_uz": "Ohangaron",
+      "name_ru": "Ахангаран",
+      "name_en": "Ohangaron",
+      "slug": "ohangaron"
+    },
+    {
+      "id": "28d754d6-460f-5139-b40a-3c549e86f0cc",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727419,
+      "name_uz": "Chirchiq",
+      "name_ru": "Чиpчик",
+      "name_en": "Chirchiq",
+      "slug": "chirchiq"
+    },
+    {
+      "id": "5d30ba21-1d6d-5e36-be26-d561b550dd12",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727424,
+      "name_uz": "Yangiyo'l",
+      "name_ru": "Янгиюль",
+      "name_en": "Yangiyo'l",
+      "slug": "yangiyol"
+    },
+    {
+      "id": "f2f5eb2d-a8e4-5a58-898b-fd0eb083840b",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730203,
+      "name_uz": "Oltiariq tumani",
+      "name_ru": "Алтыарыкский район",
+      "name_en": "Oltiariq tumani",
+      "slug": "oltiariq-tumani"
+    },
+    {
+      "id": "9eb547b1-568f-51e8-9d2d-3561212e94a2",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730206,
+      "name_uz": "Qo'shtepa tumani",
+      "name_ru": "Куштепинский район",
+      "name_en": "Qo'shtepa tumani",
+      "slug": "qoshtepa-tumani"
+    },
+    {
+      "id": "6df5f267-dff4-5790-b6de-02f31eb94193",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730209,
+      "name_uz": "Bog'dod tumani",
+      "name_ru": "Багдадский район",
+      "name_en": "Bog'dod tumani",
+      "slug": "bogdod-tumani"
+    },
+    {
+      "id": "306e3e7a-82e5-5111-bc00-7da0e4efd9ee",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730212,
+      "name_uz": "Buvayda tumani",
+      "name_ru": "Бувайдинский район",
+      "name_en": "Buvayda tumani",
+      "slug": "buvayda-tumani"
+    },
+    {
+      "id": "6622ea1a-58c8-5cab-92da-52d29d2ee926",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730215,
+      "name_uz": "Beshariq tumani",
+      "name_ru": "Бешарыкский район",
+      "name_en": "Beshariq tumani",
+      "slug": "beshariq-tumani"
+    },
+    {
+      "id": "99e9ac4c-2793-593e-9af0-f0702c10f745",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730218,
+      "name_uz": "Quva tumani",
+      "name_ru": "Кувинский район",
+      "name_en": "Quva tumani",
+      "slug": "quva-tumani"
+    },
+    {
+      "id": "44c0ee90-0d97-53db-9770-485ad3eb23ad",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730221,
+      "name_uz": "Uchko'prik tumani",
+      "name_ru": "Учкуприкский район",
+      "name_en": "Uchko'prik tumani",
+      "slug": "uchkoprik-tumani"
+    },
+    {
+      "id": "aec32792-aed5-5e78-83ff-7c93b35e5c62",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730224,
+      "name_uz": "Rishton tumani",
+      "name_ru": "Риштанский район",
+      "name_en": "Rishton tumani",
+      "slug": "rishton-tumani"
+    },
+    {
+      "id": "c9f03694-2d54-500a-a099-f4bc56eefe95",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730226,
+      "name_uz": "So'x tumani",
+      "name_ru": "Сохский район",
+      "name_en": "So'x tumani",
+      "slug": "sox-tumani"
+    },
+    {
+      "id": "77892401-cead-5854-bd0a-5318e2ae4c25",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730227,
+      "name_uz": "Toshloq tumani",
+      "name_ru": "Ташлакский район",
+      "name_en": "Toshloq tumani",
+      "slug": "toshloq-tumani"
+    },
+    {
+      "id": "36f715dd-dd61-53e5-87c7-bafdf82f8dc6",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730230,
+      "name_uz": "O'zbekiston tumani",
+      "name_ru": "Узбекистанский район",
+      "name_en": "O'zbekiston tumani",
+      "slug": "ozbekiston-tumani"
+    },
+    {
+      "id": "4c6e5c20-1abd-55b5-a95b-2aeb7caf305b",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730233,
+      "name_uz": "Farg'ona tumani",
+      "name_ru": "Ферганский район",
+      "name_en": "Farg'ona tumani",
+      "slug": "fargona-tumani"
+    },
+    {
+      "id": "06e70fe9-3dc3-53bf-8e2d-3fec3cf98793",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730236,
+      "name_uz": "Dang'ara tumani",
+      "name_ru": "Дангаринский район",
+      "name_en": "Dang'ara tumani",
+      "slug": "dangara-tumani"
+    },
+    {
+      "id": "5f0911ae-2d70-5e81-a413-b72c60d96f7f",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730238,
+      "name_uz": "Furqat tumani",
+      "name_ru": "Фуркатский район",
+      "name_en": "Furqat tumani",
+      "slug": "furqat-tumani"
+    },
+    {
+      "id": "cf30cab9-2f85-58ce-8e72-bc768f27c31d",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730242,
+      "name_uz": "Yozyovon tumani",
+      "name_ru": "Язъяванский район",
+      "name_en": "Yozyovon tumani",
+      "slug": "yozyovon-tumani"
+    },
+    {
+      "id": "8df4128b-9544-4f96-b451-7453d6b3a2c3",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730401,
+      "name_uz": "Farg'ona",
+      "name_ru": "Фергана",
+      "name_en": "Fergana",
+      "slug": "fergana"
+    },
+    {
+      "id": "9293640b-deb3-5f4e-ae2d-e52861d03c5f",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730405,
+      "name_uz": "Qo'qon",
+      "name_ru": "Коканд",
+      "name_en": "Qo'qon",
+      "slug": "qoqon"
+    },
+    {
+      "id": "f6dee7da-ed93-5297-9740-5d1504f0c8ca",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730408,
+      "name_uz": "Quvasoy",
+      "name_ru": "Кувасай",
+      "name_en": "Quvasoy",
+      "slug": "quvasoy"
+    },
+    {
+      "id": "8d8046b4-b9b2-5b24-865f-26f201ef915e",
+      "region_id": "33a66b3a-c5eb-4b5f-96cd-a790b0fa2078",
+      "soato_id": 1730412,
+      "name_uz": "Marg'ilon",
+      "name_ru": "Маpгилан",
+      "name_en": "Marg'ilon",
+      "slug": "margilon"
+    },
+    {
+      "id": "d6a155a2-0424-5452-a476-24cf7a6f7dbc",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733204,
+      "name_uz": "Bog'ot tumani",
+      "name_ru": "Багатский район",
+      "name_en": "Bog'ot tumani",
+      "slug": "bogot-tumani"
+    },
+    {
+      "id": "36c9df32-b16e-5f96-99f4-81ecedc4347a",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733208,
+      "name_uz": "Gurlan tumani",
+      "name_ru": "Гурленский район",
+      "name_en": "Gurlan tumani",
+      "slug": "gurlan-tumani"
+    },
+    {
+      "id": "99224da6-6b42-5464-b71f-27e0b4b0f509",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733212,
+      "name_uz": "Qo'shko'pir tumani",
+      "name_ru": "Кошкупырский район",
+      "name_en": "Qo'shko'pir tumani",
+      "slug": "qoshkopir-tumani"
+    },
+    {
+      "id": "e799d3cc-194f-56e8-8c77-9c64cdf75330",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733217,
+      "name_uz": "Urganch tumani",
+      "name_ru": "Ургенчский район",
+      "name_en": "Urganch tumani",
+      "slug": "urganch-tumani"
+    },
+    {
+      "id": "e4255a54-c2aa-5a95-bf18-12a428b5e9a3",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733220,
+      "name_uz": "Xazorasp tumani",
+      "name_ru": "Хазараспский район",
+      "name_en": "Xazorasp tumani",
+      "slug": "xazorasp-tumani"
+    },
+    {
+      "id": "67670a95-c423-575e-9e37-48cbb7c3c71e",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733223,
+      "name_uz": "Xonqa tumani",
+      "name_ru": "Ханкинский район",
+      "name_en": "Xonqa tumani",
+      "slug": "xonqa-tumani"
+    },
+    {
+      "id": "7171af28-af72-5e60-b446-90a58a294b83",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733226,
+      "name_uz": "Xiva tumani",
+      "name_ru": "Хивинский район",
+      "name_en": "Xiva tumani",
+      "slug": "xiva-tumani"
+    },
+    {
+      "id": "aaaa78da-fbb2-5479-adbf-3e823faddb14",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733230,
+      "name_uz": "Shovot tumani",
+      "name_ru": "Шаватский район",
+      "name_en": "Shovot tumani",
+      "slug": "shovot-tumani"
+    },
+    {
+      "id": "3d3d111c-3a44-5b5a-941e-76dd44a21fa9",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733233,
+      "name_uz": "Yangiariq tumani",
+      "name_ru": "Янгиарыкский район",
+      "name_en": "Yangiariq tumani",
+      "slug": "yangiariq-tumani"
+    },
+    {
+      "id": "98f615b3-8ded-5b29-be7f-01c3858f3a87",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733236,
+      "name_uz": "Yangibozor tumani",
+      "name_ru": "Янгибазарский район",
+      "name_en": "Yangibozor tumani",
+      "slug": "yangibozor-tumani"
+    },
+    {
+      "id": "0e302451-e2e4-5c81-9ec6-7f8b42b5bd47",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733401,
+      "name_uz": "Urganch",
+      "name_ru": "Ургенч",
+      "name_en": "Urganch",
+      "slug": "urganch"
+    },
+    {
+      "id": "e8b432be-590f-5e36-8a5a-7e6ca71a9c8b",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733406,
+      "name_uz": "Xiva",
+      "name_ru": "Хива",
+      "name_en": "Xiva",
+      "slug": "xiva"
+    },
+    {
+      "id": "51c54546-c1b5-56e2-8f02-9af1862b0ba2",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735204,
+      "name_uz": "Amudaryo tumani",
+      "name_ru": "Амударьинский район",
+      "name_en": "Amudaryo tumani",
+      "slug": "amudaryo-tumani"
+    },
+    {
+      "id": "f7e336a3-1f96-5672-8f70-24588fb2212e",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735207,
+      "name_uz": "Beruniy tumani",
+      "name_ru": "Берунийский район",
+      "name_en": "Beruniy tumani",
+      "slug": "beruniy-tumani"
+    },
+    {
+      "id": "3de39542-cc40-5b9d-b619-77f59eb5d0fc",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735211,
+      "name_uz": "Qorao'zak tumani",
+      "name_ru": "Караузякский район",
+      "name_en": "Qorao'zak tumani",
+      "slug": "qoraozak-tumani"
+    },
+    {
+      "id": "8ebb6257-69b7-5c34-83be-4b1efaee2039",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735212,
+      "name_uz": "Kegeyli tumani",
+      "name_ru": "Кегейлийский район",
+      "name_en": "Kegeyli tumani",
+      "slug": "kegeyli-tumani"
+    },
+    {
+      "id": "32fa35d2-65ed-5804-973b-b41d7175fa20",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735215,
+      "name_uz": "Qo'ng'irot tumani",
+      "name_ru": "Кунградский район",
+      "name_en": "Qo'ng'irot tumani",
+      "slug": "qongirot-tumani"
+    },
+    {
+      "id": "b7660d37-2f36-518b-9007-43b79968a1e3",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735218,
+      "name_uz": "Qanliko'l tumani",
+      "name_ru": "Канлыкульский район",
+      "name_en": "Qanliko'l tumani",
+      "slug": "qanlikol-tumani"
+    },
+    {
+      "id": "0c4ca02b-0252-56be-a212-9658bcac1727",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735222,
+      "name_uz": "Mo'ynoq tumani",
+      "name_ru": "Муйнакский район",
+      "name_en": "Mo'ynoq tumani",
+      "slug": "moynoq-tumani"
+    },
+    {
+      "id": "5717056f-bec1-5ca9-8daf-277382ac4baa",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735225,
+      "name_uz": "Nukus tumani",
+      "name_ru": "Нукусский район",
+      "name_en": "Nukus tumani",
+      "slug": "nukus-tumani"
+    },
+    {
+      "id": "f4b100b7-c0cd-516d-8f43-172c2404865d",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735228,
+      "name_uz": "Taxiatosh tumani",
+      "name_ru": "Тахиаташский район",
+      "name_en": "Taxiatosh tumani",
+      "slug": "taxiatosh-tumani"
+    },
+    {
+      "id": "a81498ad-787c-57a4-916c-9093bdd6023f",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735230,
+      "name_uz": "Taxtako'pir tumani",
+      "name_ru": "Тахтакупырский район",
+      "name_en": "Taxtako'pir tumani",
+      "slug": "taxtakopir-tumani"
+    },
+    {
+      "id": "a7762238-5486-5764-ba13-dee59d576c4d",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735233,
+      "name_uz": "To'rtko'l tumani",
+      "name_ru": "Турткульский район",
+      "name_en": "To'rtko'l tumani",
+      "slug": "tortkol-tumani"
+    },
+    {
+      "id": "1e515756-6b6f-5057-90ba-4bfc5e083edb",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735236,
+      "name_uz": "Xo'jayli tumani",
+      "name_ru": "Ходжейлийский район",
+      "name_en": "Xo'jayli tumani",
+      "slug": "xojayli-tumani"
+    },
+    {
+      "id": "b7093dd4-f90c-57e4-ab04-81f9ec025975",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735240,
+      "name_uz": "Chimboy tumani",
+      "name_ru": "Чимбайский район",
+      "name_en": "Chimboy tumani",
+      "slug": "chimboy-tumani"
+    },
+    {
+      "id": "b52e5837-666e-52c6-bdd8-f01acc07592e",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735243,
+      "name_uz": "Shumanay tumani",
+      "name_ru": "Шуманайский район",
+      "name_en": "Shumanay tumani",
+      "slug": "shumanay-tumani"
+    },
+    {
+      "id": "d06aa65f-cf15-5cc1-8cca-58c0977e7696",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735250,
+      "name_uz": "Ellikqal'a tumani",
+      "name_ru": "Элликкалинский район",
+      "name_en": "Ellikqal'a tumani",
+      "slug": "ellikqala-tumani"
+    },
+    {
+      "id": "ef766b8d-7e83-52ae-a813-831b7c90f2b7",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735401,
+      "name_uz": "Nukus",
+      "name_ru": "Нукус",
+      "name_en": "Nukus",
+      "slug": "nukus"
+    },
+    {
+      "id": "e4ef580d-db4b-56ef-8bf6-09721bc48e41",
+      "region_id": "ab1123e5-a80e-5243-b205-cc9ddef921b0",
+      "soato_id": 1708212,
+      "name_uz": "Sh.Rashidov tumani",
+      "name_ru": "Ш.Рашидовский район",
+      "name_en": "Sh.Rashidov tumani",
+      "slug": "sh-rashidov-tumani"
+    },
+    {
+      "id": "18042996-0353-5c3f-94f0-2c856f7b6f16",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712408,
+      "name_uz": "Zarafshon",
+      "name_ru": "Заpафшан",
+      "name_en": "Zarafshon",
+      "slug": "zarafshon"
+    },
+    {
+      "id": "aed6de11-a4f4-5f04-9818-d877c020570c",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722401,
+      "name_uz": "Termiz",
+      "name_ru": "Термез",
+      "name_en": "Termiz",
+      "slug": "termiz"
+    },
+    {
+      "id": "a2cd4665-8a53-5b0e-8df1-244c88a798cd",
+      "region_id": "89951fc3-2125-4151-a42f-e4393a2737b2",
+      "soato_id": 1727233,
+      "name_uz": "Quyichirchiq tumani",
+      "name_ru": "Куйичирчикский район",
+      "name_en": "Quyichirchiq tumani",
+      "slug": "quyichirchiq-tumani"
+    },
+    {
+      "id": "14221031-444a-5fbf-9221-ce8201694525",
+      "region_id": "95e43660-bd4f-5061-99c2-0cfb3bc9f418",
+      "soato_id": 1724414,
+      "name_uz": "Baxt shaxar",
+      "name_ru": "город Бахт",
+      "name_en": "Baxt shaxar",
+      "slug": "baxt-shaxar"
+    },
+    {
+      "id": "540386c5-53f0-5ccf-9838-e756c2400134",
+      "region_id": "8bdf1470-91a7-55ca-98e9-37c65a164595",
+      "soato_id": 1735209,
+      "name_uz": "Bo‘zatov tumani",
+      "name_ru": "Бузатовский район",
+      "name_en": "Bo‘zatov tumani",
+      "slug": "bozatov-tumani"
+    },
+    {
+      "id": "16dfb1bc-c825-59b3-8aaf-08320370cf9b",
+      "region_id": "dca35c62-979f-59c0-a0c8-e3c9734e6456",
+      "soato_id": 1722203,
+      "name_uz": "Bandixon tumani",
+      "name_ru": "Бандиханский район",
+      "name_en": "Bandixon tumani",
+      "slug": "bandixon-tumani"
+    },
+    {
+      "id": "1fd8f4e3-b42f-5c9d-a457-31b61324541a",
+      "region_id": "533949dd-738d-5ef1-91e6-75ee1c0b8e90",
+      "soato_id": 1733221,
+      "name_uz": "Tuproqqal’a tumani",
+      "name_ru": "Тупроккалинский район",
+      "name_en": "Tuproqqal’a tumani",
+      "slug": "tuproqqala-tumani"
+    },
+    {
+      "id": "274e084a-1351-51f1-b37d-67f989bb558d",
+      "region_id": "a14cb6e0-663b-5362-9068-96b93cca5239",
+      "soato_id": 1712412,
+      "name_uz": "G‘ozg‘on tumani",
+      "name_ru": "Газганский район",
+      "name_en": "G‘ozg‘on tumani",
+      "slug": "gozgon-tumani"
+    },
+    {
+      "id": "314a18a1-c597-58e0-8edd-be9844bd851a",
+      "region_id": "4aa5e3b1-7a88-587e-a403-2179e308612b",
+      "soato_id": 1726292,
+      "name_uz": "Yangihayot tumani",
+      "name_ru": "Янгихаётский район",
+      "name_en": "Yangihayot tumani",
+      "slug": "yangihayot-tumani"
+    },
+    {
+      "id": "e3bdff30-d438-56e9-9595-5e078928a455",
+      "region_id": "7a3c85f9-4ac2-53f5-a275-5da8c5326cf5",
+      "soato_id": 1710240,
+      "name_uz": "Ko‘kdala tumani",
+      "name_ru": "Кукдалинский район",
+      "name_en": "Ko‘kdala tumani",
+      "slug": "kokdala-tumani"
+    },
+    {
+      "id": "e39cde9b-96d3-55a1-826f-46e585181295",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714401365,
+      "name_uz": "Davlatobod tumani",
+      "name_ru": "Давлатабадский район",
+      "name_en": "Davlatobod tumani",
+      "slug": "davlatobod-tumani"
+    },
+    {
+      "id": "a9cb2a0b-7fff-551c-87f5-61b93221edde",
+      "region_id": "a381920e-f8ab-5aca-b5fa-6f478aee12c5",
+      "soato_id": 1714401367,
+      "name_uz": "Yangi Namangan tumani",
+      "name_ru": "Янги Наманганский район",
+      "name_en": "Yangi Namangan tumani",
+      "slug": "yangi-namangan-tumani"
+    }
+  ]
+}

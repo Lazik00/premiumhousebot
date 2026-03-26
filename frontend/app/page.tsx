@@ -4,14 +4,18 @@ import { useEffect, useState, useCallback, useRef, type TouchEvent } from 'react
 import { listProperties } from '../lib/api';
 import type { PropertySummary } from '../lib/types';
 import PropertyCard, { PropertyCardSkeleton } from '../components/PropertyCard';
+import PriceDisplay from '../components/PriceDisplay';
+import PreferenceDock from '../components/PreferenceDock';
 import SearchFilter, { type FilterValues } from '../components/SearchFilter';
 import BottomNav from '../components/BottomNav';
+import { useAppPreferences } from '../context/AppPreferencesContext';
+import { formatUnitCount } from '../lib/i18n';
 
 const propertyTypes = [
-    { key: '', label: 'Barchasi', emoji: 'PH' },
-    { key: 'apartment', label: 'Kvartira', emoji: 'APT' },
-    { key: 'house', label: 'Uy', emoji: 'HSE' },
-    { key: 'villa', label: 'Villa', emoji: 'VLA' },
+    { key: '', labelKey: 'home.all', emoji: 'PH' },
+    { key: 'apartment', labelKey: 'home.apartment', emoji: 'APT' },
+    { key: 'house', labelKey: 'home.house', emoji: 'HSE' },
+    { key: 'villa', labelKey: 'home.villa', emoji: 'VLA' },
 ];
 
 const heroFallbacks = [
@@ -20,14 +24,8 @@ const heroFallbacks = [
     'linear-gradient(135deg, rgba(200,157,84,0.22) 0%, rgba(17,12,8,0.08) 100%)',
 ];
 
-function formatPrice(price: number, currency: string): string {
-    if (currency === 'UZS') {
-        return `${new Intl.NumberFormat('uz-UZ').format(price)} so'm`;
-    }
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(price);
-}
-
 export default function HomePage() {
+    const { t, language } = useAppPreferences();
     const [properties, setProperties] = useState<PropertySummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeType, setActiveType] = useState('');
@@ -294,17 +292,27 @@ export default function HomePage() {
                 </div>
 
                 <div style={{ position: 'relative', zIndex: 1 }}>
-                    <img
-                        src="/brand/logo-full-gold.svg"
-                        alt="Premium House"
+                    <div
                         style={{
-                            width: 'min(100%, 236px)',
-                            height: 'auto',
-                            display: 'block',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            justifyContent: 'space-between',
+                            gap: 16,
                             marginBottom: 18,
-                            filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.4))',
                         }}
-                    />
+                    >
+                        <img
+                            src="/brand/logo-full-gold.svg"
+                            alt="Premium House"
+                            style={{
+                                width: 'min(100%, 236px)',
+                                height: 'auto',
+                                display: 'block',
+                                filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.4))',
+                            }}
+                        />
+                        <PreferenceDock />
+                    </div>
 
                     <div
                         style={{
@@ -424,10 +432,14 @@ export default function HomePage() {
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                         <div>
-                                            <div style={{ fontSize: 11, color: 'rgba(242,217,162,0.72)', marginBottom: 2 }}>Bir kecha narxi</div>
-                                            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff7e8' }}>
-                                                {formatPrice(currentHero.price_per_night, currentHero.currency)}
-                                            </div>
+                                            <div style={{ fontSize: 11, color: 'rgba(242,217,162,0.72)', marginBottom: 4 }}>{t('home.nightlyRate')}</div>
+                                            <PriceDisplay
+                                                amount={currentHero.price_per_night}
+                                                baseCurrency={currentHero.currency}
+                                                primaryStyle={{ fontSize: 18, fontWeight: 800, color: '#fff7e8' }}
+                                                secondaryStyle={{ fontSize: 11, color: 'rgba(242,217,162,0.72)' }}
+                                                wrapperStyle={{ gap: 2 }}
+                                            />
                                         </div>
                                         <div />
                                     </div>
@@ -520,7 +532,7 @@ export default function HomePage() {
                                 boxShadow: activeType === type.key ? 'var(--shadow-glow)' : 'none',
                             }}
                         >
-                            {type.emoji} {type.label}
+                            {type.emoji} {t(type.labelKey)}
                         </button>
                     ))}
                 </div>
@@ -535,12 +547,12 @@ export default function HomePage() {
                 >
                     <div>
                         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700 }}>
-                            Tavsiya etilgan uylar
+                            {t('home.recommended')}
                         </h2>
                     </div>
                     {!isLoading && (
                         <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-brand-light)' }}>
-                            {filteredProperties.length} ta
+                            {formatUnitCount(language, 'home', filteredProperties.length)}
                         </span>
                     )}
                 </div>
@@ -580,10 +592,10 @@ export default function HomePage() {
                         >
                             <img src="/brand/icon-rating-gold.svg" alt="Natija yo'q" style={{ width: 46, height: 46, marginBottom: 12 }} />
                             <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--color-text)', marginBottom: 8 }}>
-                                Mos uy topilmadi
+                                {t('home.noHomesTitle')}
                             </div>
                             <div style={{ fontSize: 14, lineHeight: 1.7 }}>
-                                Filtrlarni tozalang yoki boshqa sana va mehmon sonini sinab ko'ring.
+                                {t('home.noHomesDescription')}
                             </div>
                         </div>
                     )}

@@ -1,5 +1,21 @@
 /* ===== API Response Types ===== */
 
+export type LanguageCode = 'uz' | 'ru' | 'en';
+export type CurrencyCode = 'UZS' | 'USD';
+
+export interface AppConfigResponse {
+    default_language: LanguageCode;
+    default_currency: CurrencyCode;
+    available_languages: LanguageCode[];
+    available_currencies: CurrencyCode[];
+    exchange_rate: {
+        usd_to_uzs: number;
+        effective_date: string;
+        fetched_at: string;
+        source: string;
+    };
+}
+
 export interface PropertyImage {
     id: string;
     image_url: string;

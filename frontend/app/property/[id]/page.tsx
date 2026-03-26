@@ -3,17 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getProperty } from '../../../lib/api';
+import PriceDisplay from '../../../components/PriceDisplay';
+import { useAppPreferences } from '../../../context/AppPreferencesContext';
+import { formatUnitCount, getAmenityLabel } from '../../../lib/i18n';
 import { getTelegramWebApp, haptic } from '../../../lib/telegram';
 import type { PropertyDetail } from '../../../lib/types';
 import PropertyGallery from '../../../components/PropertyGallery';
 import { DetailSkeleton } from '../../../components/LoadingSkeleton';
-
-function formatPrice(price: number, currency: string): string {
-    if (currency === 'UZS') {
-        return new Intl.NumberFormat('uz-UZ').format(price) + ' so\'m';
-    }
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(price);
-}
 
 const amenityIcons: Record<string, string> = {
     wifi: '📶', parking: '🅿️', pool: '🏊', gym: '💪', ac: '❄️',
@@ -35,6 +31,7 @@ function openExternalLink(url: string) {
 export default function PropertyDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const { t, language } = useAppPreferences();
     const [property, setProperty] = useState<PropertyDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -46,22 +43,22 @@ export default function PropertyDetailPage() {
                 const data = await getProperty(id);
                 setProperty(data);
             } catch (err) {
-                setError('Uy topilmadi');
+                setError(t('property.notFound'));
                 console.error(err);
             } finally {
                 setIsLoading(false);
             }
         };
         fetchProperty();
-    }, [params.id]);
+    }, [params.id, t]);
 
     if (isLoading) return <DetailSkeleton />;
     if (error || !property) {
         return (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-muted)' }}>
                 <div style={{ fontSize: 48, marginBottom: 12 }}>😔</div>
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--color-text)', marginBottom: 8 }}>
-                    {error || 'Uy topilmadi'}
+                    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--color-text)', marginBottom: 8 }}>
+                    {error || t('property.notFound')}
                 </h2>
                 <button
                     onClick={() => router.back()}
@@ -77,7 +74,7 @@ export default function PropertyDetailPage() {
                         fontFamily: 'var(--font-body)',
                     }}
                 >
-                    ← Orqaga
+                    ← {t('property.back')}
                 </button>
             </div>
         );
@@ -146,7 +143,7 @@ export default function PropertyDetailPage() {
                                     textTransform: 'capitalize',
                                 }}
                             >
-                                {property.property_type}
+                                {t(`propertyType.${property.property_type}`)}
                             </span>
                             <span
                                 style={{
@@ -158,7 +155,7 @@ export default function PropertyDetailPage() {
                                     fontWeight: 700,
                                 }}
                             >
-                                {property.capacity} kishilik
+                                {formatUnitCount(language, 'guest', property.capacity)}
                             </span>
                         </div>
                         {property.average_rating > 0 && (
@@ -212,14 +209,18 @@ export default function PropertyDetailPage() {
                         }}
                     >
                         <div>
-                            <div style={{ fontSize: 12, color: 'rgba(255,247,232,0.62)', marginBottom: 4 }}>Bir kecha narxi</div>
-                            <div style={{ fontSize: 24, fontWeight: 800 }}>
-                                <span className="text-gradient">{formatPrice(property.price_per_night, property.currency)}</span>
-                            </div>
+                            <div style={{ fontSize: 12, color: 'rgba(255,247,232,0.62)', marginBottom: 4 }}>{t('property.nightlyRate')}</div>
+                            <PriceDisplay
+                                amount={property.price_per_night}
+                                baseCurrency={property.currency}
+                                primaryStyle={{ fontSize: 24, fontWeight: 800 }}
+                                secondaryStyle={{ fontSize: 12, color: 'rgba(255,247,232,0.7)' }}
+                                wrapperStyle={{ gap: 4 }}
+                            />
                         </div>
                         <div style={{ textAlign: 'right', fontSize: 12, color: 'rgba(255,247,232,0.7)', lineHeight: 1.5 }}>
-                            <div>Faqat uy narxi</div>
-                            <div>Yashirin servis to'lovi yo'q</div>
+                            <div>{t('property.onlyHousePrice')}</div>
+                            <div>{t('property.noHiddenFee')}</div>
                         </div>
                     </div>
                 </div>
@@ -260,7 +261,7 @@ export default function PropertyDetailPage() {
                             <div style={{ fontSize: 15, fontWeight: 700 }}>
                                 {property.host.first_name} {property.host.last_name || ''}
                             </div>
-                            <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>Premium House host</div>
+                            <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>{t('property.host')}</div>
                         </div>
                     </div>
                 )}
@@ -275,9 +276,9 @@ export default function PropertyDetailPage() {
                     }}
                 >
                     {[
-                        { icon: '👥', label: 'Mehmonlar', value: `${property.capacity} kishi` },
-                        { icon: '🚪', label: 'Xonalar', value: `${property.rooms} ta` },
-                        { icon: '🚿', label: 'Hammom', value: `${property.bathrooms} ta` },
+                        { icon: '👥', label: t('property.capacity'), value: formatUnitCount(language, 'guest', property.capacity) },
+                        { icon: '🚪', label: t('property.rooms'), value: formatUnitCount(language, 'room', property.rooms) },
+                        { icon: '🚿', label: t('property.bathrooms'), value: formatUnitCount(language, 'bathroom', property.bathrooms) },
                     ].map((f) => (
                         <div
                             key={f.label}
@@ -324,10 +325,10 @@ export default function PropertyDetailPage() {
                         </div>
                         <div>
                             <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-brand-light)', marginBottom: 4 }}>
-                                Lokatsiya
+                                {t('property.location')}
                             </div>
                             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, lineHeight: 1 }}>
-                                Uy qayerda joylashgan
+                                {t('property.whereLocated')}
                             </h2>
                         </div>
                     </div>
@@ -347,7 +348,7 @@ export default function PropertyDetailPage() {
                         <div style={{ fontSize: 13, color: 'var(--color-muted)', lineHeight: 1.7 }}>
                             {property.city}, {property.region}
                             <br />
-                            Koordinata: {property.latitude.toFixed(5)}, {property.longitude.toFixed(5)}
+                            {t('property.coordinates')}: {property.latitude.toFixed(5)}, {property.longitude.toFixed(5)}
                         </div>
                     </div>
 
@@ -371,7 +372,7 @@ export default function PropertyDetailPage() {
                                 boxShadow: 'var(--shadow-glow)',
                             }}
                         >
-                            Google Maps
+                            {t('property.googleMaps')}
                         </button>
                         <button
                             type="button"
@@ -391,7 +392,7 @@ export default function PropertyDetailPage() {
                                 fontFamily: 'var(--font-body)',
                             }}
                         >
-                            Yandex xarita
+                            {t('property.yandexMap')}
                         </button>
                     </div>
                 </div>
@@ -414,7 +415,7 @@ export default function PropertyDetailPage() {
                             marginBottom: 10,
                         }}
                     >
-                        Tavsif
+                        {t('property.description')}
                     </h2>
                     <p style={{ fontSize: 14, lineHeight: 1.8, color: 'var(--color-muted)' }}>
                         {property.description}
@@ -432,7 +433,7 @@ export default function PropertyDetailPage() {
                                 marginBottom: 12,
                             }}
                         >
-                            Qulayliklar
+                            {t('property.amenities')}
                         </h2>
                         <div
                             style={{
@@ -457,7 +458,7 @@ export default function PropertyDetailPage() {
                                     }}
                                 >
                                     <span>{amenityIcons[a.code] || a.icon || '✅'}</span>
-                                    <span>{a.name_uz}</span>
+                                    <span>{getAmenityLabel(a, language)}</span>
                                 </div>
                             ))}
                         </div>
@@ -468,7 +469,7 @@ export default function PropertyDetailPage() {
                 {property.house_rules && (
                     <div style={{ marginBottom: 20 }}>
                         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, marginBottom: 10 }}>
-                            Uy qoidalari
+                            {t('property.houseRules')}
                         </h2>
                         <div
                             style={{
@@ -490,7 +491,7 @@ export default function PropertyDetailPage() {
                 {property.cancellation_policy && (
                     <div style={{ marginBottom: 20 }}>
                         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, marginBottom: 10 }}>
-                            Bekor qilish siyosati
+                            {t('property.cancellationPolicy')}
                         </h2>
                         <div
                             style={{
@@ -526,17 +527,21 @@ export default function PropertyDetailPage() {
                                 marginBottom: 14,
                             }}
                         >
-                        Narx
+                        {t('property.price')}
                     </h2>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16 }}>
-                            <span style={{ fontWeight: 700 }}>Bir kecha narxi</span>
-                            <span className="text-gradient" style={{ fontWeight: 800 }}>
-                                {formatPrice(property.price_per_night, property.currency)}
-                            </span>
+                            <span style={{ fontWeight: 700 }}>{t('property.nightlyRate')}</span>
+                            <PriceDisplay
+                                amount={property.price_per_night}
+                                baseCurrency={property.currency}
+                                primaryStyle={{ fontWeight: 800 }}
+                                secondaryStyle={{ fontSize: 12, color: 'var(--color-muted)' }}
+                                align="right"
+                            />
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--color-muted)', lineHeight: 1.6 }}>
-                            Bron summasi faqat tanlangan kechalar soni bo'yicha hisoblanadi.
+                            {t('property.bookingCalculatedByNights')}
                         </div>
                     </div>
                 </div>
@@ -567,10 +572,14 @@ export default function PropertyDetailPage() {
                     }}
                 >
                     <div>
-                        <div style={{ fontSize: 18, fontWeight: 800 }}>
-                            <span className="text-gradient">{formatPrice(property.price_per_night, property.currency)}</span>
-                        </div>
-                        <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>bir kecha uchun</div>
+                        <PriceDisplay
+                            amount={property.price_per_night}
+                            baseCurrency={property.currency}
+                            primaryStyle={{ fontSize: 18, fontWeight: 800 }}
+                            secondaryStyle={{ fontSize: 12, color: 'var(--color-muted)' }}
+                            wrapperStyle={{ gap: 2 }}
+                        />
+                        <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>{t('property.perNight')}</div>
                     </div>
                     <button
                         onClick={() => {
@@ -591,7 +600,7 @@ export default function PropertyDetailPage() {
                             transition: 'transform 0.2s ease',
                         }}
                     >
-                        Band qilish
+                        {t('property.bookNow')}
                     </button>
                 </div>
             </div>

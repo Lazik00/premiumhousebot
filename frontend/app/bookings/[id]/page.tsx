@@ -3,42 +3,23 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createPaymentLink, getBooking, getProperty } from '../../../lib/api';
+import PriceDisplay from '../../../components/PriceDisplay';
 import type { Booking, PropertyDetail } from '../../../lib/types';
 import { getTelegramWebApp, haptic } from '../../../lib/telegram';
 import { useAuth } from '../../../context/AuthContext';
+import { useAppPreferences } from '../../../context/AppPreferencesContext';
+import { formatLocalizedDate, formatUnitCount } from '../../../lib/i18n';
 
 const adminContact = {
     username: '@premiumhouse_admin',
     link: 'https://t.me/premiumhouse_admin',
 };
 
-const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-    pending_payment: { label: 'To\'lov kutilmoqda', color: 'var(--color-warning)', bg: 'rgba(210,174,104,0.14)' },
-    confirmed: { label: 'Tasdiqlangan', color: '#00b894', bg: 'rgba(0,184,148,0.12)' },
-    completed: { label: 'Yakunlangan', color: 'var(--color-brand)', bg: 'rgba(210,174,104,0.12)' },
-    cancelled: { label: 'Bekor qilingan', color: '#d63031', bg: 'rgba(214,48,49,0.12)' },
-    expired: { label: 'Muddati o\'tgan', color: '#636e72', bg: 'rgba(99,110,114,0.12)' },
-};
-
-function formatPrice(price: number, currency = 'UZS'): string {
-    if (currency === 'UZS') {
-        return `${new Intl.NumberFormat('uz-UZ').format(price)} so'm`;
-    }
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(price);
-}
-
-function formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('uz-UZ', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-    });
-}
-
 export default function BookingDetailPage() {
     const params = useParams();
     const router = useRouter();
     const { isAuthenticated, isLoading: authLoading } = useAuth();
+    const { t, language } = useAppPreferences();
     const bookingId = params.id as string;
 
     const [booking, setBooking] = useState<Booking | null>(null);
@@ -61,14 +42,14 @@ export default function BookingDetailPage() {
                 const propertyData = await getProperty(bookingData.property_id);
                 setProperty(propertyData);
             } catch (err: unknown) {
-                setError(err instanceof Error ? err.message : 'Buyurtma topilmadi');
+                setError(err instanceof Error ? err.message : t('bookings.detailMissing'));
             } finally {
                 setIsLoading(false);
             }
         };
 
         boot();
-    }, [bookingId, isAuthenticated, authLoading]);
+    }, [bookingId, isAuthenticated, authLoading, t]);
 
     const assignedGuests = useMemo(() => {
         if (!booking) return 0;
@@ -103,7 +84,7 @@ export default function BookingDetailPage() {
                 window.open(payment.payment_url, '_blank', 'noopener,noreferrer');
             }
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'To\'lov havolasi yaratilmadi');
+            setError(err instanceof Error ? err.message : t('booking.continuePaymentError'));
         } finally {
             setIsPaying(false);
         }
@@ -113,10 +94,10 @@ export default function BookingDetailPage() {
         return (
             <div style={{ minHeight: '100vh', padding: '40px 20px' }}>
                 <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, marginBottom: 8 }}>
-                    Tizimga kirish kerak
+                    {t('bookings.loginRequiredTitle')}
                 </h1>
                 <p style={{ color: 'var(--color-muted)' }}>
-                    Buyurtma tafsilotlarini ko'rish uchun Telegram orqali tizimga kiring.
+                    {t('bookings.loginRequiredDescription')}
                 </p>
             </div>
         );
@@ -148,17 +129,44 @@ export default function BookingDetailPage() {
                         padding: 0,
                     }}
                 >
-                    Orqaga
+                    {t('property.back')}
                 </button>
                 <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, marginBottom: 8 }}>
-                    Buyurtma topilmadi
+                    {t('bookings.detailMissing')}
                 </h1>
-                <p style={{ color: 'var(--color-muted)' }}>{error || 'Buyurtma mavjud emas'}</p>
+                <p style={{ color: 'var(--color-muted)' }}>{error || t('bookings.detailMissingDescription')}</p>
             </div>
         );
     }
 
-    const status = statusConfig[booking.status] || statusConfig.expired;
+    const status = {
+        label:
+            booking.status === 'pending_payment' ? t('bookings.pendingPayment')
+                : booking.status === 'confirmed' ? t('bookings.confirmed')
+                    : booking.status === 'completed' ? t('bookings.completed')
+                        : booking.status === 'cancelled' ? t('bookings.cancelled')
+                            : t('bookings.expired'),
+        color:
+            booking.status === 'confirmed'
+                ? '#00b894'
+                : booking.status === 'completed'
+                    ? 'var(--color-brand)'
+                    : booking.status === 'cancelled'
+                        ? '#d63031'
+                        : booking.status === 'expired'
+                            ? '#636e72'
+                            : 'var(--color-warning)',
+        bg:
+            booking.status === 'confirmed'
+                ? 'rgba(0,184,148,0.12)'
+                : booking.status === 'completed'
+                    ? 'rgba(210,174,104,0.12)'
+                    : booking.status === 'cancelled'
+                        ? 'rgba(214,48,49,0.12)'
+                        : booking.status === 'expired'
+                            ? 'rgba(99,110,114,0.12)'
+                            : 'rgba(210,174,104,0.14)',
+    };
     const nightlyPrice = booking.price_per_night_snapshot || (booking.total_nights > 0 ? booking.total_price / booking.total_nights : booking.total_price);
 
     return (
@@ -185,7 +193,7 @@ export default function BookingDetailPage() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="15 18 9 12 15 6" />
                 </svg>
-                Buyurtmalarimga qaytish
+                {t('bookings.detailBack')}
             </button>
 
             <div
@@ -224,7 +232,7 @@ export default function BookingDetailPage() {
                         </div>
                     </div>
                     <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800, lineHeight: 1.05, marginBottom: 8 }}>
-                        {property?.title || 'Buyurtma tafsilotlari'}
+                        {property?.title || t('bookings.detailMissing')}
                     </h1>
                     <p style={{ fontSize: 14, color: 'var(--color-muted)' }}>
                         {property ? `${property.city}, ${property.region}` : `Property ID: ${booking.property_id}`}
@@ -241,23 +249,27 @@ export default function BookingDetailPage() {
                     marginBottom: 16,
                 }}
             >
-                <div style={{ fontSize: 12, color: 'rgba(255,247,232,0.62)', marginBottom: 8 }}>Umumiy summa</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 30, fontWeight: 800, marginBottom: 8 }}>
-                    <span className="text-gradient">{formatPrice(booking.total_price, property?.currency || 'UZS')}</span>
-                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,247,232,0.62)', marginBottom: 8 }}>{t('bookings.totalAmount')}</div>
+                <PriceDisplay
+                    amount={booking.total_price}
+                    baseCurrency={property?.currency || 'UZS'}
+                    primaryStyle={{ fontFamily: 'var(--font-display)', fontSize: 30, fontWeight: 800 }}
+                    secondaryStyle={{ fontSize: 12, color: 'rgba(255,247,232,0.62)' }}
+                    wrapperStyle={{ gap: 6, marginBottom: 8 }}
+                />
                 <div style={{ fontSize: 13, color: 'var(--color-muted)' }}>
-                    Narx faqat {booking.total_nights} kecha uchun hisoblangan. Mehmonlar tarkibi summaga ta'sir qilmaydi.
+                    {t('bookings.totalHint', { count: formatUnitCount(language, 'night', booking.total_nights) })}
                 </div>
             </div>
 
             <div style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
                 {[
-                    { label: 'Kirish sanasi', value: formatDate(booking.start_date) },
-                    { label: 'Chiqish sanasi', value: formatDate(booking.end_date) },
-                    { label: 'Bir kecha narxi', value: formatPrice(nightlyPrice, property?.currency || 'UZS') },
-                    { label: 'Muddati', value: `${booking.total_nights} kecha` },
-                    { label: 'Jami mehmon', value: `${booking.guests_total} kishi` },
-                    { label: 'Kiritilgan tarkib', value: `${assignedGuests} kishi` },
+                    { label: t('bookings.dateIn'), value: formatLocalizedDate(booking.start_date, language, { day: 'numeric', month: 'long', year: 'numeric' }) },
+                    { label: t('bookings.dateOut'), value: formatLocalizedDate(booking.end_date, language, { day: 'numeric', month: 'long', year: 'numeric' }) },
+                    { label: t('bookings.nightlyRate'), value: null, amount: nightlyPrice },
+                    { label: t('bookings.duration'), value: formatUnitCount(language, 'night', booking.total_nights) },
+                    { label: t('booking.totalGuests'), value: formatUnitCount(language, 'guest', booking.guests_total) },
+                    { label: t('bookings.enteredGuests'), value: formatUnitCount(language, 'guest', assignedGuests) },
                 ].map((item) => (
                     <div
                         key={item.label}
@@ -272,7 +284,17 @@ export default function BookingDetailPage() {
                         }}
                     >
                         <span style={{ fontSize: 13, color: 'var(--color-muted)' }}>{item.label}</span>
-                        <span style={{ fontSize: 14, fontWeight: 700, textAlign: 'right' }}>{item.value}</span>
+                        {typeof item.amount === 'number' ? (
+                            <PriceDisplay
+                                amount={item.amount}
+                                baseCurrency={property?.currency || 'UZS'}
+                                primaryStyle={{ fontSize: 14, fontWeight: 700, textAlign: 'right' }}
+                                secondaryStyle={{ fontSize: 11, color: 'var(--color-muted)' }}
+                                align="right"
+                            />
+                        ) : (
+                            <span style={{ fontSize: 14, fontWeight: 700, textAlign: 'right' }}>{item.value}</span>
+                        )}
                     </div>
                 ))}
             </div>
@@ -287,24 +309,24 @@ export default function BookingDetailPage() {
                 }}
             >
                 <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800, marginBottom: 12 }}>
-                    Mehmonlar tarkibi
+                    {t('bookings.guestBreakdown')}
                 </h2>
                 <div style={{ display: 'grid', gap: 10 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: 'var(--color-muted)', fontSize: 14 }}>Erkaklar</span>
+                        <span style={{ color: 'var(--color-muted)', fontSize: 14 }}>{t('booking.men')}</span>
                         <strong>{booking.guests_adults_men}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: 'var(--color-muted)', fontSize: 14 }}>Ayollar</span>
+                        <span style={{ color: 'var(--color-muted)', fontSize: 14 }}>{t('booking.women')}</span>
                         <strong>{booking.guests_adults_women}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: 'var(--color-muted)', fontSize: 14 }}>Bolalar</span>
+                        <span style={{ color: 'var(--color-muted)', fontSize: 14 }}>{t('booking.children')}</span>
                         <strong>{booking.guests_children}</strong>
                     </div>
                     {unknownGuests > 0 && (
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span style={{ color: 'var(--color-muted)', fontSize: 14 }}>Aniqlashtirilmagan</span>
+                            <span style={{ color: 'var(--color-muted)', fontSize: 14 }}>{t('bookings.unknownGuests')}</span>
                             <strong>{unknownGuests}</strong>
                         </div>
                     )}
@@ -322,16 +344,16 @@ export default function BookingDetailPage() {
                     }}
                 >
                     <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800, marginBottom: 8 }}>
-                        To'lovni davom ettirish
+                        {t('bookings.continuePayment')}
                     </h2>
                     <p style={{ fontSize: 13, color: 'var(--color-muted)', marginBottom: 14 }}>
-                        Buyurtma hali tasdiqlanmagan. Ichidan to'lov usulini tanlab davom eting.
+                        {t('bookings.continuePaymentDescription')}
                     </p>
                     <div style={{ display: 'grid', gap: 10 }}>
                         {[
-                            { provider: 'click' as const, label: 'Click orqali to\'lash' },
-                            { provider: 'payme' as const, label: 'Payme orqali to\'lash' },
-                            { provider: 'rahmat' as const, label: 'Rahmat orqali to\'lash' },
+                            { provider: 'click' as const, label: t('bookings.payVia', { provider: 'Click' }) },
+                            { provider: 'payme' as const, label: t('bookings.payVia', { provider: 'Payme' }) },
+                            { provider: 'rahmat' as const, label: t('bookings.payVia', { provider: 'Rahmat' }) },
                         ].map((item) => (
                             <button
                                 key={item.provider}
@@ -381,10 +403,10 @@ export default function BookingDetailPage() {
                     }}
                 >
                     <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800, marginBottom: 8 }}>
-                        Buyurtmani bekor qilish
+                        {t('bookings.cancelBooking')}
                     </div>
                     <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--color-muted)', marginBottom: 14 }}>
-                        Tugmani bossangiz admin username profiliga o'tasiz. Bekor qilish qo'lda ko'rib chiqiladi.
+                        {t('bookings.cancelBookingDescription')}
                     </p>
                     <button
                         onClick={openAdminProfile}
@@ -400,7 +422,7 @@ export default function BookingDetailPage() {
                             cursor: 'pointer',
                         }}
                     >
-                        {adminContact.username} profiliga o'tish
+                        {t('bookings.goToAdmin', { username: adminContact.username })}
                     </button>
                 </div>
             )}

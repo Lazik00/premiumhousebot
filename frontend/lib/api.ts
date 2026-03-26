@@ -1,4 +1,5 @@
 import type {
+    AppConfigResponse,
     Booking,
     BookingListResponse,
     PaymentCreateResponse,
@@ -144,6 +145,12 @@ export async function logout(): Promise<void> {
         }, true).catch(() => { });
     }
     clearTokens();
+}
+
+/* ===== Public config ===== */
+
+export async function getAppConfig(): Promise<AppConfigResponse> {
+    return request<AppConfigResponse>('/app-config');
 }
 
 /* ===== Properties ===== */

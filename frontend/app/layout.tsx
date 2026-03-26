@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { AuthProvider } from '../context/AuthContext';
+import { AppPreferencesProvider } from '../context/AppPreferencesContext';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </head>
             <body>
                 <AuthProvider>
-                    {children}
+                    <AppPreferencesProvider>
+                        {children}
+                    </AppPreferencesProvider>
                 </AuthProvider>
             </body>
         </html>

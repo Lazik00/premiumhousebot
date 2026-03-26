@@ -162,6 +162,8 @@ async def list_properties(
     search: str | None = Query(default=None, min_length=1, max_length=120),
     status_value: str | None = Query(default=None, alias='status', pattern='^(draft|pending_review|active|blocked|archived)$'),
     property_type: str | None = Query(default=None, pattern='^(apartment|house|villa)$'),
+    region_id: str | None = Query(default=None),
+    city_id: str | None = Query(default=None),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: AsyncSession = Depends(get_db),
@@ -175,6 +177,8 @@ async def list_properties(
         search=search,
         status=status_value,
         property_type=property_type,
+        region_id=_to_uuid(region_id, 'region_id') if region_id else None,
+        city_id=_to_uuid(city_id, 'city_id') if city_id else None,
     )
 
 

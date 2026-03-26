@@ -144,6 +144,7 @@ export interface AdminRegionOption {
 export interface AdminCityOption {
   id: string;
   region_id: string;
+  region_name: string;
   name: string;
 }
 

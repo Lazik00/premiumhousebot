@@ -3,16 +3,12 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createBooking, createPaymentLink, getProperty } from '../../lib/api';
+import PriceDisplay from '../../components/PriceDisplay';
 import type { PropertyDetail } from '../../lib/types';
 import { useAuth } from '../../context/AuthContext';
+import { useAppPreferences } from '../../context/AppPreferencesContext';
+import { formatUnitCount } from '../../lib/i18n';
 import { getTelegramWebApp, haptic } from '../../lib/telegram';
-
-function formatPrice(price: number, currency: string): string {
-    if (currency === 'UZS') {
-        return `${new Intl.NumberFormat('uz-UZ').format(price)} so'm`;
-    }
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(price);
-}
 
 function CounterRow({
     label,
@@ -96,6 +92,7 @@ function BookingContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { isAuthenticated } = useAuth();
+    const { t, language } = useAppPreferences();
     const propertyId = searchParams.get('property');
     const policyContentRef = useRef<HTMLDivElement | null>(null);
 
@@ -126,9 +123,9 @@ function BookingContent() {
 
         getProperty(propertyId)
             .then(setProperty)
-            .catch(() => setError('Uy topilmadi'))
+            .catch(() => setError(t('property.notFound')))
             .finally(() => setIsLoading(false));
-    }, [propertyId]);
+    }, [propertyId, t]);
 
     useEffect(() => {
         setAcceptedPrivacy(false);
@@ -161,8 +158,31 @@ function BookingContent() {
     const hasAdultGuest = guestsMen + guestsWomen > 0;
     const guestBreakdownValid = assignedGuests <= totalGuests && assignedGuests > 0 && hasAdultGuest;
     const maxGuests = property?.capacity ?? 20;
+    const privacyParagraphs = {
+        uz: [
+            "Premium House orqali bron qilishda siz yuborgan ism, Telegram akkaunt ma'lumotlari, bron sanalari va mehmonlar tarkibi faqat buyurtmani bajarish, xavfsizlikni ta'minlash va zarur hollarda admin bilan aloqa qilish uchun ishlatiladi.",
+            "Platforma ma'lumotlarni uchinchi shaxslarga sotmaydi. To'lovlar tasdiqlangan provayderlar orqali amalga oshiriladi va bron tasdiqlanishi uchun zarur texnik ma'lumotlar to'lov tizimi bilan almashiladi.",
+            "Agar bron bekor qilinishi kerak bo'lsa, Premium House admini siz bilan Telegram orqali bog'lanadi yoki siz admin profiliga murojaat qilishingiz mumkin. Noto'g'ri yoki yashirilgan mehmon ma'lumotlari bronning bekor qilinishiga sabab bo'lishi mumkin.",
+            "Ushbu siyosatni qabul qilish orqali siz kiritgan ma'lumotlar buyurtma, xavfsizlik va qo'llab-quvvatlash maqsadlarida qayta ishlanishiga rozilik bildirasiz. Bron yuborish tugmasi faqat siyosat bilan tanishib chiqilgandan keyin faollashadi.",
+            "Agar mazkur shartlarga rozi bo'lmasangiz, bronni yakunlamang. Savollar bo'lsa, Premium House adminiga Telegram orqali yozing.",
+        ],
+        ru: [
+            "При бронировании через Premium House ваши имя, данные Telegram-аккаунта, даты брони и состав гостей используются только для исполнения заказа, обеспечения безопасности и связи с администратором при необходимости.",
+            "Платформа не продаёт данные третьим лицам. Оплаты проходят через подтверждённых провайдеров, а технические сведения, необходимые для подтверждения брони, передаются платёжной системе.",
+            "Если бронь нужно отменить, администратор Premium House свяжется с вами через Telegram или вы сможете написать ему напрямую. Неверные или скрытые данные о гостях могут стать причиной отмены брони.",
+            "Принимая эту политику, вы соглашаетесь на обработку введённых данных для целей бронирования, безопасности и поддержки. Кнопка отправки брони становится активной только после ознакомления с политикой.",
+            "Если вы не согласны с этими условиями, не завершайте бронирование. По вопросам можно написать администратору Premium House в Telegram.",
+        ],
+        en: [
+            "When booking through Premium House, your name, Telegram account details, booking dates, and guest breakdown are used only to fulfill the order, maintain safety, and contact the admin when needed.",
+            "The platform does not sell data to third parties. Payments are processed by approved providers, and the technical details required to confirm the booking are shared with the payment system.",
+            "If the booking needs to be cancelled, the Premium House admin will contact you via Telegram, or you may contact the admin profile directly. Incorrect or hidden guest information may result in cancellation.",
+            "By accepting this policy, you agree that the information you submit may be processed for booking, safety, and support purposes. The booking button becomes active only after you review the policy.",
+            "If you do not agree with these terms, do not complete the booking. If you have questions, contact the Premium House admin on Telegram.",
+        ],
+    }[language];
 
-    const progressLabel = `${step} / 3 Qadam`;
+    const progressLabel = t('booking.progress', { step });
 
     const handlePolicyScroll = () => {
         const node = policyContentRef.current;
@@ -187,7 +207,7 @@ function BookingContent() {
         if (!property || !propertyId || !startDate || !endDate || totalNights <= 0) return;
         if (!guestBreakdownValid || !acceptedPrivacy) return;
         if (!isAuthenticated) {
-            setError('Bron qilish uchun Telegram orqali tizimga kirish kerak');
+            setError(t('booking.loginRequired'));
             return;
         }
 
@@ -214,7 +234,7 @@ function BookingContent() {
             setShowPrivacyModal(false);
             haptic('medium');
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Bron yaratishda xatolik yuz berdi');
+            setError(err instanceof Error ? err.message : t('booking.createError'));
         } finally {
             setIsBooking(false);
         }
@@ -233,7 +253,7 @@ function BookingContent() {
             }
             window.open(payment.payment_url, '_blank', 'noopener,noreferrer');
         } catch {
-            setError("To'lov havolasi yaratilmadi");
+            setError(t('booking.continuePaymentError'));
         }
     };
 
@@ -252,10 +272,10 @@ function BookingContent() {
             <div style={{ padding: 40, textAlign: 'center' }}>
                 <div style={{ fontSize: 46, marginBottom: 14 }}>🏠</div>
                 <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, marginBottom: 8 }}>
-                    Uy topilmadi
+                    {t('booking.propertyMissingTitle')}
                 </h2>
                 <p style={{ fontSize: 14, color: 'var(--color-muted)', marginBottom: 18 }}>
-                    Bron qilish uchun avval uy tanlang.
+                    {t('booking.propertyMissingDescription')}
                 </p>
                 <button
                     onClick={() => router.push('/')}
@@ -271,7 +291,7 @@ function BookingContent() {
                         fontFamily: 'var(--font-body)',
                     }}
                 >
-                    Uylarni ko'rish
+                    {t('booking.browseHomes')}
                 </button>
             </div>
         );
@@ -296,18 +316,24 @@ function BookingContent() {
                     ✓
                 </div>
                 <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, marginBottom: 8 }}>
-                    Bron yaratildi
+                    {t('booking.created')}
                 </h2>
                 <p style={{ fontSize: 14, color: 'var(--color-muted)', marginBottom: 4 }}>
-                    Bron kodi: <strong style={{ color: 'var(--color-text)' }}>#{bookingResult.code}</strong>
+                    {t('booking.bookingCode')}: <strong style={{ color: 'var(--color-text)' }}>#{bookingResult.code}</strong>
                 </p>
-                <p style={{ fontSize: 20, fontWeight: 800, marginBottom: 22 }}>
-                    <span className="text-gradient">{formatPrice(bookingResult.total, property.currency)}</span>
-                </p>
+                <div style={{ marginBottom: 22 }}>
+                    <PriceDisplay
+                        amount={bookingResult.total}
+                        baseCurrency={property.currency}
+                        primaryStyle={{ fontSize: 20, fontWeight: 800 }}
+                        secondaryStyle={{ fontSize: 12, color: 'var(--color-muted)' }}
+                        align="center"
+                    />
+                </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 22, textAlign: 'left' }}>
                     <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700 }}>
-                        To'lov usulini tanlang
+                        {t('booking.choosePayment')}
                     </h3>
                     {[
                         { provider: 'click' as const, name: 'Click', badge: 'CL' },
@@ -348,7 +374,7 @@ function BookingContent() {
                             >
                                 {item.badge}
                             </span>
-                            {item.name} orqali to'lash
+                            {t('booking.payWith', { provider: item.name })}
                         </button>
                     ))}
                 </div>
@@ -367,7 +393,7 @@ function BookingContent() {
                         fontFamily: 'var(--font-body)',
                     }}
                 >
-                    Buyurtmalarimga o'tish
+                    {t('booking.goToBookings')}
                 </button>
             </div>
         );
@@ -404,12 +430,12 @@ function BookingContent() {
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polyline points="15 18 9 12 15 6" />
                         </svg>
-                        Orqaga
+                        {t('booking.back')}
                     </button>
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
                         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, margin: 0 }}>
-                            Bron qilish
+                            {t('booking.title')}
                         </h1>
                         <div
                             style={{
@@ -458,9 +484,15 @@ function BookingContent() {
                         <div style={{ fontSize: 12, color: 'var(--color-muted)', marginBottom: 4 }}>
                             {property.city}, {property.region}
                         </div>
-                        <div style={{ fontSize: 15, fontWeight: 800 }}>
-                            <span className="text-gradient">{formatPrice(property.price_per_night, property.currency)}</span>
-                            <span style={{ fontSize: 12, color: 'var(--color-muted)' }}> / kecha</span>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+                            <PriceDisplay
+                                amount={property.price_per_night}
+                                baseCurrency={property.currency}
+                                primaryStyle={{ fontSize: 15, fontWeight: 800 }}
+                                secondaryStyle={{ fontSize: 11, color: 'var(--color-muted)' }}
+                                wrapperStyle={{ gap: 2 }}
+                            />
+                            <span style={{ fontSize: 12, color: 'var(--color-muted)' }}>{t('units.perNight')}</span>
                         </div>
                     </div>
                 </div>
@@ -477,12 +509,12 @@ function BookingContent() {
                             }}
                         >
                             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800, marginBottom: 14 }}>
-                                1. Sanalarni tanlang
+                                {t('booking.selectDates')}
                             </h2>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                                 <div>
                                     <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-muted)', marginBottom: 6 }}>
-                                        Kirish sanasi
+                                        {t('search.checkIn')}
                                     </label>
                                     <input
                                         type="date"
@@ -503,7 +535,7 @@ function BookingContent() {
                                 </div>
                                 <div>
                                     <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-muted)', marginBottom: 6 }}>
-                                        Chiqish sanasi
+                                        {t('search.checkOut')}
                                     </label>
                                     <input
                                         type="date"
@@ -534,7 +566,20 @@ function BookingContent() {
                                     fontSize: 13,
                                 }}
                             >
-                                {totalNights > 0 ? `${formatPrice(nightlyRate, property.currency)} x ${totalNights} kecha = ${formatPrice(estimatedTotal, property.currency)}` : 'Sanalarni tanlang'}
+                                {totalNights > 0 ? (
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                                        <span>{formatUnitCount(language, 'night', totalNights)}</span>
+                                        <PriceDisplay
+                                            amount={estimatedTotal}
+                                            baseCurrency={property.currency}
+                                            primaryStyle={{ fontWeight: 800 }}
+                                            secondaryStyle={{ fontSize: 11, color: 'var(--color-muted)' }}
+                                            align="right"
+                                        />
+                                    </div>
+                                ) : (
+                                    t('booking.selectDatesHint')
+                                )}
                             </div>
                         </div>
 
@@ -546,14 +591,18 @@ function BookingContent() {
                                 background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(210,174,104,0.12) 100%)',
                             }}
                         >
-                                <div style={{ fontSize: 12, color: 'rgba(255,247,232,0.62)', marginBottom: 6 }}>
-                                    Tanlangan sanalar bo'yicha summa
-                                </div>
-                            <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800, marginBottom: 6 }}>
-                                {formatPrice(estimatedTotal, property.currency)}
+                            <div style={{ fontSize: 12, color: 'rgba(255,247,232,0.62)', marginBottom: 6 }}>
+                                {t('booking.selectedDatesTotal')}
                             </div>
+                            <PriceDisplay
+                                amount={estimatedTotal}
+                                baseCurrency={property.currency}
+                                primaryStyle={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800 }}
+                                secondaryStyle={{ fontSize: 12, color: 'var(--color-muted)' }}
+                                wrapperStyle={{ gap: 4, marginBottom: 6 }}
+                            />
                             <div style={{ fontSize: 13, color: 'var(--color-muted)', marginBottom: 14 }}>
-                                Narx faqat kecha soniga qarab hisoblanadi.
+                                {t('booking.priceDependsOnNights')}
                             </div>
                             <button
                                 type="button"
@@ -575,7 +624,7 @@ function BookingContent() {
                                     fontFamily: 'var(--font-body)',
                                 }}
                             >
-                                Mehmonlar soniga o'tish
+                                {t('booking.goToGuestCount')}
                             </button>
                         </div>
                     </div>
@@ -593,18 +642,18 @@ function BookingContent() {
                             }}
                         >
                             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800, marginBottom: 14 }}>
-                                2. Necha kishilik bron
+                                {t('booking.guestCount')}
                             </h2>
                             <CounterRow
-                                label="Jami mehmon"
-                                description={`Uy sig'imi: ${maxGuests} kishi`}
+                                label={t('booking.totalGuests')}
+                                description={t('booking.capacityHint', { count: formatUnitCount(language, 'guest', maxGuests) })}
                                 value={totalGuests}
                                 min={1}
                                 max={maxGuests}
                                 onChange={setTotalGuests}
                             />
                             <div style={{ paddingTop: 14, fontSize: 13, color: 'var(--color-muted)' }}>
-                                Keyingi qadamda erkaklar, ayollar va bolalar sonini alohida kiritasiz.
+                                {t('booking.fillBreakdownNext')}
                             </div>
                         </div>
 
@@ -627,7 +676,7 @@ function BookingContent() {
                                 fontFamily: 'var(--font-body)',
                             }}
                         >
-                            Tarkibni kiritish
+                            {t('booking.goToBreakdown')}
                         </button>
                     </div>
                 )}
@@ -644,30 +693,30 @@ function BookingContent() {
                             }}
                         >
                             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800, marginBottom: 6 }}>
-                                3. Mehmonlar tarkibi
+                                {t('booking.guestBreakdown')}
                             </h2>
                             <p style={{ fontSize: 13, color: 'var(--color-muted)', marginBottom: 12 }}>
-                                Jami {totalGuests} kishi bron qilinadi. Tarkib to'liq bo'lmasa ham davom etishingiz mumkin.
+                                {t('booking.breakdownIntro', { count: formatUnitCount(language, 'guest', totalGuests) })}
                             </p>
 
                             <CounterRow
-                                label="Erkaklar"
-                                description="18 yoshdan katta"
+                                label={t('booking.men')}
+                                description={t('booking.adultDescription')}
                                 value={guestsMen}
                                 max={guestsMen + Math.max(remainingGuests, 0)}
                                 onChange={setGuestsMen}
                             />
                             <CounterRow
-                                label="Ayollar"
-                                description="18 yoshdan katta"
+                                label={t('booking.women')}
+                                description={t('booking.adultDescription')}
                                 value={guestsWomen}
                                 max={guestsWomen + Math.max(remainingGuests, 0)}
                                 onChange={setGuestsWomen}
                             />
                             <div style={{ borderBottom: '1px solid var(--color-line)' }}>
                                 <CounterRow
-                                    label="Bolalar"
-                                    description="17 yoshgacha"
+                                    label={t('booking.children')}
+                                    description={t('booking.childDescription')}
                                     value={guestsChildren}
                                     max={guestsChildren + Math.max(remainingGuests, 0)}
                                     onChange={setGuestsChildren}
@@ -686,12 +735,12 @@ function BookingContent() {
                                 }}
                             >
                                 {assignedGuests > totalGuests
-                                    ? `${assignedGuests - totalGuests} ta mehmon ortiqcha kiritildi`
+                                    ? t('booking.tooManyGuests', { count: assignedGuests - totalGuests })
                                     : hasAdultGuest
                                         ? remainingGuests > 0
-                                            ? `${remainingGuests} ta mehmon umumiy mehmon sifatida saqlanadi`
-                                            : 'Mehmonlar tarkibi tayyor'
-                                        : 'Kamida 1 nafar katta yoshli mehmon bo\'lishi kerak'}
+                                            ? t('booking.remainingGuests', { count: remainingGuests })
+                                            : t('booking.guestsReady')
+                                        : t('booking.atLeastOneAdult')}
                             </div>
                         </div>
 
@@ -705,31 +754,41 @@ function BookingContent() {
                             }}
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
-                                <span style={{ color: 'var(--color-muted)' }}>Bir kecha narxi</span>
-                                <span style={{ fontWeight: 700 }}>{formatPrice(nightlyRate, property.currency)}</span>
+                                <span style={{ color: 'var(--color-muted)' }}>{t('booking.propertyNightly')}</span>
+                                <PriceDisplay
+                                    amount={nightlyRate}
+                                    baseCurrency={property.currency}
+                                    primaryStyle={{ fontWeight: 700 }}
+                                    secondaryStyle={{ fontSize: 11, color: 'var(--color-muted)' }}
+                                    align="right"
+                                />
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
-                                <span style={{ color: 'var(--color-muted)' }}>Muddati</span>
-                                <span style={{ fontWeight: 700 }}>{totalNights} kecha</span>
+                                <span style={{ color: 'var(--color-muted)' }}>{t('booking.nights')}</span>
+                                <span style={{ fontWeight: 700 }}>{formatUnitCount(language, 'night', totalNights)}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
-                                <span style={{ color: 'var(--color-muted)' }}>Jami mehmon</span>
-                                <span style={{ fontWeight: 700 }}>{totalGuests} kishi</span>
+                                <span style={{ color: 'var(--color-muted)' }}>{t('booking.totalGuests')}</span>
+                                <span style={{ fontWeight: 700 }}>{formatUnitCount(language, 'guest', totalGuests)}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
-                                <span style={{ color: 'var(--color-muted)' }}>Kiritilgan tarkib</span>
-                                <span style={{ fontWeight: 700 }}>{assignedGuests} kishi</span>
+                                <span style={{ color: 'var(--color-muted)' }}>{t('booking.enteredBreakdown')}</span>
+                                <span style={{ fontWeight: 700 }}>{formatUnitCount(language, 'guest', assignedGuests)}</span>
                             </div>
                             {remainingGuests > 0 && (
                                 <div style={{ fontSize: 12, color: 'var(--color-muted)', marginBottom: 8 }}>
-                                    Qolgan {remainingGuests} kishi faqat umumiy mehmon soni sifatida saqlanadi. Narx o'zgarmaydi.
+                                    {t('booking.priceDoesNotChange', { count: remainingGuests })}
                                 </div>
                             )}
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
-                                <span style={{ color: 'var(--color-muted)' }}>{`${formatPrice(nightlyRate, property.currency)} x ${totalNights}`}</span>
-                                <span className="text-gradient" style={{ fontWeight: 800 }}>
-                                    {formatPrice(estimatedTotal, property.currency)}
-                                </span>
+                                <span style={{ color: 'var(--color-muted)' }}>{`${formatUnitCount(language, 'night', totalNights)}`}</span>
+                                <PriceDisplay
+                                    amount={estimatedTotal}
+                                    baseCurrency={property.currency}
+                                    primaryStyle={{ fontWeight: 800 }}
+                                    secondaryStyle={{ fontSize: 11, color: 'var(--color-muted)' }}
+                                    align="right"
+                                />
                             </div>
                         </div>
 
@@ -742,10 +801,10 @@ function BookingContent() {
                                     background: 'rgba(0, 184, 148, 0.12)',
                                     color: '#00b894',
                                     fontSize: 13,
-                                    fontWeight: 700,
-                                }}
-                            >
-                                Maxfiylik siyosati qabul qilingan. Endi bron qilishingiz mumkin.
+                                fontWeight: 700,
+                            }}
+                        >
+                                {t('booking.privacyAccepted')}
                             </div>
                         )}
 
@@ -783,7 +842,7 @@ function BookingContent() {
                                 fontFamily: 'var(--font-body)',
                             }}
                         >
-                            {acceptedPrivacy ? 'Maxfiylik siyosatini qayta ko\'rish' : 'Maxfiylik siyosatini ochish'}
+                            {acceptedPrivacy ? t('booking.reviewPrivacy') : t('booking.openPrivacy')}
                         </button>
                     </div>
                 )}
@@ -826,10 +885,10 @@ function BookingContent() {
                         >
                             <div>
                                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 800 }}>
-                                    Maxfiylik siyosati
+                                    {t('booking.privacyTitle')}
                                 </div>
                                 <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>
-                                    Pastgacha o'qib, keyin qabul qiling
+                                    {t('booking.privacyReadHint')}
                                 </div>
                             </div>
                             <button
@@ -862,25 +921,9 @@ function BookingContent() {
                                 color: 'rgba(255,247,232,0.78)',
                             }}
                         >
-                            <p>
-                                Premium House orqali bron qilishda siz yuborgan ism, Telegram akkaunt ma'lumotlari, bron sanalari va mehmonlar tarkibi
-                                faqat buyurtmani bajarish, xavfsizlikni ta'minlash va zarur hollarda admin bilan aloqa qilish uchun ishlatiladi.
-                            </p>
-                            <p>
-                                Platforma ma'lumotlarni uchinchi shaxslarga sotmaydi. To'lovlar tasdiqlangan provayderlar orqali amalga oshiriladi va bron
-                                tasdiqlanishi uchun zarur texnik ma'lumotlar to'lov tizimi bilan almashiladi.
-                            </p>
-                            <p>
-                                Agar bron bekor qilinishi kerak bo'lsa, Premium House admini siz bilan Telegram orqali bog'lanadi yoki siz admin profiliga
-                                murojaat qilishingiz mumkin. Noto'g'ri yoki yashirilgan mehmon ma'lumotlari bronning bekor qilinishiga sabab bo'lishi mumkin.
-                            </p>
-                            <p>
-                                Ushbu siyosatni qabul qilish orqali siz kiritgan ma'lumotlar buyurtma, xavfsizlik va qo'llab-quvvatlash maqsadlarida qayta
-                                ishlanishiga rozilik bildirasiz. Bron yuborish tugmasi faqat siyosat bilan tanishib chiqilgandan keyin faollashadi.
-                            </p>
-                            <p>
-                                Agar mazkur shartlarga rozi bo'lmasangiz, bronni yakunlamang. Savollar bo'lsa, Premium House adminiga Telegram orqali yozing.
-                            </p>
+                            {privacyParagraphs.map((paragraph) => (
+                                <p key={paragraph}>{paragraph}</p>
+                            ))}
                         </div>
 
                         <div style={{ padding: 18, borderTop: '1px solid rgba(210,174,104,0.12)' }}>
@@ -906,13 +949,13 @@ function BookingContent() {
                                     style={{ width: 18, height: 18, marginTop: 2, accentColor: 'var(--color-brand)' }}
                                 />
                                 <span style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--color-text)' }}>
-                                    Men maxfiylik siyosatini o'qib chiqdim va shartlarini qabul qilaman.
+                                    {t('booking.acceptPrivacy')}
                                 </span>
                             </label>
 
                             {!hasReadPrivacy && (
                                 <div style={{ fontSize: 12, color: 'var(--color-warning)', marginBottom: 12 }}>
-                                    Bron qilishdan oldin matnni pastgacha o'qib chiqing.
+                                    {t('booking.readUntilEnd')}
                                 </div>
                             )}
 
@@ -933,7 +976,7 @@ function BookingContent() {
                                     fontFamily: 'var(--font-body)',
                                 }}
                             >
-                                {isBooking ? 'Bron yaratilmoqda...' : 'Bron qilish'}
+                                {isBooking ? t('booking.creating') : t('booking.bookNow')}
                             </button>
                         </div>
                     </div>
@@ -945,7 +988,7 @@ function BookingContent() {
 
 export default function BookingPage() {
     return (
-        <Suspense fallback={<div style={{ padding: 32 }}>Yuklanmoqda...</div>}>
+        <Suspense fallback={<div style={{ padding: 32 }}>Loading...</div>}>
             <BookingContent />
         </Suspense>
     );

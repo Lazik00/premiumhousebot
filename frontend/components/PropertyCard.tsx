@@ -1,15 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import PriceDisplay from './PriceDisplay';
+import { useAppPreferences } from '../context/AppPreferencesContext';
 import { haptic } from '../lib/telegram';
 import type { PropertySummary } from '../lib/types';
-
-function formatPrice(price: number, currency: string): string {
-    if (currency === 'UZS') {
-        return `${new Intl.NumberFormat('uz-UZ').format(price)} so'm`;
-    }
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(price);
-}
 
 function PropertyTypeIcon({ type }: { type: string }) {
     const icons: Record<string, string> = {
@@ -21,6 +16,7 @@ function PropertyTypeIcon({ type }: { type: string }) {
 }
 
 export default function PropertyCard({ property }: { property: PropertySummary }) {
+    const { t } = useAppPreferences();
     const placeholderGradients = [
         'linear-gradient(135deg, #5f4320 0%, #1b140d 100%)',
         'linear-gradient(135deg, #c79b53 0%, #322314 100%)',
@@ -81,11 +77,11 @@ export default function PropertyCard({ property }: { property: PropertySummary }
                         </div>
                     )}
 
-                    <div
-                        style={{
-                            position: 'absolute',
-                            bottom: 10,
-                            left: 10,
+                        <div
+                            style={{
+                                position: 'absolute',
+                                bottom: 10,
+                                left: 10,
                             background: 'rgba(12,9,6,0.74)',
                             backdropFilter: 'blur(12px)',
                             borderRadius: 12,
@@ -94,12 +90,18 @@ export default function PropertyCard({ property }: { property: PropertySummary }
                             alignItems: 'baseline',
                             gap: 4,
                             border: '1px solid rgba(242,217,162,0.12)',
-                        }}
-                    >
-                        <span style={{ fontSize: 13, fontWeight: 800, color: '#fff7e8' }}>
-                            {formatPrice(property.price_per_night, property.currency)}
-                        </span>
-                        <span style={{ fontSize: 10, color: 'rgba(242,217,162,0.72)' }}>/kecha</span>
+                            }}
+                        >
+                            <PriceDisplay
+                                amount={property.price_per_night}
+                                baseCurrency={property.currency}
+                                primaryStyle={{ fontSize: 13, fontWeight: 800, color: '#fff7e8' }}
+                                secondaryStyle={{ fontSize: 10, color: 'rgba(242,217,162,0.72)' }}
+                                wrapperStyle={{ gap: 2 }}
+                            />
+                            <span style={{ fontSize: 10, color: 'rgba(242,217,162,0.72)', alignSelf: 'flex-start', marginTop: 1 }}>
+                                {t('units.perNight')}
+                            </span>
                     </div>
 
                     {property.average_rating > 0 && (
@@ -141,7 +143,7 @@ export default function PropertyCard({ property }: { property: PropertySummary }
                             border: '1px solid rgba(242,217,162,0.16)',
                         }}
                     >
-                        {property.property_type}
+                        {t(`propertyType.${property.property_type}`)}
                     </div>
                 </div>
 

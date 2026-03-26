@@ -391,6 +391,7 @@ class AdminRegionOptionResponse(BaseModel):
 class AdminCityOptionResponse(BaseModel):
     id: str
     region_id: str
+    region_name: str
     name: str
 
 

@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import AdminCombobox, { type AdminComboboxOption } from '../../components/AdminCombobox';
 import AdminShell from '../../components/AdminShell';
 import AdminStatusPill from '../../components/AdminStatusPill';
 import { useAdminAuth } from '../../context/AdminAuthContext';
-import { listProperties, updatePropertyStatus } from '../../lib/api';
+import { getMetaOptions, listProperties, updatePropertyStatus } from '../../lib/api';
 import { formatDateTime, formatMoney } from '../../lib/format';
-import type { AdminPropertyRow } from '../../lib/types';
+import type { AdminMetaOptions, AdminPropertyRow } from '../../lib/types';
 
 const statuses = ['all', 'draft', 'pending_review', 'active', 'blocked', 'archived'] as const;
 const propertyTypes = ['all', 'apartment', 'house', 'villa'] as const;
@@ -19,7 +20,50 @@ export default function PropertiesPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<(typeof statuses)[number]>('all');
   const [propertyType, setPropertyType] = useState<(typeof propertyTypes)[number]>('all');
+  const [meta, setMeta] = useState<AdminMetaOptions | null>(null);
+  const [regionId, setRegionId] = useState('');
+  const [cityId, setCityId] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const cityCountByRegion = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const city of meta?.cities || []) {
+      counts.set(city.region_id, (counts.get(city.region_id) || 0) + 1);
+    }
+    return counts;
+  }, [meta?.cities]);
+  const cityOptionsRaw = useMemo(
+    () => (meta?.cities || []).filter((city) => !regionId || city.region_id === regionId),
+    [meta?.cities, regionId],
+  );
+  const regionOptions: AdminComboboxOption[] = useMemo(
+    () =>
+      (meta?.regions || []).map((region) => ({
+        value: region.id,
+        label: region.name,
+        description: `${cityCountByRegion.get(region.id) || 0} ta shahar / tuman`,
+        badge: `${cityCountByRegion.get(region.id) || 0} ta`,
+      })),
+    [cityCountByRegion, meta?.regions],
+  );
+  const cityOptions: AdminComboboxOption[] = useMemo(
+    () =>
+      cityOptionsRaw.map((city) => ({
+        value: city.id,
+        label: city.name,
+        description: city.region_name,
+      })),
+    [cityOptionsRaw],
+  );
+  const statusOptions: AdminComboboxOption[] = statuses.map((item) => ({
+    value: item,
+    label: item === 'all' ? 'Barcha statuslar' : item.replace(/_/g, ' '),
+    description: item === 'all' ? 'Draft, active, blocked va boshqa holatlar' : "Status bo'yicha saralash",
+  }));
+  const propertyTypeOptions: AdminComboboxOption[] = propertyTypes.map((item) => ({
+    value: item,
+    label: item === 'all' ? 'Barcha turlar' : item,
+    description: item === 'all' ? 'Apartment, house va villa' : "Mulk turi bo'yicha saralash",
+  }));
 
   const load = async () => {
     setLoading(true);
@@ -28,6 +72,8 @@ export default function PropertiesPage() {
         search: search || undefined,
         status: status === 'all' ? undefined : status,
         property_type: propertyType === 'all' ? undefined : propertyType,
+        region_id: regionId || undefined,
+        city_id: cityId || undefined,
         limit: 50,
         offset: 0,
       });
@@ -42,8 +88,24 @@ export default function PropertiesPage() {
 
   useEffect(() => {
     if (authLoading || !isAuthenticated) return;
-    void load();
+    const timer = window.setTimeout(() => {
+      void load();
+    }, search ? 220 : 0);
+    return () => window.clearTimeout(timer);
+  }, [authLoading, isAuthenticated, search, status, propertyType, regionId, cityId]);
+
+  useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
+    void getMetaOptions()
+      .then(setMeta)
+      .catch((err) => setError(err instanceof Error ? err.message : 'Lookup ma\'lumotlar yuklanmadi'));
   }, [authLoading, isAuthenticated]);
+
+  useEffect(() => {
+    if (cityId && cityOptionsRaw.every((city) => city.id !== cityId)) {
+      setCityId('');
+    }
+  }, [cityId, cityOptionsRaw]);
 
   const handleStatusChange = async (propertyId: string, nextStatus: string) => {
     await updatePropertyStatus(propertyId, nextStatus);
@@ -53,16 +115,62 @@ export default function PropertiesPage() {
   return (
     <AdminShell title="Uylar" subtitle="Listing moderatsiyasi, yangi property yaratish va mavjud uylarni to'liq tahrirlash shu yerda boshqariladi.">
       <div className="admin-grid">
-        <div className="admin-panel" style={{ padding: 18, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-          <input style={{ flex: '1 1 280px' }} placeholder="Sarlavha, address yoki shahar bo'yicha qidirish" value={search} onChange={(event) => setSearch(event.target.value)} />
-          <select value={status} onChange={(event) => setStatus(event.target.value as (typeof statuses)[number])}>
-            {statuses.map((item) => <option key={item} value={item}>{item === 'all' ? 'Barcha statuslar' : item}</option>)}
-          </select>
-          <select value={propertyType} onChange={(event) => setPropertyType(event.target.value as (typeof propertyTypes)[number])}>
-            {propertyTypes.map((item) => <option key={item} value={item}>{item === 'all' ? 'Barcha turlar' : item}</option>)}
-          </select>
-          <button className="admin-button secondary" onClick={() => void load()}>Yangilash</button>
-          <Link href="/properties/new" className="admin-button" style={{ textDecoration: 'none' }}>Yangi uy qo'shish</Link>
+        <div className="admin-panel admin-filter-panel" style={{ padding: 20 }}>
+          <div className="admin-header-row">
+            <div>
+              <div className="admin-section-title">Smart filter</div>
+              <div className="admin-section-subtitle">Qidiruv, status, mulk turi va hudud bo'yicha listinglarni toraytiring.</div>
+            </div>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <button className="admin-button secondary" onClick={() => void load()}>Yangilash</button>
+              <Link href="/properties/new" className="admin-button" style={{ textDecoration: 'none' }}>Yangi uy qo'shish</Link>
+            </div>
+          </div>
+
+          <div className="admin-filter-grid" style={{ marginTop: 18 }}>
+            <input
+              className="admin-filter-search"
+              placeholder="Sarlavha, address yoki shahar bo'yicha qidirish"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+            <AdminCombobox
+              compact
+              value={status}
+              onChange={(nextValue) => setStatus(nextValue as (typeof statuses)[number])}
+              options={statusOptions}
+              placeholder="Status"
+            />
+            <AdminCombobox
+              compact
+              value={propertyType}
+              onChange={(nextValue) => setPropertyType(nextValue as (typeof propertyTypes)[number])}
+              options={propertyTypeOptions}
+              placeholder="Mulk turi"
+            />
+            <AdminCombobox
+              compact
+              value={regionId}
+              onChange={(nextValue) => {
+                setRegionId(nextValue);
+                setCityId('');
+              }}
+              options={regionOptions}
+              placeholder="Viloyat"
+              searchPlaceholder="Viloyat qidiring..."
+              hint="Barcha viloyatlar"
+            />
+            <AdminCombobox
+              compact
+              value={cityId}
+              onChange={setCityId}
+              options={cityOptions}
+              placeholder={regionId ? 'Shahar / tuman' : 'Avval viloyat'}
+              searchPlaceholder="Shahar yoki tuman qidiring..."
+              disabled={!regionId}
+              emptyMessage="Tanlangan viloyat bo'yicha lokatsiya topilmadi"
+            />
+          </div>
         </div>
 
         <div className="admin-panel" style={{ padding: 20 }}>
@@ -89,7 +197,7 @@ export default function PropertiesPage() {
                       <Link href={`/properties/${property.id}`} style={{ color: 'var(--color-text)', textDecoration: 'none', fontWeight: 800 }}>
                         {property.title}
                       </Link>
-                      <div style={{ color: 'var(--color-muted)', fontSize: 12 }}>{property.property_type} • {property.capacity} mehmon</div>
+                      <div style={{ color: 'var(--color-muted)', fontSize: 12 }}>{property.property_type} - {property.capacity} mehmon</div>
                     </td>
                     <td>{property.city}, {property.region}</td>
                     <td>{property.host_name}</td>

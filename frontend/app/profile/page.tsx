@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
+import { useAppPreferences } from '../../context/AppPreferencesContext';
 import { haptic } from '../../lib/telegram';
 import { ProfileSkeleton } from '../../components/LoadingSkeleton';
 import BottomNav from '../../components/BottomNav';
@@ -9,6 +10,7 @@ import BottomNav from '../../components/BottomNav';
 export default function ProfilePage() {
     const router = useRouter();
     const { user, isLoading, isAuthenticated, logout } = useAuth();
+    const { t, language, currency } = useAppPreferences();
 
     if (isLoading) {
         return (
@@ -25,10 +27,10 @@ export default function ProfilePage() {
                 <div style={{ padding: 'calc(60px + var(--tg-safe-top, 60px)) 20px 60px', textAlign: 'center' }}>
                     <div style={{ fontSize: 64, marginBottom: 16 }}>👤</div>
                     <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
-                        Profil
+                        {t('profile.title')}
                     </h2>
                     <p style={{ fontSize: 14, color: 'var(--color-muted)', marginBottom: 20 }}>
-                        Telegram orqali tizimga kiring
+                        {t('profile.loginDescription')}
                     </p>
                 </div>
                 <BottomNav />
@@ -39,26 +41,32 @@ export default function ProfilePage() {
     const menuItems = [
         {
             icon: '📋',
-            label: 'Mening buyurtmalarim',
-            subtitle: 'Barcha buyurtmalarni ko\'rish',
+            label: t('profile.myBookings'),
+            subtitle: t('profile.myBookingsDescription'),
             action: () => router.push('/bookings'),
         },
         {
             icon: '🏠',
-            label: 'Uylarni ko\'rish',
-            subtitle: 'Premium uylarni topish',
+            label: t('profile.browseHomes'),
+            subtitle: t('profile.browseHomesDescription'),
             action: () => router.push('/'),
         },
         {
             icon: '🌐',
-            label: 'Til',
-            subtitle: 'O\'zbek',
-            action: () => { },
+            label: t('language.label'),
+            subtitle: t(`language.${language}`),
+            action: () => router.push('/'),
+        },
+        {
+            icon: '💱',
+            label: t('profile.currency'),
+            subtitle: currency,
+            action: () => router.push('/'),
         },
         {
             icon: 'ℹ️',
-            label: 'Ilova haqida',
-            subtitle: 'Premium House v1.0',
+            label: t('profile.about'),
+            subtitle: t('profile.aboutDescription'),
             action: () => { },
         },
     ];
@@ -142,8 +150,8 @@ export default function ProfilePage() {
                 }}
             >
                 {[
-                    { label: 'Telegram ID', value: `${user.telegram_id}` },
-                    { label: 'Status', value: 'status' in user && user.status === 'active' ? '🟢 Faol' : '🔴' },
+                    { label: t('profile.telegramId'), value: `${user.telegram_id}` },
+                    { label: t('profile.status'), value: 'status' in user && user.status === 'active' ? t('profile.active') : t('profile.inactive') },
                 ].map((s) => (
                     <div
                         key={s.label}
@@ -240,7 +248,7 @@ export default function ProfilePage() {
                         <polyline points="16 17 21 12 16 7" />
                         <line x1="21" y1="12" x2="9" y2="12" />
                     </svg>
-                    Chiqish
+                    {t('profile.logout')}
                 </button>
             </div>
 
