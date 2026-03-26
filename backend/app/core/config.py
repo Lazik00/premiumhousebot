@@ -21,6 +21,10 @@ class Settings(BaseSettings):
 
     telegram_bot_token: str = ''
     telegram_auth_max_age_seconds: int = 300
+    admin_bootstrap_email: str | None = None
+    admin_bootstrap_password: str | None = None
+    admin_bootstrap_first_name: str = 'Premium'
+    admin_bootstrap_last_name: str = 'Admin'
 
     database_url: str = Field(default='postgresql+asyncpg://premium:premium@postgres:5434/premium_house')
     db_pool_size: int = 20

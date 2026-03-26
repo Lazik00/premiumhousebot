@@ -9,11 +9,13 @@ class TelegramAuthRequest(BaseModel):
 
 class AuthUserResponse(BaseModel):
     id: str
-    telegram_id: int
+    telegram_id: int | None
     first_name: str
     last_name: str | None
     username: str | None
     photo_url: str | None
+    email: str | None = None
+    roles: list[str] = []
 
 
 class TokenPairResponse(BaseModel):
@@ -39,14 +41,25 @@ class LogoutRequest(BaseModel):
     refresh_token: str = Field(min_length=20)
 
 
+class AdminLoginRequest(BaseModel):
+    email: str = Field(min_length=5, max_length=255)
+    password: str = Field(min_length=8, max_length=255)
+
+
+class AdminLoginResponse(TokenPairResponse):
+    user: AuthUserResponse
+
+
 class UserMeResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
-    telegram_id: int
+    telegram_id: int | None
     first_name: str
     last_name: str | None
     username: str | None
     photo_url: str | None
+    email: str | None = None
     status: str
+    roles: list[str] = []
     created_at: datetime

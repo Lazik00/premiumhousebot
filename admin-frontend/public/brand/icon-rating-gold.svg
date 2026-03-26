@@ -1,0 +1,9 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="gold" x1="14" y1="16" x2="108" y2="114" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF0BF"/><stop offset="0.45" stop-color="#E1B66B"/><stop offset="1" stop-color="#8B5B24"/></linearGradient></defs>
+  <rect x="18" y="58" width="22" height="42" rx="5" fill="url(#gold)"/>
+  <rect x="53" y="38" width="22" height="62" rx="5" fill="url(#gold)"/>
+  <rect x="88" y="48" width="22" height="52" rx="5" fill="url(#gold)"/>
+  <path d="M29 46L33.4 53.7L42 54.8L35.7 60.7L37.3 68.9L29 65L20.7 68.9L22.3 60.7L16 54.8L24.6 53.7L29 46Z" fill="url(#gold)"/>
+  <path d="M64 18L68.4 25.7L77 26.8L70.7 32.7L72.3 40.9L64 37L55.7 40.9L57.3 32.7L51 26.8L59.6 25.7L64 18Z" fill="url(#gold)"/>
+  <path d="M99 36L103.4 43.7L112 44.8L105.7 50.7L107.3 58.9L99 55L90.7 58.9L92.3 50.7L86 44.8L94.6 43.7L99 36Z" fill="url(#gold)"/>
+</svg>

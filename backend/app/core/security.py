@@ -2,10 +2,12 @@ import hashlib
 from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
+from passlib.context import CryptContext
 
 from app.core.config import settings
 
 ALGORITHM = 'HS256'
+pwd_context = CryptContext(schemes=['pbkdf2_sha256'], deprecated='auto')
 
 
 class TokenError(ValueError):
@@ -42,3 +44,13 @@ def extract_subject(token: str, expected_type: str) -> str:
 
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode('utf-8')).hexdigest()
+
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def verify_password(password: str, password_hash: str | None) -> bool:
+    if not password_hash:
+        return False
+    return pwd_context.verify(password, password_hash)

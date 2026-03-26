@@ -7,11 +7,14 @@ from app.api.v1.router import router as v1_router
 from app.core.config import settings
 from app.core.rate_limit import init_rate_limiter
 from app.db.redis import close_redis
-from app.db.session import dispose_engine
+from app.db.session import AsyncSessionLocal, dispose_engine
+from app.services.auth_service import AuthService
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    async with AsyncSessionLocal() as session:
+        await AuthService().ensure_bootstrap_admin(session)
     yield
     await close_redis()
     await dispose_engine()

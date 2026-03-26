@@ -35,7 +35,7 @@ class RolePermission(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin)
 class User(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = 'users'
 
-    telegram_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True)
+    telegram_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True, unique=True)
     first_name: Mapped[str] = mapped_column(String(120), nullable=False)
     last_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
     username: Mapped[str | None] = mapped_column(String(120), nullable=True)
@@ -43,6 +43,7 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
 
     phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     status: Mapped[UserStatus] = mapped_column(
         Enum(UserStatus, name='user_status', values_callable=enum_values),

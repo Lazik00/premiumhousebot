@@ -1,0 +1,9 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="gold" x1="16" y1="20" x2="110" y2="112" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF0BF"/><stop offset="0.45" stop-color="#E1B66B"/><stop offset="1" stop-color="#8B5B24"/></linearGradient></defs>
+  <circle cx="64" cy="38" r="18" fill="url(#gold)"/>
+  <circle cx="30" cy="48" r="13" fill="url(#gold)" fill-opacity="0.85"/>
+  <circle cx="98" cy="48" r="13" fill="url(#gold)" fill-opacity="0.85"/>
+  <path d="M22 102C22 84.3 40.1 70 64 70C87.9 70 106 84.3 106 102V108H22V102Z" fill="url(#gold)"/>
+  <path d="M10 104C10 91.4 20.7 81 34 81C38.6 81 42.9 82.2 46.6 84.2C39.8 89.2 35.3 95.9 34.3 104H10Z" fill="url(#gold)" fill-opacity="0.75"/>
+  <path d="M118 104C118 91.4 107.3 81 94 81C89.4 81 85.1 82.2 81.4 84.2C88.2 89.2 92.7 95.9 93.7 104H118Z" fill="url(#gold)" fill-opacity="0.75"/>
+</svg>

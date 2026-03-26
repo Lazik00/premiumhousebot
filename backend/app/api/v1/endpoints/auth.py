@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, get_current_user_role_codes
 from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.auth import (
+    AdminLoginRequest,
+    AdminLoginResponse,
     LogoutRequest,
     RefreshTokenRequest,
     RefreshTokenResponse,
@@ -47,6 +49,28 @@ async def telegram_auth(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
 
 
+@router.post('/admin/login', response_model=AdminLoginResponse)
+@limiter.limit('10/minute')
+async def admin_login(
+    request: Request,
+    response: Response,
+    payload: AdminLoginRequest,
+    db: AsyncSession = Depends(get_db),
+    user_agent: str | None = Header(default=None, alias='User-Agent'),
+    x_forwarded_for: str | None = Header(default=None, alias='X-Forwarded-For'),
+) -> AdminLoginResponse:
+    try:
+        return await auth_service.admin_login(
+            db=db,
+            email=payload.email,
+            password=payload.password,
+            user_agent=user_agent,
+            ip_address=_extract_client_ip(x_forwarded_for),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
+
+
 @router.post('/refresh', response_model=RefreshTokenResponse)
 @limiter.limit('20/minute')
 async def refresh_tokens(
@@ -75,7 +99,10 @@ async def logout(request: Request, response: Response, payload: LogoutRequest, d
 
 
 @router.get('/me', response_model=UserMeResponse)
-async def me(current_user: User = Depends(get_current_user)) -> UserMeResponse:
+async def me(
+    current_user: User = Depends(get_current_user),
+    role_codes: set[str] = Depends(get_current_user_role_codes),
+) -> UserMeResponse:
     return UserMeResponse(
         id=str(current_user.id),
         telegram_id=current_user.telegram_id,
@@ -83,6 +110,8 @@ async def me(current_user: User = Depends(get_current_user)) -> UserMeResponse:
         last_name=current_user.last_name,
         username=current_user.username,
         photo_url=current_user.photo_url,
+        email=current_user.email,
         status=current_user.status.value,
+        roles=sorted(role_codes),
         created_at=current_user.created_at,
     )

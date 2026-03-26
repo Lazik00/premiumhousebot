@@ -3,13 +3,15 @@ services:
     image: nginx:1.27-alpine
     depends_on:
       - frontend
+      - admin-frontend
       - backend
     environment:
       - NGINX_HTTP_PORT=${NGINX_HTTP_PORT:-8088}
       - FRONTEND_PORT=${FRONTEND_PORT:-3100}
+      - ADMIN_FRONTEND_PORT=${ADMIN_FRONTEND_PORT:-3200}
       - BACKEND_PORT=${BACKEND_PORT:-8100}
     command: >
-      /bin/sh -c "envsubst '$$NGINX_HTTP_PORT $$FRONTEND_PORT $$BACKEND_PORT'
+      /bin/sh -c "envsubst '$$NGINX_HTTP_PORT $$FRONTEND_PORT $$ADMIN_FRONTEND_PORT $$BACKEND_PORT'
       < /etc/nginx/templates/nginx.conf.template
       > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
     ports:
@@ -30,6 +32,18 @@ services:
       - NEXT_PUBLIC_API_BASE=/api/v1
     expose:
       - '${FRONTEND_PORT:-3100}'
+    restart: unless-stopped
+
+  admin-frontend:
+    build:
+      context: ../admin-frontend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=${ADMIN_FRONTEND_PORT:-3200}
+      - NEXT_PUBLIC_API_BASE=/api/v1
+    expose:
+      - '${ADMIN_FRONTEND_PORT:-3200}'
     restart: unless-stopped
 
   backend:
@@ -59,6 +73,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      minio:
+        condition: service_started
     healthcheck:
       test: ['CMD-SHELL', 'curl -fsS http://localhost:${BACKEND_PORT:-8100}/api/v1/health || exit 1']
       interval: 10s
@@ -111,6 +127,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      minio:
+        condition: service_started
     restart: unless-stopped
 
   beat:
@@ -140,6 +158,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      minio:
+        condition: service_started
     restart: unless-stopped
 
   postgres:

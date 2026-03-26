@@ -1,0 +1,7 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="gold" x1="18" y1="18" x2="108" y2="110" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF0BF"/><stop offset="0.45" stop-color="#E1B66B"/><stop offset="1" stop-color="#8B5B24"/></linearGradient></defs>
+  <path d="M28 30C28 22.3 34.3 16 42 16H86C93.7 16 100 22.3 100 30V62C100 69.7 93.7 76 86 76H56L36 94V76H42C34.3 76 28 69.7 28 62V30Z" fill="url(#gold)"/>
+  <circle cx="48" cy="46" r="5" fill="#120E09"/>
+  <circle cx="64" cy="46" r="5" fill="#120E09"/>
+  <circle cx="80" cy="46" r="5" fill="#120E09"/>
+</svg>
