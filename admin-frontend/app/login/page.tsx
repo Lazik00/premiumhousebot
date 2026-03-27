@@ -35,7 +35,11 @@ export default function LoginPage() {
   return (
     <div className="login-shell">
       <form className="login-card" onSubmit={handleSubmit}>
-        <img src="/admin/brand/logo-full-gold.svg" alt="Premium House" style={{ width: 220, marginBottom: 24 }} />
+        <img
+          src="/admin/brand/logo-full.png"
+          alt="Premium House"
+          style={{ width: 220, marginBottom: 24, filter: 'brightness(0) invert(1)' }}
+        />
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 44, lineHeight: 0.92, marginBottom: 10 }}>Admin kirishi</div>
         <div style={{ color: 'var(--color-muted)', marginBottom: 22 }}>
           Moderatsiya, bronlar, to'lovlar va host balanslarini boshqarish uchun kiriting.

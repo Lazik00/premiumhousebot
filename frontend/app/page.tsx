@@ -318,13 +318,13 @@ export default function HomePage() {
                         }}
                     >
                         <img
-                            src="/brand/logo-full-gold.svg"
+                            src="/brand/logo-full.png"
                             alt="Premium House"
                             style={{
                                 width: 'min(100%, 236px)',
                                 height: 'auto',
                                 display: 'block',
-                                filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.4))',
+                                filter: 'brightness(0) invert(1) drop-shadow(0 12px 24px rgba(0,0,0,0.4))',
                             }}
                         />
                         <PreferenceDock />
@@ -404,7 +404,7 @@ export default function HomePage() {
                                 }}
                             />
                             <img
-                                src="/brand/logo-mark-gold.svg"
+                                src="/brand/logo-mark.png"
                                 alt="Premium House mark"
                                 style={{
                                     position: 'absolute',

@@ -48,7 +48,7 @@ export default function AdminShell({
     <div className="admin-shell">
       <aside className="admin-sidebar">
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
-          <img src="/admin/brand/logo-mark-gold.svg" alt="Premium House" style={{ width: 52, height: 52 }} />
+          <img src="/admin/brand/logo-mark.png" alt="Premium House" style={{ width: 52, height: 52, objectFit: 'contain' }} />
           <div>
             <div style={{ fontSize: 12, color: 'var(--color-brand-light)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Premium House</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: 1 }}>Admin Panel</div>
@@ -114,7 +114,11 @@ export default function AdminShell({
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 42, lineHeight: 0.95 }}>{title}</div>
             {subtitle ? <div style={{ color: 'var(--color-muted)', marginTop: 10 }}>{subtitle}</div> : null}
           </div>
-          <img src="/admin/brand/logo-full-gold.svg" alt="Premium House" style={{ width: 180, opacity: 0.88 }} />
+          <img
+            src="/admin/brand/logo-full.png"
+            alt="Premium House"
+            style={{ width: 180, opacity: 0.88, filter: 'brightness(0) invert(1)' }}
+          />
         </div>
         {children}
       </main>
