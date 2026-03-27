@@ -92,7 +92,7 @@ export default function BookingsPage() {
     }, []);
 
     const filteredBookings = bookings.filter((booking) => {
-        if (activeTab === 'active') return ['pending_payment', 'confirmed'].includes(booking.status);
+        if (activeTab === 'active') return ['pending_payment', 'awaiting_confirmation', 'confirmed'].includes(booking.status);
         if (activeTab === 'past') return ['completed', 'cancelled', 'expired'].includes(booking.status);
         return true;
     });
@@ -172,6 +172,7 @@ export default function BookingsPage() {
                     filteredBookings.map((booking, index) => {
                         const statusLabelMap: Record<string, string> = {
                             pending_payment: t('bookings.pendingPayment'),
+                            awaiting_confirmation: t('bookings.awaitingConfirmation'),
                             confirmed: t('bookings.confirmed'),
                             completed: t('bookings.completed'),
                             cancelled: t('bookings.cancelled'),
@@ -183,6 +184,8 @@ export default function BookingsPage() {
                                 ? '#00b894'
                                 : booking.status === 'completed'
                                     ? 'var(--color-brand)'
+                                    : booking.status === 'awaiting_confirmation'
+                                        ? 'var(--color-warning)'
                                     : booking.status === 'cancelled'
                                         ? '#d63031'
                                         : booking.status === 'expired'
@@ -190,6 +193,8 @@ export default function BookingsPage() {
                                             : 'var(--color-warning)',
                             bg: booking.status === 'confirmed'
                                 ? 'rgba(0,184,148,0.12)'
+                                : booking.status === 'awaiting_confirmation'
+                                    ? 'rgba(210,174,104,0.14)'
                                 : booking.status === 'completed'
                                     ? 'rgba(210,174,104,0.12)'
                                     : booking.status === 'cancelled'
@@ -201,17 +206,21 @@ export default function BookingsPage() {
                                 ? '✅'
                                 : booking.status === 'completed'
                                     ? '🏁'
+                                    : booking.status === 'awaiting_confirmation'
+                                        ? '🛡️'
                                     : booking.status === 'cancelled'
                                         ? '❌'
                                         : booking.status === 'expired'
                                             ? '⌛'
                                             : '⏳',
                         };
-                        const remainingMs = booking.status === 'pending_payment' ? getRemainingMs(booking.expires_at, nowMs) : 0;
+                        const remainingMs = ['pending_payment', 'awaiting_confirmation'].includes(booking.status) ? getRemainingMs(booking.expires_at, nowMs) : 0;
                         const countdown = remainingMs > 0 ? formatCountdown(remainingMs) : null;
                         const countdownText = remainingMs > 0 ? formatCountdownText(remainingMs, t) : t('bookings.expiredWindow');
                         const helperText = booking.status === 'pending_payment'
                             ? countdownText
+                            : booking.status === 'awaiting_confirmation'
+                                ? t('bookings.awaitingConfirmationDescription')
                             : booking.status === 'confirmed'
                                 ? t('bookings.detailHintConfirmed')
                                 : t('bookings.detailHint');
@@ -251,7 +260,7 @@ export default function BookingsPage() {
                                                 <span>{status.emoji}</span>
                                                 <span>{status.label}</span>
                                             </div>
-                                            {booking.status === 'pending_payment' && (
+                                            {['pending_payment', 'awaiting_confirmation'].includes(booking.status) && (
                                                 <div
                                                     style={{
                                                         padding: '4px 10px',
@@ -330,6 +339,13 @@ export default function BookingsPage() {
                                                 <span>{t('bookings.payInside')}</span>
                                                 <span style={{ color: remainingMs > 0 ? 'var(--color-brand-light)' : 'var(--color-danger)' }}>
                                                     {helperText}
+                                                </span>
+                                            </div>
+                                        ) : booking.status === 'awaiting_confirmation' ? (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                <span>{t('bookings.awaitingConfirmation')}</span>
+                                                <span style={{ color: remainingMs > 0 ? 'var(--color-brand-light)' : 'var(--color-danger)' }}>
+                                                    {remainingMs > 0 ? countdownText : t('bookings.expiredWindow')}
                                                 </span>
                                             </div>
                                         ) : (

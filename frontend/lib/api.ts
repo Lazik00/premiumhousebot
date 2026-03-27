@@ -2,6 +2,8 @@ import type {
     AppConfigResponse,
     Booking,
     BookingListResponse,
+    ManualPaymentMethodListResponse,
+    ManualPaymentSubmitResponse,
     PaymentCreateResponse,
     PropertyAvailability,
     PropertyDetail,
@@ -244,5 +246,26 @@ export async function createPaymentLink(
         method: 'POST',
         headers: { 'Idempotency-Key': idempotencyKey },
         body: JSON.stringify({ booking_id: bookingId, provider }),
+    }, true);
+}
+
+export async function getManualPaymentMethods(): Promise<ManualPaymentMethodListResponse> {
+    return request<ManualPaymentMethodListResponse>('/payments/methods', {}, true);
+}
+
+export async function submitManualPayment(
+    bookingId: string,
+    paymentMethodId: string,
+    note?: string,
+): Promise<ManualPaymentSubmitResponse> {
+    const idempotencyKey = generateIdempotencyKey(`manual-${bookingId}`);
+    return request<ManualPaymentSubmitResponse>('/payments/manual-submit', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': idempotencyKey },
+        body: JSON.stringify({
+            booking_id: bookingId,
+            payment_method_id: paymentMethodId,
+            note: note || undefined,
+        }),
     }, true);
 }

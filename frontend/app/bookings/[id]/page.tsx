@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { createPaymentLink, getBooking, getProperty } from '../../../lib/api';
+import { getBooking, getManualPaymentMethods, getProperty, submitManualPayment } from '../../../lib/api';
 import PriceDisplay from '../../../components/PriceDisplay';
 import useTelegramBackButton from '../../../hooks/useTelegramBackButton';
-import type { Booking, PropertyDetail } from '../../../lib/types';
+import type { Booking, ManualPaymentMethod, PropertyDetail } from '../../../lib/types';
 import { getTelegramWebApp, haptic } from '../../../lib/telegram';
 import { useAuth } from '../../../context/AuthContext';
 import { useAppPreferences } from '../../../context/AppPreferencesContext';
@@ -15,6 +15,39 @@ const adminContact = {
     username: '@premiumhouse_admin',
     link: 'https://t.me/premiumhouse_admin',
 };
+
+function getRemainingMs(expiresAt: string | undefined | null, nowMs: number): number {
+    if (!expiresAt) return 0;
+    return Math.max(new Date(expiresAt).getTime() - nowMs, 0);
+}
+
+function formatCountdown(ms: number): string {
+    const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (hours > 0) {
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function formatCountdownText(
+    ms: number,
+    t: (key: string, variables?: Record<string, string | number>) => string,
+): string {
+    const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (hours > 0) {
+        return t('bookings.expiresInHours', { hours, minutes, seconds });
+    }
+    if (minutes > 0) {
+        return t('bookings.expiresInMinutes', { minutes, seconds });
+    }
+    return t('bookings.expiresInSeconds', { seconds });
+}
 
 export default function BookingDetailPage() {
     const params = useParams();
@@ -26,14 +59,22 @@ export default function BookingDetailPage() {
     const [booking, setBooking] = useState<Booking | null>(null);
     const [property, setProperty] = useState<PropertyDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isPaying, setIsPaying] = useState(false);
+    const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+    const [manualMethods, setManualMethods] = useState<ManualPaymentMethod[]>([]);
+    const [selectedMethodId, setSelectedMethodId] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [nowMs, setNowMs] = useState(() => Date.now());
 
     const handleBack = useCallback(() => {
         router.push('/bookings');
     }, [router]);
 
     const isTelegramBackVisible = useTelegramBackButton(handleBack);
+
+    useEffect(() => {
+        const timer = window.setInterval(() => setNowMs(Date.now()), 1000);
+        return () => window.clearInterval(timer);
+    }, []);
 
     useEffect(() => {
         if (!bookingId || !isAuthenticated) {
@@ -58,6 +99,20 @@ export default function BookingDetailPage() {
         boot();
     }, [bookingId, isAuthenticated, authLoading, t]);
 
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        const loadMethods = async () => {
+            try {
+                const response = await getManualPaymentMethods();
+                setManualMethods(response.items);
+                setSelectedMethodId((current) => current || response.items[0]?.id || '');
+            } catch (err) {
+                console.error('Failed to load manual payment methods:', err);
+            }
+        };
+        void loadMethods();
+    }, [isAuthenticated]);
+
     const assignedGuests = useMemo(() => {
         if (!booking) return 0;
         return booking.guests_adults_men + booking.guests_adults_women + booking.guests_children;
@@ -78,22 +133,27 @@ export default function BookingDetailPage() {
         window.open(adminContact.link, '_blank', 'noopener,noreferrer');
     };
 
-    const handlePayment = async (provider: 'click' | 'payme' | 'rahmat') => {
+    const handleManualPayment = async () => {
         if (!booking) return;
-        setIsPaying(true);
+        if (!selectedMethodId) return;
+        if (remainingMs <= 0) {
+            setError(t('bookings.expiredWindow'));
+            return;
+        }
+        setIsSubmittingPayment(true);
         setError(null);
         try {
-            const payment = await createPaymentLink(booking.id, provider);
-            const tg = getTelegramWebApp();
-            if (tg?.openLink) {
-                tg.openLink(payment.payment_url);
-            } else {
-                window.open(payment.payment_url, '_blank', 'noopener,noreferrer');
-            }
+            const submission = await submitManualPayment(booking.id, selectedMethodId);
+            setBooking((current) => current ? ({
+                ...current,
+                status: submission.booking_status,
+                expires_at: submission.expires_at ?? current.expires_at,
+            }) : current);
+            haptic('medium');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : t('booking.continuePaymentError'));
         } finally {
-            setIsPaying(false);
+            setIsSubmittingPayment(false);
         }
     };
 
@@ -149,6 +209,7 @@ export default function BookingDetailPage() {
     const status = {
         label:
             booking.status === 'pending_payment' ? t('bookings.pendingPayment')
+                : booking.status === 'awaiting_confirmation' ? t('bookings.awaitingConfirmation')
                 : booking.status === 'confirmed' ? t('bookings.confirmed')
                     : booking.status === 'completed' ? t('bookings.completed')
                         : booking.status === 'cancelled' ? t('bookings.cancelled')
@@ -156,6 +217,8 @@ export default function BookingDetailPage() {
         color:
             booking.status === 'confirmed'
                 ? '#00b894'
+                : booking.status === 'awaiting_confirmation'
+                    ? 'var(--color-warning)'
                 : booking.status === 'completed'
                     ? 'var(--color-brand)'
                     : booking.status === 'cancelled'
@@ -166,6 +229,8 @@ export default function BookingDetailPage() {
         bg:
             booking.status === 'confirmed'
                 ? 'rgba(0,184,148,0.12)'
+                : booking.status === 'awaiting_confirmation'
+                    ? 'rgba(210,174,104,0.14)'
                 : booking.status === 'completed'
                     ? 'rgba(210,174,104,0.12)'
                     : booking.status === 'cancelled'
@@ -175,6 +240,10 @@ export default function BookingDetailPage() {
                             : 'rgba(210,174,104,0.14)',
     };
     const nightlyPrice = booking.price_per_night_snapshot || (booking.total_nights > 0 ? booking.total_price / booking.total_nights : booking.total_price);
+    const remainingMs = ['pending_payment', 'awaiting_confirmation'].includes(booking.status) ? getRemainingMs(booking.expires_at, nowMs) : 0;
+    const countdown = remainingMs > 0 ? formatCountdown(remainingMs) : '00:00';
+    const countdownText = remainingMs > 0 ? formatCountdownText(remainingMs, t) : t('bookings.expiredWindow');
+    const selectedMethod = manualMethods.find((item) => item.id === selectedMethodId) || null;
 
     return (
         <div style={{ minHeight: '100vh', padding: 'calc(16px + var(--tg-safe-top, 60px)) 16px 36px' }}>
@@ -271,6 +340,30 @@ export default function BookingDetailPage() {
                 </div>
             </div>
 
+            {['pending_payment', 'awaiting_confirmation'].includes(booking.status) && (
+                <div
+                    style={{
+                        padding: 18,
+                        borderRadius: 20,
+                        border: '1px solid rgba(210,174,104,0.22)',
+                        background: 'rgba(210,174,104,0.1)',
+                        marginBottom: 16,
+                    }}
+                >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800 }}>
+                            {booking.status === 'awaiting_confirmation' ? t('bookings.awaitingConfirmation') : t('bookings.pendingPayment')}
+                        </div>
+                        <div style={{ fontFamily: 'monospace', fontSize: 16, fontWeight: 800, color: remainingMs > 0 ? 'var(--color-warning)' : 'var(--color-danger)' }}>
+                            {countdown}
+                        </div>
+                    </div>
+                    <div style={{ fontSize: 13, color: remainingMs > 0 ? 'var(--color-brand-light)' : 'var(--color-danger)' }}>
+                        {countdownText}
+                    </div>
+                </div>
+            )}
+
             <div style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
                 {[
                     { label: t('bookings.dateIn'), value: formatLocalizedDate(booking.start_date, language, { day: 'numeric', month: 'long', year: 'numeric' }) },
@@ -358,32 +451,90 @@ export default function BookingDetailPage() {
                     <p style={{ fontSize: 13, color: 'var(--color-muted)', marginBottom: 14 }}>
                         {t('bookings.continuePaymentDescription')}
                     </p>
+                    {selectedMethod ? (
+                        <div
+                            style={{
+                                padding: 14,
+                                borderRadius: 16,
+                                border: '1px solid rgba(242,217,162,0.12)',
+                                background: 'rgba(12,9,6,0.56)',
+                                marginBottom: 12,
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', marginBottom: 10 }}>
+                                <div>
+                                    <div style={{ fontSize: 12, color: 'var(--color-brand-light)', textTransform: 'uppercase' }}>{selectedMethod.brand}</div>
+                                    <div style={{ fontSize: 16, fontWeight: 800 }}>{selectedMethod.name}</div>
+                                </div>
+                                <div style={{ fontSize: 12, color: 'var(--color-brand-light)' }}>{selectedMethod.card_number}</div>
+                            </div>
+                            <div style={{ fontSize: 13, color: 'var(--color-muted)', marginBottom: selectedMethod.instructions ? 10 : 0 }}>{selectedMethod.card_holder}</div>
+                            {selectedMethod.instructions ? <div style={{ fontSize: 12, color: 'var(--color-brand-light)', lineHeight: 1.5 }}>{selectedMethod.instructions}</div> : null}
+                        </div>
+                    ) : null}
                     <div style={{ display: 'grid', gap: 10 }}>
-                        {[
-                            { provider: 'click' as const, label: t('bookings.payVia', { provider: 'Click' }) },
-                            { provider: 'payme' as const, label: t('bookings.payVia', { provider: 'Payme' }) },
-                            { provider: 'rahmat' as const, label: t('bookings.payVia', { provider: 'Rahmat' }) },
-                        ].map((item) => (
+                        {manualMethods.map((item) => (
                             <button
-                                key={item.provider}
-                                disabled={isPaying}
-                                onClick={() => handlePayment(item.provider)}
+                                key={item.id}
+                                type="button"
+                                onClick={() => {
+                                    setSelectedMethodId(item.id);
+                                    haptic('light');
+                                }}
                                 style={{
                                     width: '100%',
                                     padding: '14px 16px',
                                     borderRadius: 14,
-                                    border: '1px solid rgba(242,217,162,0.12)',
-                                    background: 'rgba(12,9,6,0.72)',
+                                    border: item.id === selectedMethodId ? '1px solid rgba(242,217,162,0.32)' : '1px solid rgba(242,217,162,0.12)',
+                                    background: item.id === selectedMethodId ? 'rgba(210,174,104,0.12)' : 'rgba(12,9,6,0.72)',
                                     color: '#fff7e8',
                                     fontSize: 14,
                                     fontWeight: 700,
-                                    cursor: isPaying ? 'not-allowed' : 'pointer',
+                                    cursor: 'pointer',
+                                    textAlign: 'left',
                                 }}
                             >
-                                {item.label}
+                                {item.name} • {item.card_number}
                             </button>
                         ))}
+                        <button
+                            disabled={isSubmittingPayment || !selectedMethodId || remainingMs <= 0}
+                            onClick={handleManualPayment}
+                            style={{
+                                width: '100%',
+                                padding: '14px 16px',
+                                borderRadius: 14,
+                                border: 'none',
+                                background: 'var(--gradient-brand)',
+                                color: 'var(--color-ink-soft)',
+                                fontSize: 14,
+                                fontWeight: 800,
+                                cursor: isSubmittingPayment || !selectedMethodId || remainingMs <= 0 ? 'not-allowed' : 'pointer',
+                                opacity: isSubmittingPayment || !selectedMethodId || remainingMs <= 0 ? 0.72 : 1,
+                            }}
+                        >
+                            {isSubmittingPayment ? t('booking.submittingPayment') : t('booking.markAsPaid')}
+                        </button>
                     </div>
+                </div>
+            )}
+
+            {booking.status === 'awaiting_confirmation' && (
+                <div
+                    style={{
+                        padding: 18,
+                        borderRadius: 20,
+                        border: '1px solid rgba(210,174,104,0.22)',
+                        background: 'rgba(210,174,104,0.1)',
+                        marginBottom: 16,
+                    }}
+                >
+                    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800, marginBottom: 8 }}>
+                        {t('bookings.awaitingConfirmation')}
+                    </h2>
+                    <p style={{ fontSize: 13, color: 'var(--color-muted)', lineHeight: 1.6 }}>
+                        {t('bookings.awaitingConfirmationDescription')}
+                    </p>
                 </div>
             )}
 
@@ -402,7 +553,7 @@ export default function BookingDetailPage() {
                 </div>
             )}
 
-            {['pending_payment', 'confirmed'].includes(booking.status) && (
+            {['pending_payment', 'awaiting_confirmation', 'confirmed'].includes(booking.status) && (
                 <div
                     style={{
                         padding: 18,

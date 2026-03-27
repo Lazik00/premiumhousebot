@@ -79,6 +79,7 @@ class BookingService:
                     Booking.status.in_(
                         [
                             BookingStatus.PENDING_PAYMENT,
+                            BookingStatus.AWAITING_CONFIRMATION,
                             BookingStatus.CONFIRMED,
                             BookingStatus.COMPLETED,
                         ]
@@ -204,7 +205,7 @@ class BookingService:
         return rows, total
 
     async def cancel_booking(self, db: AsyncSession, booking: Booking, reason: str) -> Booking:
-        if booking.status not in {BookingStatus.PENDING_PAYMENT, BookingStatus.CONFIRMED}:
+        if booking.status not in {BookingStatus.PENDING_PAYMENT, BookingStatus.AWAITING_CONFIRMATION, BookingStatus.CONFIRMED}:
             raise ValueError('Booking cannot be cancelled in current status')
 
         previous = booking.status

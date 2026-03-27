@@ -10,6 +10,8 @@ from app.db.session import get_db
 from app.models.enums import PropertyStatus, UserStatus
 from app.models.user import User
 from app.schemas.admin import (
+    AdminBookingActionResponse,
+    AdminBookingApprovalRequest,
     AdminBookingDetailResponse,
     AdminBookingListResponse,
     AdminDashboardResponse,
@@ -18,6 +20,10 @@ from app.schemas.admin import (
     AdminMetaOptionsResponse,
     AdminPaymentDetailResponse,
     AdminPaymentListResponse,
+    AdminPaymentMethodCreateRequest,
+    AdminPaymentMethodListResponse,
+    AdminPaymentMethodResponse,
+    AdminPaymentMethodUpdateRequest,
     AdminPropertyAvailabilityBlockResponse,
     AdminPropertyAvailabilityCreateRequest,
     AdminPropertyAvailabilityResponse,
@@ -31,10 +37,12 @@ from app.schemas.admin import (
     AdminUserStatusUpdateRequest,
 )
 from app.services.admin_service import AdminService
+from app.services.manual_payment_service import ManualPaymentService
 from app.services.storage_service import StorageService
 
 router = APIRouter(prefix='/admin', tags=['admin'])
 admin_service = AdminService()
+manual_payment_service = ManualPaymentService()
 admin_guard = require_roles('super_admin', 'admin')
 
 
@@ -83,6 +91,99 @@ async def get_meta_options(
 ) -> AdminMetaOptionsResponse:
     del current_user
     return await admin_service.get_meta_options(db)
+
+
+@router.get('/payment-methods', response_model=AdminPaymentMethodListResponse)
+async def list_payment_methods(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminPaymentMethodListResponse:
+    del current_user
+    methods = await manual_payment_service.list_methods(db)
+    return AdminPaymentMethodListResponse(
+        items=[
+            AdminPaymentMethodResponse(
+                id=str(item.id),
+                brand=item.brand,
+                name=item.name,
+                card_holder=item.card_holder,
+                card_number=item.card_number,
+                instructions=item.instructions,
+                is_active=item.is_active,
+                sort_order=item.sort_order,
+                created_at=item.created_at,
+                updated_at=item.updated_at,
+            )
+            for item in methods
+        ]
+    )
+
+
+@router.post('/payment-methods', response_model=AdminPaymentMethodResponse, status_code=status.HTTP_201_CREATED)
+async def create_payment_method(
+    payload: AdminPaymentMethodCreateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminPaymentMethodResponse:
+    del current_user
+    method = await manual_payment_service.create_method(
+        db=db,
+        brand=payload.brand,
+        name=payload.name,
+        card_holder=payload.card_holder,
+        card_number=payload.card_number,
+        instructions=payload.instructions,
+        is_active=payload.is_active,
+        sort_order=payload.sort_order,
+    )
+    return AdminPaymentMethodResponse(
+        id=str(method.id),
+        brand=method.brand,
+        name=method.name,
+        card_holder=method.card_holder,
+        card_number=method.card_number,
+        instructions=method.instructions,
+        is_active=method.is_active,
+        sort_order=method.sort_order,
+        created_at=method.created_at,
+        updated_at=method.updated_at,
+    )
+
+
+@router.put('/payment-methods/{method_id}', response_model=AdminPaymentMethodResponse)
+async def update_payment_method(
+    method_id: str,
+    payload: AdminPaymentMethodUpdateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminPaymentMethodResponse:
+    del current_user
+    try:
+        method = await manual_payment_service.update_method(
+            db=db,
+            method_id=_to_uuid(method_id, 'method_id'),
+            brand=payload.brand,
+            name=payload.name,
+            card_holder=payload.card_holder,
+            card_number=payload.card_number,
+            instructions=payload.instructions,
+            is_active=payload.is_active,
+            sort_order=payload.sort_order,
+        )
+    except ValueError as exc:
+        _raise_service_error(exc)
+    return AdminPaymentMethodResponse(
+        id=str(method.id),
+        brand=method.brand,
+        name=method.name,
+        card_holder=method.card_holder,
+        card_number=method.card_number,
+        instructions=method.instructions,
+        is_active=method.is_active,
+        sort_order=method.sort_order,
+        created_at=method.created_at,
+        updated_at=method.updated_at,
+    )
 
 
 @router.post('/property-images/upload', response_model=AdminUploadedImageResponse, status_code=status.HTTP_201_CREATED)
@@ -304,7 +405,7 @@ async def update_property_status(
 @router.get('/bookings', response_model=AdminBookingListResponse)
 async def list_bookings(
     search: str | None = Query(default=None, min_length=1, max_length=120),
-    status_value: str | None = Query(default=None, alias='status', pattern='^(pending_payment|confirmed|cancelled|completed|expired)$'),
+    status_value: str | None = Query(default=None, alias='status', pattern='^(pending_payment|awaiting_confirmation|confirmed|cancelled|completed|expired)$'),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: AsyncSession = Depends(get_db),
@@ -327,11 +428,61 @@ async def get_booking_detail(
         _raise_service_error(exc)
 
 
+@router.post('/bookings/{booking_id}/approve-payment', response_model=AdminBookingActionResponse)
+async def approve_booking_payment(
+    booking_id: str,
+    payload: AdminBookingApprovalRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminBookingActionResponse:
+    del current_user
+    try:
+        booking, payment = await manual_payment_service.approve_manual_payment(
+            db=db,
+            booking_id=_to_uuid(booking_id, 'booking_id'),
+            reviewer_note=payload.note,
+        )
+    except ValueError as exc:
+        _raise_service_error(exc)
+    return AdminBookingActionResponse(
+        booking_id=str(booking.id),
+        payment_id=str(payment.id),
+        booking_status=booking.status.value,
+        payment_status=payment.status.value,
+        confirmed_at=booking.confirmed_at,
+    )
+
+
+@router.post('/bookings/{booking_id}/reject-payment', response_model=AdminBookingActionResponse)
+async def reject_booking_payment(
+    booking_id: str,
+    payload: AdminBookingApprovalRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminBookingActionResponse:
+    del current_user
+    try:
+        booking, payment = await manual_payment_service.reject_manual_payment(
+            db=db,
+            booking_id=_to_uuid(booking_id, 'booking_id'),
+            reviewer_note=payload.note,
+        )
+    except ValueError as exc:
+        _raise_service_error(exc)
+    return AdminBookingActionResponse(
+        booking_id=str(booking.id),
+        payment_id=str(payment.id),
+        booking_status=booking.status.value,
+        payment_status=payment.status.value,
+        confirmed_at=booking.confirmed_at,
+    )
+
+
 @router.get('/payments', response_model=AdminPaymentListResponse)
 async def list_payments(
     search: str | None = Query(default=None, min_length=1, max_length=120),
     status_value: str | None = Query(default=None, alias='status', pattern='^(initiated|pending|success|failed|cancelled|refunded|partial_refunded)$'),
-    provider: str | None = Query(default=None, pattern='^(rahmat|click|payme|octo)$'),
+    provider: str | None = Query(default=None, pattern='^(manual|rahmat|click|payme|octo)$'),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: AsyncSession = Depends(get_db),

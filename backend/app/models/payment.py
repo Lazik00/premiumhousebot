@@ -1,12 +1,27 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Index, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, Numeric, SmallInteger, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, SoftDeleteMixin, TimestampMixin, UUIDPrimaryKeyMixin, enum_values
 from app.models.enums import PaymentProvider, PaymentStatus, RefundStatus, TransactionType
+
+
+class ManualPaymentMethod(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
+    __tablename__ = 'manual_payment_methods'
+    __table_args__ = (
+        Index('idx_manual_payment_methods_active_sort', 'is_active', 'sort_order'),
+    )
+
+    brand: Mapped[str] = mapped_column(String(30), nullable=False)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    card_holder: Mapped[str] = mapped_column(String(120), nullable=False)
+    card_number: Mapped[str] = mapped_column(String(50), nullable=False)
+    instructions: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    sort_order: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
 
 
 class Payment(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
@@ -19,6 +34,11 @@ class Payment(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     booking_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('bookings.id'), nullable=False)
+    payment_method_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey('manual_payment_methods.id'),
+        nullable=True,
+    )
     provider: Mapped[PaymentProvider] = mapped_column(
         Enum(PaymentProvider, name='payment_provider', values_callable=enum_values),
         nullable=False,

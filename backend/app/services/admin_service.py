@@ -71,7 +71,7 @@ class AdminService:
             db,
             select(Booking.id).where(
                 Booking.deleted_at.is_(None),
-                Booking.status.in_([BookingStatus.PENDING_PAYMENT, BookingStatus.CONFIRMED]),
+                Booking.status.in_([BookingStatus.PENDING_PAYMENT, BookingStatus.AWAITING_CONFIRMATION, BookingStatus.CONFIRMED]),
             ),
         )
         active_listings = await self._count(
@@ -99,7 +99,7 @@ class AdminService:
             db,
             select(Booking.id).where(
                 Booking.deleted_at.is_(None),
-                Booking.status == BookingStatus.PENDING_PAYMENT,
+                Booking.status.in_([BookingStatus.PENDING_PAYMENT, BookingStatus.AWAITING_CONFIRMATION]),
                 Booking.expires_at.is_not(None),
                 Booking.expires_at > now,
             ),
@@ -735,6 +735,12 @@ class AdminService:
                     status=payment.status.value,
                     amount=float(payment.amount),
                     currency=payment.currency,
+                    payment_method_id=self._payment_method_snapshot(payment).get('id'),
+                    payment_method_brand=self._payment_method_snapshot(payment).get('brand'),
+                    payment_method_name=self._payment_method_snapshot(payment).get('name'),
+                    payment_method_card_holder=self._payment_method_snapshot(payment).get('card_holder'),
+                    payment_method_card_number=self._payment_method_snapshot(payment).get('card_number'),
+                    customer_note=(payment.raw_request or {}).get('customer_note'),
                     payment_url=payment.payment_url,
                     provider_payment_id=payment.provider_payment_id,
                     created_at=payment.created_at,
@@ -801,6 +807,10 @@ class AdminService:
                     booking_id=str(payment.booking_id),
                     booking_code=booking_code,
                     provider=payment.provider.value,
+                    payment_method_id=self._payment_method_snapshot(payment).get('id'),
+                    payment_method_brand=self._payment_method_snapshot(payment).get('brand'),
+                    payment_method_name=self._payment_method_snapshot(payment).get('name'),
+                    payment_method_card_number=self._payment_method_snapshot(payment).get('card_number'),
                     provider_payment_id=payment.provider_payment_id,
                     status=payment.status.value,
                     amount=float(payment.amount),
@@ -843,6 +853,11 @@ class AdminService:
             booking_id=str(payment.booking_id),
             booking_code=booking_code,
             provider=payment.provider.value,
+            payment_method_id=self._payment_method_snapshot(payment).get('id'),
+            payment_method_brand=self._payment_method_snapshot(payment).get('brand'),
+            payment_method_name=self._payment_method_snapshot(payment).get('name'),
+            payment_method_card_holder=self._payment_method_snapshot(payment).get('card_holder'),
+            payment_method_card_number=self._payment_method_snapshot(payment).get('card_number'),
             provider_payment_id=payment.provider_payment_id,
             status=payment.status.value,
             amount=float(payment.amount),
@@ -1310,6 +1325,12 @@ class AdminService:
             total_paid_out_amount=float(balance_obj.total_paid_out_amount) if balance_obj else 0.0,
             updated_at=balance_obj.updated_at if balance_obj else None,
         )
+
+    @staticmethod
+    def _payment_method_snapshot(payment: Payment) -> dict[str, str]:
+        raw_request = payment.raw_request or {}
+        snapshot = raw_request.get('payment_method')
+        return snapshot if isinstance(snapshot, dict) else {}
 
     @staticmethod
     def _full_name(first_name: str | None, last_name: str | None) -> str:

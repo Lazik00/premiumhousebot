@@ -142,7 +142,7 @@ export interface Booking {
     guests_children: number;
     price_per_night_snapshot: number;
     total_price: number;
-    status: 'pending_payment' | 'confirmed' | 'cancelled' | 'completed' | 'expired';
+    status: 'pending_payment' | 'awaiting_confirmation' | 'confirmed' | 'cancelled' | 'completed' | 'expired';
     expires_at?: string;
     confirmed_at?: string;
     cancelled_at?: string;
@@ -166,4 +166,28 @@ export interface PaymentCreateResponse {
     payment_url: string;
     amount: number;
     currency: string;
+}
+
+export interface ManualPaymentMethod {
+    id: string;
+    brand: 'visa' | 'mastercard' | 'humo' | 'uzcard' | string;
+    name: string;
+    card_holder: string;
+    card_number: string;
+    instructions?: string | null;
+    is_active: boolean;
+    sort_order: number;
+}
+
+export interface ManualPaymentMethodListResponse {
+    items: ManualPaymentMethod[];
+}
+
+export interface ManualPaymentSubmitResponse {
+    payment_id: string;
+    booking_id: string;
+    booking_status: Booking['status'];
+    payment_status: string;
+    expires_at?: string | null;
+    submitted_at: string;
 }

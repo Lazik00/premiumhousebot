@@ -2,15 +2,15 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createBooking, createPaymentLink, getProperty, getPropertyAvailability } from '../../lib/api';
+import { createBooking, getManualPaymentMethods, getProperty, getPropertyAvailability, submitManualPayment } from '../../lib/api';
 import BookingAvailabilityCalendar from '../../components/BookingAvailabilityCalendar';
 import PriceDisplay from '../../components/PriceDisplay';
-import type { BlockedRange, PropertyDetail } from '../../lib/types';
+import type { BlockedRange, ManualPaymentMethod, PropertyDetail } from '../../lib/types';
 import { useAuth } from '../../context/AuthContext';
 import { useAppPreferences } from '../../context/AppPreferencesContext';
 import useTelegramBackButton from '../../hooks/useTelegramBackButton';
 import { formatUnitCount } from '../../lib/i18n';
-import { getTelegramWebApp, haptic } from '../../lib/telegram';
+import { haptic } from '../../lib/telegram';
 
 function CounterRow({
     label,
@@ -90,6 +90,42 @@ function CounterRow({
     );
 }
 
+function getRemainingMs(expiresAt: string | null | undefined, nowMs: number): number {
+    if (!expiresAt) return 0;
+    return Math.max(new Date(expiresAt).getTime() - nowMs, 0);
+}
+
+function formatCountdown(ms: number): string {
+    const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function formatCountdownText(
+    ms: number,
+    t: (key: string, variables?: Record<string, string | number>) => string,
+): string {
+    const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+        return t('bookings.expiresInHours', { hours, minutes, seconds });
+    }
+    if (minutes > 0) {
+        return t('bookings.expiresInMinutes', { minutes, seconds });
+    }
+    return t('bookings.expiresInSeconds', { seconds });
+}
+
 function BookingContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -104,6 +140,11 @@ function BookingContent() {
     const [step, setStep] = useState(1);
     const [showCalendarModal, setShowCalendarModal] = useState(false);
     const [blockedRanges, setBlockedRanges] = useState<BlockedRange[]>([]);
+    const [manualPaymentMethods, setManualPaymentMethods] = useState<ManualPaymentMethod[]>([]);
+    const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState('');
+    const [isPaymentMethodsLoading, setIsPaymentMethodsLoading] = useState(true);
+    const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+    const [nowMs, setNowMs] = useState(() => Date.now());
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -117,7 +158,14 @@ function BookingContent() {
     const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
 
     const [isBooking, setIsBooking] = useState(false);
-    const [bookingResult, setBookingResult] = useState<{ id: string; code: string; total: number } | null>(null);
+    const [bookingResult, setBookingResult] = useState<{
+        id: string;
+        code: string;
+        total: number;
+        status: 'pending_payment' | 'awaiting_confirmation' | 'confirmed' | 'cancelled' | 'completed' | 'expired';
+        expires_at?: string | null;
+        submitted_at?: string | null;
+    } | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const handleBack = useCallback(() => {
@@ -159,6 +207,35 @@ function BookingContent() {
     }, [propertyId, t]);
 
     useEffect(() => {
+        if (!isAuthenticated) {
+            setIsPaymentMethodsLoading(false);
+            return;
+        }
+
+        const loadMethods = async () => {
+            setIsPaymentMethodsLoading(true);
+            try {
+                const response = await getManualPaymentMethods();
+                setManualPaymentMethods(response.items);
+                setSelectedPaymentMethodId((current) => current || response.items[0]?.id || '');
+            } catch (err) {
+                console.error('Failed to load manual payment methods:', err);
+            } finally {
+                setIsPaymentMethodsLoading(false);
+            }
+        };
+
+        void loadMethods();
+    }, [isAuthenticated]);
+
+    useEffect(() => {
+        const interval = window.setInterval(() => {
+            setNowMs(Date.now());
+        }, 1000);
+        return () => window.clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
         setAcceptedPrivacy(false);
         setHasReadPrivacy(false);
     }, [startDate, endDate, totalGuests, guestsMen, guestsWomen, guestsChildren]);
@@ -190,21 +267,21 @@ function BookingContent() {
     const privacyParagraphs = {
         uz: [
             "Premium House orqali bron qilishda siz yuborgan ism, Telegram akkaunt ma'lumotlari, bron sanalari va mehmonlar tarkibi faqat buyurtmani bajarish, xavfsizlikni ta'minlash va zarur hollarda admin bilan aloqa qilish uchun ishlatiladi.",
-            "Platforma ma'lumotlarni uchinchi shaxslarga sotmaydi. To'lovlar tasdiqlangan provayderlar orqali amalga oshiriladi va bron tasdiqlanishi uchun zarur texnik ma'lumotlar to'lov tizimi bilan almashiladi.",
+            "Platforma ma'lumotlarni uchinchi shaxslarga sotmaydi. To'lov admin belgilagan rekvizitlar orqali amalga oshiriladi va bron tasdiqlanishi uchun kerakli texnik ma'lumotlar faqat ichki tekshiruv va admin tasdig'i uchun ishlatiladi.",
             "Agar bron bekor qilinishi kerak bo'lsa, Premium House admini siz bilan Telegram orqali bog'lanadi yoki siz admin profiliga murojaat qilishingiz mumkin. Noto'g'ri yoki yashirilgan mehmon ma'lumotlari bronning bekor qilinishiga sabab bo'lishi mumkin.",
             "Ushbu siyosatni qabul qilish orqali siz kiritgan ma'lumotlar buyurtma, xavfsizlik va qo'llab-quvvatlash maqsadlarida qayta ishlanishiga rozilik bildirasiz. Bron yuborish tugmasi faqat siyosat bilan tanishib chiqilgandan keyin faollashadi.",
             "Agar mazkur shartlarga rozi bo'lmasangiz, bronni yakunlamang. Savollar bo'lsa, Premium House adminiga Telegram orqali yozing.",
         ],
         ru: [
             "При бронировании через Premium House ваши имя, данные Telegram-аккаунта, даты брони и состав гостей используются только для исполнения заказа, обеспечения безопасности и связи с администратором при необходимости.",
-            "Платформа не продаёт данные третьим лицам. Оплаты проходят через подтверждённых провайдеров, а технические сведения, необходимые для подтверждения брони, передаются платёжной системе.",
+            "Платформа не продаёт данные третьим лицам. Оплата выполняется по реквизитам, которые настраивает администратор, а технические сведения используются только для внутренней проверки и подтверждения брони.",
             "Если бронь нужно отменить, администратор Premium House свяжется с вами через Telegram или вы сможете написать ему напрямую. Неверные или скрытые данные о гостях могут стать причиной отмены брони.",
             "Принимая эту политику, вы соглашаетесь на обработку введённых данных для целей бронирования, безопасности и поддержки. Кнопка отправки брони становится активной только после ознакомления с политикой.",
             "Если вы не согласны с этими условиями, не завершайте бронирование. По вопросам можно написать администратору Premium House в Telegram.",
         ],
         en: [
             "When booking through Premium House, your name, Telegram account details, booking dates, and guest breakdown are used only to fulfill the order, maintain safety, and contact the admin when needed.",
-            "The platform does not sell data to third parties. Payments are processed by approved providers, and the technical details required to confirm the booking are shared with the payment system.",
+            "The platform does not sell data to third parties. Payment is made using the admin-configured transfer details, and technical information is used only for internal verification and booking confirmation.",
             "If the booking needs to be cancelled, the Premium House admin will contact you via Telegram, or you may contact the admin profile directly. Incorrect or hidden guest information may result in cancellation.",
             "By accepting this policy, you agree that the information you submit may be processed for booking, safety, and support purposes. The booking button becomes active only after you review the policy.",
             "If you do not agree with these terms, do not complete the booking. If you have questions, contact the Premium House admin on Telegram.",
@@ -216,6 +293,10 @@ function BookingContent() {
     const selectedDatesLabel = startDate && endDate
         ? `${new Date(`${startDate}T00:00:00`).toLocaleDateString(dateLabelLocale, { day: '2-digit', month: 'short' })} → ${new Date(`${endDate}T00:00:00`).toLocaleDateString(dateLabelLocale, { day: '2-digit', month: 'short' })}`
         : t('booking.selectDatesHint');
+    const selectedPaymentMethod = manualPaymentMethods.find((item) => item.id === selectedPaymentMethodId) || null;
+    const bookingRemainingMs = getRemainingMs(bookingResult?.expires_at, nowMs);
+    const bookingCountdown = bookingRemainingMs > 0 ? formatCountdown(bookingRemainingMs) : '00:00';
+    const bookingCountdownText = bookingRemainingMs > 0 ? formatCountdownText(bookingRemainingMs, t) : t('bookings.expiredWindow');
 
     const handlePolicyScroll = () => {
         const node = policyContentRef.current;
@@ -263,6 +344,8 @@ function BookingContent() {
                 id: booking.id,
                 code: booking.booking_code,
                 total: booking.total_price,
+                status: booking.status,
+                expires_at: booking.expires_at ?? null,
             });
             setShowPrivacyModal(false);
             haptic('medium');
@@ -273,20 +356,30 @@ function BookingContent() {
         }
     };
 
-    const handlePayment = async (provider: 'click' | 'payme' | 'rahmat') => {
-        if (!bookingResult) return;
+    const handleManualPaymentSubmit = async () => {
+        if (!bookingResult || !selectedPaymentMethodId) return;
+        if (bookingRemainingMs <= 0) {
+            setError(t('bookings.expiredWindow'));
+            return;
+        }
 
+        setIsSubmittingPayment(true);
+        setError(null);
         haptic('medium');
+
         try {
-            const payment = await createPaymentLink(bookingResult.id, provider);
-            const tg = getTelegramWebApp();
-            if (tg?.openLink) {
-                tg.openLink(payment.payment_url);
-                return;
-            }
-            window.open(payment.payment_url, '_blank', 'noopener,noreferrer');
-        } catch {
-            setError(t('booking.continuePaymentError'));
+            const submission = await submitManualPayment(bookingResult.id, selectedPaymentMethodId);
+            setBookingResult((current) => current ? ({
+                ...current,
+                status: submission.booking_status,
+                expires_at: submission.expires_at ?? current.expires_at ?? null,
+                submitted_at: submission.submitted_at,
+            }) : current);
+            haptic('heavy');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : t('booking.continuePaymentError'));
+        } finally {
+            setIsSubmittingPayment(false);
         }
     };
 
@@ -331,92 +424,263 @@ function BookingContent() {
     }
 
     if (bookingResult) {
+        const isAwaitingAdmin = bookingResult.status === 'awaiting_confirmation';
         return (
-            <div style={{ minHeight: '100vh', padding: '40px 16px', textAlign: 'center' }}>
-                <div
-                    style={{
-                        width: 84,
-                        height: 84,
-                        borderRadius: 22,
-                        margin: '0 auto 20px',
-                        background: 'rgba(0, 184, 148, 0.16)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 40,
-                    }}
-                >
-                    ✓
-                </div>
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, marginBottom: 8 }}>
-                    {t('booking.created')}
-                </h2>
-                <p style={{ fontSize: 14, color: 'var(--color-muted)', marginBottom: 4 }}>
-                    {t('booking.bookingCode')}: <strong style={{ color: 'var(--color-text)' }}>#{bookingResult.code}</strong>
-                </p>
-                <div style={{ marginBottom: 22 }}>
-                    <PriceDisplay
-                        amount={bookingResult.total}
-                        baseCurrency={property.currency}
-                        primaryStyle={{ fontSize: 20, fontWeight: 800 }}
-                        secondaryStyle={{ fontSize: 12, color: 'var(--color-muted)' }}
-                        align="center"
-                    />
+            <div style={{ minHeight: '100vh', padding: 'calc(52px + var(--tg-safe-top, 60px)) 16px 36px' }}>
+                {!isTelegramBackVisible ? (
+                    <button
+                        onClick={() => {
+                            haptic('light');
+                            router.back();
+                        }}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            padding: 0,
+                            marginBottom: 18,
+                            border: 'none',
+                            background: 'none',
+                            color: 'var(--color-brand-light)',
+                            cursor: 'pointer',
+                            fontSize: 14,
+                            fontWeight: 700,
+                            fontFamily: 'var(--font-body)',
+                        }}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                        {t('booking.back')}
+                    </button>
+                ) : null}
+
+                <div style={{ textAlign: 'center', marginBottom: 18 }}>
+                    <div
+                        style={{
+                            width: 84,
+                            height: 84,
+                            borderRadius: 22,
+                            margin: '0 auto 20px',
+                            background: isAwaitingAdmin ? 'rgba(210, 174, 104, 0.14)' : 'rgba(0, 184, 148, 0.16)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 40,
+                            color: isAwaitingAdmin ? 'var(--color-warning)' : '#00b894',
+                        }}
+                    >
+                        {isAwaitingAdmin ? '⏳' : '✓'}
+                    </div>
+                    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, marginBottom: 8 }}>
+                        {isAwaitingAdmin ? t('booking.awaitingAdminTitle') : t('booking.created')}
+                    </h2>
+                    <p style={{ fontSize: 14, color: 'var(--color-muted)', marginBottom: 4 }}>
+                        {t('booking.bookingCode')}: <strong style={{ color: 'var(--color-text)' }}>#{bookingResult.code}</strong>
+                    </p>
+                    <div style={{ marginBottom: 10 }}>
+                        <PriceDisplay
+                            amount={bookingResult.total}
+                            baseCurrency={property.currency}
+                            primaryStyle={{ fontSize: 24, fontWeight: 800 }}
+                            secondaryStyle={{ fontSize: 12, color: 'var(--color-muted)' }}
+                            align="center"
+                        />
+                    </div>
+                    <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--color-muted)' }}>
+                        {isAwaitingAdmin ? t('booking.awaitingAdminDescription') : t('booking.manualPaymentSubtitle')}
+                    </p>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 22, textAlign: 'left' }}>
-                    <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700 }}>
-                        {t('booking.choosePayment')}
-                    </h3>
-                    {[
-                        { provider: 'click' as const, name: 'Click', badge: 'CL' },
-                        { provider: 'payme' as const, name: 'Payme', badge: 'PM' },
-                        { provider: 'rahmat' as const, name: 'Rahmat', badge: 'RH' },
-                    ].map((item) => (
-                        <button
-                            key={item.provider}
-                            onClick={() => handlePayment(item.provider)}
-                            style={{
-                                width: '100%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 12,
-                                padding: '14px 16px',
-                                borderRadius: 14,
-                                border: '1px solid var(--color-line)',
-                                background: 'var(--color-surface)',
-                                color: 'var(--color-text)',
-                                cursor: 'pointer',
-                                fontFamily: 'var(--font-body)',
-                                fontSize: 14,
-                                fontWeight: 700,
-                            }}
-                        >
-                            <span
+                <div
+                    style={{
+                        padding: 16,
+                        borderRadius: 18,
+                        border: '1px solid rgba(210,174,104,0.22)',
+                        background: 'rgba(210,174,104,0.1)',
+                        marginBottom: 16,
+                    }}
+                >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 6 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-brand-light)' }}>{t('booking.timerTitle')}</span>
+                        <span style={{ fontFamily: 'monospace', fontSize: 16, fontWeight: 800, color: bookingRemainingMs > 0 ? 'var(--color-warning)' : 'var(--color-danger)' }}>
+                            {bookingCountdown}
+                        </span>
+                    </div>
+                    <div style={{ fontSize: 12, color: bookingRemainingMs > 0 ? 'var(--color-brand-light)' : 'var(--color-danger)' }}>
+                        {bookingCountdownText}
+                    </div>
+                </div>
+
+                {selectedPaymentMethod ? (
+                    <div
+                        style={{
+                            padding: 18,
+                            borderRadius: 20,
+                            border: '1px solid var(--color-line)',
+                            background: 'var(--color-surface)',
+                            marginBottom: 16,
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                            <div>
+                                <div style={{ fontSize: 12, color: 'var(--color-brand-light)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                                    {selectedPaymentMethod.brand}
+                                </div>
+                                <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700 }}>
+                                    {selectedPaymentMethod.name}
+                                </div>
+                            </div>
+                            <div
                                 style={{
-                                    width: 34,
-                                    height: 34,
-                                    borderRadius: 10,
-                                    background: 'rgba(210, 174, 104, 0.12)',
-                                    display: 'inline-flex',
+                                    width: 52,
+                                    height: 52,
+                                    borderRadius: 16,
+                                    background: 'rgba(210,174,104,0.12)',
+                                    display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     color: 'var(--color-brand)',
-                                    fontSize: 12,
+                                    fontWeight: 800,
+                                    textTransform: 'uppercase',
                                 }}
                             >
-                                {item.badge}
-                            </span>
-                            {t('booking.payWith', { provider: item.name })}
+                                {selectedPaymentMethod.brand.slice(0, 2)}
+                            </div>
+                        </div>
+                        <div style={{ display: 'grid', gap: 10 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                                <span style={{ fontSize: 13, color: 'var(--color-muted)' }}>{t('booking.paymentMethodHolder')}</span>
+                                <strong style={{ textAlign: 'right' }}>{selectedPaymentMethod.card_holder}</strong>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                                <span style={{ fontSize: 13, color: 'var(--color-muted)' }}>{t('booking.paymentMethodCardNumber')}</span>
+                                <strong style={{ textAlign: 'right', letterSpacing: '0.04em' }}>{selectedPaymentMethod.card_number}</strong>
+                            </div>
+                            {selectedPaymentMethod.instructions ? (
+                                <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,247,232,0.04)', fontSize: 13, color: 'var(--color-brand-light)', lineHeight: 1.6 }}>
+                                    {selectedPaymentMethod.instructions}
+                                </div>
+                            ) : null}
+                        </div>
+                    </div>
+                ) : null}
+
+                {!isAwaitingAdmin ? (
+                    <>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
+                            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700 }}>
+                                {t('booking.choosePayment')}
+                            </h3>
+                            {isPaymentMethodsLoading ? (
+                                <div className="skeleton" style={{ width: '100%', height: 140, borderRadius: 18 }} />
+                            ) : manualPaymentMethods.length > 0 ? (
+                                manualPaymentMethods.map((item) => {
+                                    const active = item.id === selectedPaymentMethodId;
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedPaymentMethodId(item.id);
+                                                haptic('light');
+                                            }}
+                                            style={{
+                                                width: '100%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                gap: 12,
+                                                padding: '14px 16px',
+                                                borderRadius: 16,
+                                                border: active ? '1px solid rgba(242,217,162,0.34)' : '1px solid var(--color-line)',
+                                                background: active ? 'rgba(210,174,104,0.12)' : 'var(--color-surface)',
+                                                color: 'var(--color-text)',
+                                                cursor: 'pointer',
+                                                fontFamily: 'var(--font-body)',
+                                                textAlign: 'left',
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                <span
+                                                    style={{
+                                                        width: 42,
+                                                        height: 42,
+                                                        borderRadius: 12,
+                                                        background: active ? 'var(--gradient-brand)' : 'rgba(210,174,104,0.12)',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        color: active ? 'var(--color-ink-soft)' : 'var(--color-brand)',
+                                                        fontSize: 12,
+                                                        fontWeight: 800,
+                                                        textTransform: 'uppercase',
+                                                    }}
+                                                >
+                                                    {item.brand.slice(0, 2)}
+                                                </span>
+                                                <div>
+                                                    <div style={{ fontSize: 15, fontWeight: 800 }}>{item.name}</div>
+                                                    <div style={{ fontSize: 12, color: 'var(--color-muted)', marginTop: 4 }}>
+                                                        {item.card_holder} • {item.card_number}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {active ? <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-brand-light)' }}>✓</span> : null}
+                                        </button>
+                                    );
+                                })
+                            ) : (
+                                <div style={{ padding: '14px 16px', borderRadius: 14, border: '1px solid var(--color-line)', background: 'var(--color-surface)', color: 'var(--color-muted)', fontSize: 13 }}>
+                                    {t('booking.noPaymentMethods')}
+                                </div>
+                            )}
+                        </div>
+
+                        <button
+                            onClick={handleManualPaymentSubmit}
+                            disabled={!selectedPaymentMethodId || isSubmittingPayment || isPaymentMethodsLoading || manualPaymentMethods.length === 0 || bookingRemainingMs <= 0}
+                            style={{
+                                width: '100%',
+                                padding: '14px 16px',
+                                borderRadius: 16,
+                                border: 'none',
+                                background: 'var(--gradient-brand)',
+                                color: 'var(--color-ink-soft)',
+                                fontSize: 15,
+                                fontWeight: 800,
+                                cursor: !selectedPaymentMethodId || isSubmittingPayment || bookingRemainingMs <= 0 ? 'not-allowed' : 'pointer',
+                                fontFamily: 'var(--font-body)',
+                                marginBottom: 14,
+                                opacity: !selectedPaymentMethodId || isSubmittingPayment || bookingRemainingMs <= 0 ? 0.72 : 1,
+                            }}
+                        >
+                            {isSubmittingPayment ? t('booking.submittingPayment') : t('booking.markAsPaid')}
                         </button>
-                    ))}
-                </div>
+                    </>
+                ) : null}
+
+                {error ? (
+                    <div
+                        style={{
+                            padding: '12px 14px',
+                            borderRadius: 14,
+                            background: 'rgba(214,48,49,0.08)',
+                            color: 'var(--color-danger)',
+                            marginBottom: 16,
+                            fontSize: 13,
+                        }}
+                    >
+                        {error}
+                    </div>
+                ) : null}
 
                 <button
                     onClick={() => router.push('/bookings')}
                     style={{
+                        width: '100%',
                         padding: '12px 22px',
-                        borderRadius: 12,
+                        borderRadius: 14,
                         border: '1px solid var(--color-line)',
                         background: 'transparent',
                         color: 'var(--color-muted)',
@@ -435,7 +699,7 @@ function BookingContent() {
     return (
         <>
             <div style={{ minHeight: '100vh', paddingBottom: 28 }}>
-                <div style={{ padding: 'calc(16px + var(--tg-safe-top, 60px)) 16px 0' }}>
+                <div style={{ padding: 'calc(28px + var(--tg-safe-top, 60px)) 16px 0' }}>
                     {!isTelegramBackVisible ? (
                         <button
                             onClick={() => {

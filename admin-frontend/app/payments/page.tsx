@@ -9,8 +9,28 @@ import { listPayments } from '../../lib/api';
 import { formatDateTime, formatMoney } from '../../lib/format';
 import type { AdminPaymentRow } from '../../lib/types';
 
-const providers = ['all', 'click', 'payme', 'rahmat', 'octo'] as const;
+const providers = ['all', 'manual', 'click', 'payme', 'rahmat', 'octo'] as const;
 const statuses = ['all', 'initiated', 'pending', 'success', 'failed', 'cancelled', 'refunded', 'partial_refunded'] as const;
+
+const providerLabels: Record<(typeof providers)[number], string> = {
+  all: 'Barcha providerlar',
+  manual: 'Manual',
+  click: 'Click',
+  payme: 'Payme',
+  rahmat: 'Rahmat',
+  octo: 'Octo',
+};
+
+const statusLabels: Record<(typeof statuses)[number], string> = {
+  all: 'Barcha statuslar',
+  initiated: 'Initiated',
+  pending: 'Pending',
+  success: 'Success',
+  failed: 'Failed',
+  cancelled: 'Cancelled',
+  refunded: 'Refunded',
+  partial_refunded: 'Partial refunded',
+};
 
 export default function PaymentsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAdminAuth();
@@ -46,15 +66,15 @@ export default function PaymentsPage() {
   }, [authLoading, isAuthenticated]);
 
   return (
-    <AdminShell title="To'lovlar" subtitle="Provider kesimida checkout, callback loglari va refund nazorati.">
+    <AdminShell title="To'lovlar" subtitle="Manual payment navbati, gateway callback loglari va refund holati.">
       <div className="admin-grid">
         <div className="admin-panel" style={{ padding: 18, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
           <input style={{ flex: '1 1 280px' }} placeholder="Bron kodi, provider ref yoki uy bo'yicha qidiring" value={search} onChange={(event) => setSearch(event.target.value)} />
           <select value={status} onChange={(event) => setStatus(event.target.value as (typeof statuses)[number])}>
-            {statuses.map((item) => <option key={item} value={item}>{item === 'all' ? 'Barcha statuslar' : item}</option>)}
+            {statuses.map((item) => <option key={item} value={item}>{statusLabels[item]}</option>)}
           </select>
           <select value={provider} onChange={(event) => setProvider(event.target.value as (typeof providers)[number])}>
-            {providers.map((item) => <option key={item} value={item}>{item === 'all' ? 'Barcha providerlar' : item}</option>)}
+            {providers.map((item) => <option key={item} value={item}>{providerLabels[item]}</option>)}
           </select>
           <button className="admin-button secondary" onClick={() => void load()}>Yangilash</button>
         </div>
@@ -72,7 +92,7 @@ export default function PaymentsPage() {
                   <th>Uy</th>
                   <th>Status</th>
                   <th>Summa</th>
-                  <th>Checkout</th>
+                  <th>Usul</th>
                   <th>Vaqt</th>
                   <th>Amal</th>
                 </tr>
@@ -90,7 +110,14 @@ export default function PaymentsPage() {
                     <td><AdminStatusPill value={payment.status} /></td>
                     <td>{formatMoney(payment.amount, payment.currency)}</td>
                     <td>
-                      {payment.payment_url ? (
+                      {payment.payment_method_name ? (
+                        <div>
+                          <div style={{ fontWeight: 800 }}>{payment.payment_method_name}</div>
+                          <div style={{ marginTop: 8, color: 'var(--color-muted)', fontSize: 12 }}>
+                            {payment.payment_method_brand || 'manual'} {payment.payment_method_card_number ? `• ${payment.payment_method_card_number}` : ''}
+                          </div>
+                        </div>
+                      ) : payment.payment_url ? (
                         <a href={payment.payment_url} target="_blank" rel="noreferrer" style={{ color: 'var(--color-brand-light)' }}>
                           Checkout ochish
                         </a>

@@ -9,7 +9,17 @@ import { listBookings } from '../../lib/api';
 import { formatDate, formatDateTime, formatMoney } from '../../lib/format';
 import type { AdminBookingRow } from '../../lib/types';
 
-const statuses = ['all', 'pending_payment', 'confirmed', 'cancelled', 'completed', 'expired'] as const;
+const statuses = ['all', 'pending_payment', 'awaiting_confirmation', 'confirmed', 'cancelled', 'completed', 'expired'] as const;
+
+const statusLabels: Record<(typeof statuses)[number], string> = {
+  all: 'Barcha statuslar',
+  pending_payment: 'To\'lov kutilmoqda',
+  awaiting_confirmation: 'Admin tasdig\'i kutilmoqda',
+  confirmed: 'Tasdiqlangan',
+  cancelled: 'Bekor qilingan',
+  completed: 'Yakunlangan',
+  expired: 'Eskirgan',
+};
 
 function remainingTime(expiresAt?: string | null, now = Date.now()) {
   if (!expiresAt) return null;
@@ -54,22 +64,25 @@ export default function BookingsPage() {
     void load();
   }, [authLoading, isAuthenticated]);
 
-  const pendingCount = useMemo(() => items.filter((item) => item.status === 'pending_payment').length, [items]);
+  const pendingCount = useMemo(
+    () => items.filter((item) => ['pending_payment', 'awaiting_confirmation'].includes(item.status)).length,
+    [items],
+  );
 
   return (
-    <AdminShell title="Buyurtmalar" subtitle="Booking oqimi, pending payment timer va tasdiqlangan bronlar nazorati.">
+    <AdminShell title="Buyurtmalar" subtitle="Buyer yuborgan manual payment, tasdiqlash navbati va bron timer nazorati.">
       <div className="admin-subgrid" style={{ marginBottom: 18 }}>
         <div className="admin-panel" style={{ padding: 20 }}>
           <div className="admin-section-title">Faol kuzatuv</div>
           <div className="admin-kv-list" style={{ marginTop: 16 }}>
-            <div className="admin-kv"><span>Pending payment</span><strong>{pendingCount}</strong></div>
+            <div className="admin-kv"><span>Tasdiq kutayotganlar</span><strong>{pendingCount}</strong></div>
             <div className="admin-kv"><span>Jami ko'rsatilgan bron</span><strong>{items.length}</strong></div>
           </div>
         </div>
         <div className="admin-panel" style={{ padding: 18, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
           <input style={{ flex: '1 1 280px' }} placeholder="Bron kodi, mijoz yoki uy bo'yicha qidirish" value={search} onChange={(event) => setSearch(event.target.value)} />
           <select value={status} onChange={(event) => setStatus(event.target.value as (typeof statuses)[number])}>
-            {statuses.map((item) => <option key={item} value={item}>{item === 'all' ? 'Barcha statuslar' : item}</option>)}
+            {statuses.map((item) => <option key={item} value={item}>{statusLabels[item]}</option>)}
           </select>
           <button className="admin-button secondary" onClick={() => void load()}>Yangilash</button>
         </div>
@@ -110,7 +123,7 @@ export default function BookingsPage() {
                   </td>
                   <td>{formatMoney(booking.total_price, booking.currency)}</td>
                   <td>
-                    {booking.status === 'pending_payment' ? (
+                    {['pending_payment', 'awaiting_confirmation'].includes(booking.status) ? (
                       <div>
                         <div style={{ fontWeight: 800, color: 'var(--color-warning)' }}>{remainingTime(booking.expires_at, now)}</div>
                         <div style={{ color: 'var(--color-muted)', fontSize: 12 }}>{formatDateTime(booking.expires_at)}</div>

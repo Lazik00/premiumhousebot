@@ -155,6 +155,29 @@ export interface AdminMetaOptions {
   amenities: AdminAmenityOption[];
 }
 
+export interface AdminPaymentMethod {
+  id: string;
+  brand: 'visa' | 'mastercard' | 'humo' | 'uzcard' | string;
+  name: string;
+  card_holder: string;
+  card_number: string;
+  instructions?: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminPaymentMethodPayload {
+  brand: 'visa' | 'mastercard' | 'humo' | 'uzcard';
+  name: string;
+  card_holder: string;
+  card_number: string;
+  instructions?: string | null;
+  is_active: boolean;
+  sort_order: number;
+}
+
 export interface AdminPropertyRow {
   id: string;
   title: string;
@@ -250,7 +273,7 @@ export interface AdminPropertyPayload {
 export interface AdminBookingRow {
   id: string;
   booking_code: string;
-  status: string;
+  status: 'pending_payment' | 'awaiting_confirmation' | 'confirmed' | 'cancelled' | 'completed' | 'expired' | string;
   start_date: string;
   end_date: string;
   total_nights: number;
@@ -272,6 +295,12 @@ export interface AdminBookingPaymentSummary {
   status: string;
   amount: number;
   currency: string;
+  payment_method_id?: string | null;
+  payment_method_brand?: string | null;
+  payment_method_name?: string | null;
+  payment_method_card_holder?: string | null;
+  payment_method_card_number?: string | null;
+  customer_note?: string | null;
   payment_url?: string | null;
   provider_payment_id?: string | null;
   created_at: string;
@@ -290,7 +319,7 @@ export interface AdminBookingEvent {
 export interface AdminBookingDetail {
   id: string;
   booking_code: string;
-  status: string;
+  status: 'pending_payment' | 'awaiting_confirmation' | 'confirmed' | 'cancelled' | 'completed' | 'expired' | string;
   start_date: string;
   end_date: string;
   total_nights: number;
@@ -316,6 +345,10 @@ export interface AdminPaymentRow {
   booking_id: string;
   booking_code: string;
   provider: string;
+  payment_method_id?: string | null;
+  payment_method_brand?: string | null;
+  payment_method_name?: string | null;
+  payment_method_card_number?: string | null;
   provider_payment_id?: string | null;
   status: string;
   amount: number;
@@ -352,6 +385,11 @@ export interface AdminPaymentDetail {
   booking_id: string;
   booking_code: string;
   provider: string;
+  payment_method_id?: string | null;
+  payment_method_brand?: string | null;
+  payment_method_name?: string | null;
+  payment_method_card_holder?: string | null;
+  payment_method_card_number?: string | null;
   provider_payment_id?: string | null;
   status: string;
   amount: number;
@@ -367,6 +405,14 @@ export interface AdminPaymentDetail {
   failed_at?: string | null;
   callbacks: AdminPaymentCallback[];
   refunds: AdminRefundRow[];
+}
+
+export interface AdminBookingActionResponse {
+  booking_id: string;
+  payment_id?: string | null;
+  booking_status: string;
+  payment_status?: string | null;
+  confirmed_at?: string | null;
 }
 
 export interface AdminRefundResponse {

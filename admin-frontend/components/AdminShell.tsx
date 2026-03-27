@@ -10,6 +10,7 @@ const navigation = [
   { href: '/users', label: 'Foydalanuvchilar' },
   { href: '/properties', label: 'Uylar' },
   { href: '/bookings', label: 'Buyurtmalar' },
+  { href: '/payment-methods', label: 'To\'lov usullari' },
   { href: '/payments', label: 'To\'lovlar' },
   { href: '/hosts', label: 'Host balanslari' },
 ];

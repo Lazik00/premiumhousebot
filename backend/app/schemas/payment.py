@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class PaymentCreateRequest(BaseModel):
     booking_id: str
-    provider: str = Field(pattern='^(rahmat|click|payme|octo)$')
+    provider: str = Field(pattern='^(manual|rahmat|click|payme|octo)$')
 
 
 class PaymentCreateResponse(BaseModel):
@@ -16,6 +16,36 @@ class PaymentCreateResponse(BaseModel):
     payment_url: str
     amount: float
     currency: str
+
+
+class ManualPaymentMethodResponse(BaseModel):
+    id: str
+    brand: str
+    name: str
+    card_holder: str
+    card_number: str
+    instructions: str | None = None
+    is_active: bool = True
+    sort_order: int
+
+
+class ManualPaymentMethodListResponse(BaseModel):
+    items: list[ManualPaymentMethodResponse]
+
+
+class ManualPaymentSubmitRequest(BaseModel):
+    booking_id: str
+    payment_method_id: str
+    note: str | None = Field(default=None, max_length=500)
+
+
+class ManualPaymentSubmitResponse(BaseModel):
+    payment_id: str
+    booking_id: str
+    booking_status: str
+    payment_status: str
+    expires_at: datetime | None = None
+    submitted_at: datetime
 
 
 class PaymentCallbackRequest(BaseModel):

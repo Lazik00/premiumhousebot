@@ -12,6 +12,10 @@ from app.db.session import get_db
 from app.models.enums import PaymentProvider
 from app.models.user import User
 from app.schemas.payment import (
+    ManualPaymentMethodListResponse,
+    ManualPaymentMethodResponse,
+    ManualPaymentSubmitRequest,
+    ManualPaymentSubmitResponse,
     PaymentCallbackRequest,
     PaymentCallbackResponse,
     PaymentCreateRequest,
@@ -20,6 +24,7 @@ from app.schemas.payment import (
     PaymentRefundRequest,
     PaymentRefundResponse,
 )
+from app.services.manual_payment_service import ManualPaymentService
 from app.services.payment_service import PaymentService
 
 router = APIRouter(prefix='/payments', tags=['payments'])
@@ -59,6 +64,75 @@ def _payment_service() -> PaymentService:
         octo_ttl_minutes=settings.octo_ttl_minutes,
         octo_language=settings.octo_language,
         octo_payment_methods=settings.octo_payment_method_list,
+    )
+
+
+def _manual_payment_service() -> ManualPaymentService:
+    return ManualPaymentService()
+
+
+@router.get('/methods', response_model=ManualPaymentMethodListResponse)
+async def list_manual_payment_methods(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ManualPaymentMethodListResponse:
+    del current_user
+    service = _manual_payment_service()
+    methods = await service.list_active_methods(db)
+    return ManualPaymentMethodListResponse(
+        items=[
+            ManualPaymentMethodResponse(
+                id=str(item.id),
+                brand=item.brand,
+                name=item.name,
+                card_holder=item.card_holder,
+                card_number=item.card_number,
+                instructions=item.instructions,
+                is_active=item.is_active,
+                sort_order=item.sort_order,
+            )
+            for item in methods
+        ]
+    )
+
+
+@router.post('/manual-submit', response_model=ManualPaymentSubmitResponse)
+@limiter.limit('20/minute')
+async def submit_manual_payment(
+    request: Request,
+    response: Response,
+    payload: ManualPaymentSubmitRequest,
+    idempotency_key: str | None = Header(default=None, alias='Idempotency-Key'),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ManualPaymentSubmitResponse:
+    del request, response
+    service = _manual_payment_service()
+    resolved_idempotency_key = _resolve_idempotency_key(
+        idempotency_key=idempotency_key,
+        user_id=current_user.id,
+        booking_id=payload.booking_id,
+        provider='manual',
+    )
+    try:
+        booking, payment = await service.submit_manual_payment(
+            db=db,
+            booking_id=uuid.UUID(payload.booking_id),
+            user_id=current_user.id,
+            payment_method_id=uuid.UUID(payload.payment_method_id),
+            idempotency_key=resolved_idempotency_key,
+            note=payload.note,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    return ManualPaymentSubmitResponse(
+        payment_id=str(payment.id),
+        booking_id=str(booking.id),
+        booking_status=booking.status.value,
+        payment_status=payment.status.value,
+        expires_at=booking.expires_at,
+        submitted_at=payment.created_at,
     )
 
 

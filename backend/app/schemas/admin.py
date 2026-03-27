@@ -255,6 +255,12 @@ class AdminBookingPaymentSummaryResponse(BaseModel):
     status: str
     amount: float
     currency: str
+    payment_method_id: str | None = None
+    payment_method_brand: str | None = None
+    payment_method_name: str | None = None
+    payment_method_card_holder: str | None = None
+    payment_method_card_number: str | None = None
+    customer_note: str | None = None
     payment_url: str | None
     provider_payment_id: str | None
     created_at: datetime
@@ -317,6 +323,10 @@ class AdminPaymentResponse(BaseModel):
     booking_id: str
     booking_code: str
     provider: str
+    payment_method_id: str | None = None
+    payment_method_brand: str | None = None
+    payment_method_name: str | None = None
+    payment_method_card_number: str | None = None
     provider_payment_id: str | None
     status: str
     amount: float
@@ -333,6 +343,11 @@ class AdminPaymentDetailResponse(BaseModel):
     booking_id: str
     booking_code: str
     provider: str
+    payment_method_id: str | None = None
+    payment_method_brand: str | None = None
+    payment_method_name: str | None = None
+    payment_method_card_holder: str | None = None
+    payment_method_card_number: str | None = None
     provider_payment_id: str | None
     status: str
     amount: float
@@ -355,6 +370,18 @@ class AdminPaymentListResponse(BaseModel):
     total: int
     limit: int
     offset: int
+
+
+class AdminBookingApprovalRequest(BaseModel):
+    note: str | None = Field(default=None, max_length=500)
+
+
+class AdminBookingActionResponse(BaseModel):
+    booking_id: str
+    payment_id: str | None = None
+    booking_status: str
+    payment_status: str | None = None
+    confirmed_at: datetime | None = None
 
 
 class AdminHostBalanceResponse(BaseModel):
@@ -418,6 +445,37 @@ class AdminCityOptionResponse(BaseModel):
     region_id: str
     region_name: str
     name: str
+
+
+class AdminPaymentMethodResponse(BaseModel):
+    id: str
+    brand: str
+    name: str
+    card_holder: str
+    card_number: str
+    instructions: str | None
+    is_active: bool
+    sort_order: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class AdminPaymentMethodCreateRequest(BaseModel):
+    brand: str = Field(pattern='^(visa|mastercard|humo|uzcard)$')
+    name: str = Field(min_length=2, max_length=120)
+    card_holder: str = Field(min_length=2, max_length=120)
+    card_number: str = Field(min_length=4, max_length=50)
+    instructions: str | None = Field(default=None, max_length=1000)
+    is_active: bool = True
+    sort_order: int = Field(default=1, ge=1, le=1000)
+
+
+class AdminPaymentMethodUpdateRequest(AdminPaymentMethodCreateRequest):
+    pass
+
+
+class AdminPaymentMethodListResponse(BaseModel):
+    items: list[AdminPaymentMethodResponse]
 
 
 class AdminMetaOptionsResponse(BaseModel):

@@ -79,6 +79,7 @@ class PropertyService:
                     Booking.status.in_(
                         [
                             BookingStatus.PENDING_PAYMENT,
+                            BookingStatus.AWAITING_CONFIRMATION,
                             BookingStatus.CONFIRMED,
                             BookingStatus.COMPLETED,
                         ]
@@ -190,6 +191,7 @@ class PropertyService:
             Booking.status.in_(
                 [
                     BookingStatus.PENDING_PAYMENT,
+                    BookingStatus.AWAITING_CONFIRMATION,
                     BookingStatus.CONFIRMED,
                     BookingStatus.COMPLETED,
                 ]

@@ -1,11 +1,14 @@
 import type {
   AdminBookingDetail,
+  AdminBookingActionResponse,
   AdminBookingRow,
   AdminDashboard,
   AdminHostBalanceDetail,
   AdminHostBalanceRow,
   AdminLoginResponse,
   AdminMetaOptions,
+  AdminPaymentMethod,
+  AdminPaymentMethodPayload,
   AdminPaymentDetail,
   AdminPaymentRow,
   AdminPropertyAvailabilityBlock,
@@ -173,6 +176,24 @@ export async function getMetaOptions(): Promise<AdminMetaOptions> {
   return request<AdminMetaOptions>('/admin/meta/options');
 }
 
+export async function listPaymentMethods(): Promise<{ items: AdminPaymentMethod[] }> {
+  return request<{ items: AdminPaymentMethod[] }>('/admin/payment-methods');
+}
+
+export async function createPaymentMethod(payload: AdminPaymentMethodPayload): Promise<AdminPaymentMethod> {
+  return request<AdminPaymentMethod>('/admin/payment-methods', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updatePaymentMethod(methodId: string, payload: AdminPaymentMethodPayload): Promise<AdminPaymentMethod> {
+  return request<AdminPaymentMethod>(`/admin/payment-methods/${methodId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function listUsers(params: { search?: string; status?: string; limit?: number; offset?: number } = {}): Promise<PaginatedResponse<AdminUserRow>> {
   return request<PaginatedResponse<AdminUserRow>>(`/admin/users${queryString(params)}`);
 }
@@ -245,6 +266,20 @@ export async function listBookings(params: { search?: string; status?: string; l
 
 export async function getBooking(bookingId: string): Promise<AdminBookingDetail> {
   return request<AdminBookingDetail>(`/admin/bookings/${bookingId}`);
+}
+
+export async function approveBookingPayment(bookingId: string, note?: string): Promise<AdminBookingActionResponse> {
+  return request<AdminBookingActionResponse>(`/admin/bookings/${bookingId}/approve-payment`, {
+    method: 'POST',
+    body: JSON.stringify({ note: note || undefined }),
+  });
+}
+
+export async function rejectBookingPayment(bookingId: string, note?: string): Promise<AdminBookingActionResponse> {
+  return request<AdminBookingActionResponse>(`/admin/bookings/${bookingId}/reject-payment`, {
+    method: 'POST',
+    body: JSON.stringify({ note: note || undefined }),
+  });
 }
 
 export async function listPayments(params: { search?: string; status?: string; provider?: string; limit?: number; offset?: number } = {}): Promise<PaginatedResponse<AdminPaymentRow>> {

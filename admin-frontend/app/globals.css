@@ -159,9 +159,15 @@ textarea {
 .status-pill.pending,
 .status-pill.pending_review,
 .status-pill.pending_payment,
+.status-pill.awaiting_confirmation,
 .status-pill.initiated {
   color: var(--color-warning);
   background: rgba(216, 177, 100, 0.08);
+}
+
+.status-pill.manual {
+  color: var(--color-brand-light);
+  background: rgba(200, 157, 84, 0.14);
 }
 
 .status-pill.blocked,

@@ -23,6 +23,7 @@ class PropertyType(str, Enum):
 
 class BookingStatus(str, Enum):
     PENDING_PAYMENT = 'pending_payment'
+    AWAITING_CONFIRMATION = 'awaiting_confirmation'
     CONFIRMED = 'confirmed'
     CANCELLED = 'cancelled'
     COMPLETED = 'completed'
@@ -30,6 +31,7 @@ class BookingStatus(str, Enum):
 
 
 class PaymentProvider(str, Enum):
+    MANUAL = 'manual'
     RAHMAT = 'rahmat'
     CLICK = 'click'
     PAYME = 'payme'

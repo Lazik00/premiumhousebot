@@ -43,6 +43,7 @@ export default function DashboardPage() {
           <div className="admin-panel" style={{ padding: 18, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Link href="/properties/new" className="admin-button" style={{ textDecoration: 'none' }}>Yangi uy qo'shish</Link>
             <Link href="/properties" className="admin-button secondary" style={{ textDecoration: 'none' }}>Listinglar</Link>
+            <Link href="/payment-methods" className="admin-button secondary" style={{ textDecoration: 'none' }}>To'lov usullari</Link>
             <Link href="/payments" className="admin-button secondary" style={{ textDecoration: 'none' }}>To'lovlar</Link>
             <Link href="/hosts" className="admin-button secondary" style={{ textDecoration: 'none' }}>Host balanslari</Link>
           </div>

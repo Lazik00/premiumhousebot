@@ -46,6 +46,7 @@ export default function PaymentDetailPage() {
   );
   const refundableAmount = Math.max((payment?.amount || 0) - refundedTotal, 0);
   const refundEnabled = payment?.provider === 'octo' && ['success', 'partial_refunded'].includes(payment.status);
+  const isManualPayment = payment?.provider === 'manual';
 
   const handleRefund = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -70,7 +71,7 @@ export default function PaymentDetailPage() {
   };
 
   return (
-    <AdminShell title={payment ? `Payment ${payment.provider}` : 'Payment detail'} subtitle="Provider javobi, callback loglari va refund boshqaruvi.">
+    <AdminShell title={payment ? `Payment ${payment.provider}` : 'Payment detail'} subtitle="Manual payment tafsilotlari, gateway callback loglari va refund boshqaruvi.">
       <div style={{ marginBottom: 18, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         <Link href="/payments" className="admin-button secondary" style={{ textDecoration: 'none' }}>To'lovlar ro'yxatiga qaytish</Link>
         {payment ? <Link href={`/bookings/${payment.booking_id}`} className="admin-button secondary" style={{ textDecoration: 'none' }}>Booking detail</Link> : null}
@@ -97,6 +98,9 @@ export default function PaymentDetailPage() {
                 <div className="admin-kv"><span>Property</span><strong>{payment.property_title}</strong></div>
                 <div className="admin-kv"><span>Customer</span><strong>{payment.customer_name}</strong></div>
                 <div className="admin-kv"><span>Email</span><strong>{payment.customer_email || 'Yo\'q'}</strong></div>
+                <div className="admin-kv"><span>To'lov usuli</span><strong>{payment.payment_method_name || 'Gateway checkout'}</strong></div>
+                <div className="admin-kv"><span>Brand / karta</span><strong>{payment.payment_method_brand ? `${payment.payment_method_brand} • ${payment.payment_method_card_number || 'raqam yo\'q'}` : 'Mavjud emas'}</strong></div>
+                <div className="admin-kv"><span>Karta egasi</span><strong>{payment.payment_method_card_holder || 'Mavjud emas'}</strong></div>
                 <div className="admin-kv"><span>Provider payment ID</span><strong>{payment.provider_payment_id || 'Yo\'q'}</strong></div>
                 <div className="admin-kv"><span>Yaratilgan</span><strong>{formatDateTime(payment.created_at)}</strong></div>
                 <div className="admin-kv"><span>Paid at</span><strong>{formatDateTime(payment.paid_at)}</strong></div>
@@ -108,7 +112,11 @@ export default function PaymentDetailPage() {
               <div className="admin-header-row">
                 <div>
                   <div className="admin-section-title">Refund action</div>
-                  <div className="admin-section-subtitle">Hozircha faqat Octo successful payment'lar uchun faol.</div>
+                  <div className="admin-section-subtitle">
+                    {isManualPayment
+                      ? 'Manual payment uchun refund UI ishlatilmaydi. Bunday holatda booking orqali admin qarori qabul qilinadi.'
+                      : 'Hozircha faqat Octo successful payment\'lar uchun faol.'}
+                  </div>
                 </div>
                 {!refundEnabled ? <AdminStatusPill value="refund locked" /> : null}
               </div>
@@ -130,6 +138,27 @@ export default function PaymentDetailPage() {
               </form>
             </div>
           </div>
+
+          {isManualPayment ? (
+            <div className="admin-panel" style={{ padding: 22 }}>
+              <div className="admin-section-title">Manual payment snapshot</div>
+              <div className="admin-subgrid" style={{ marginTop: 16 }}>
+                <div className="admin-alert">
+                  <div style={{ fontWeight: 800, marginBottom: 8 }}>Buyerga ko'rsatilgan rekvizit</div>
+                  <div style={{ color: 'var(--color-muted)', lineHeight: 1.6 }}>
+                    {payment.payment_method_name || 'Manual payment'} • {payment.payment_method_brand || 'manual'}
+                  </div>
+                  <div style={{ marginTop: 8 }}><code className="admin-code">{payment.payment_method_card_number || 'Karta raqami yo\'q'}</code></div>
+                </div>
+                <div className="admin-alert">
+                  <div style={{ fontWeight: 800, marginBottom: 8 }}>Customer note</div>
+                  <div style={{ color: 'var(--color-muted)', lineHeight: 1.6 }}>
+                    {(payment.raw_request?.customer_note as string) || 'Customer izoh qoldirmagan'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <div className="admin-subgrid">
             <div className="admin-panel" style={{ padding: 22 }}>
