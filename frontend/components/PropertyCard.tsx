@@ -57,7 +57,7 @@ export default function PropertyCard({ property }: { property: PropertySummary }
                         style={{
                             position: 'absolute',
                             inset: 0,
-                            background: 'linear-gradient(180deg, rgba(8,6,3,0.08) 0%, rgba(8,6,3,0.52) 68%, rgba(8,6,3,0.78) 100%)',
+                            background: 'linear-gradient(180deg, rgba(8,6,3,0.02) 0%, rgba(8,6,3,0.18) 58%, rgba(8,6,3,0.42) 100%)',
                         }}
                     />
 
@@ -77,47 +77,22 @@ export default function PropertyCard({ property }: { property: PropertySummary }
                         </div>
                     )}
 
-                        <div
-                            style={{
-                                position: 'absolute',
-                                bottom: 10,
-                                left: 10,
-                            background: 'rgba(12,9,6,0.74)',
-                            backdropFilter: 'blur(12px)',
-                            borderRadius: 12,
-                            padding: '6px 10px',
-                            display: 'flex',
-                            alignItems: 'baseline',
-                            gap: 4,
-                            border: '1px solid rgba(242,217,162,0.12)',
-                            }}
-                        >
-                            <PriceDisplay
-                                amount={property.price_per_night}
-                                baseCurrency={property.currency}
-                                primaryStyle={{ fontSize: 13, fontWeight: 800, color: '#fff7e8' }}
-                                secondaryStyle={{ fontSize: 10, color: 'rgba(242,217,162,0.72)' }}
-                                wrapperStyle={{ gap: 2 }}
-                            />
-                            <span style={{ fontSize: 10, color: 'rgba(242,217,162,0.72)', alignSelf: 'flex-start', marginTop: 1 }}>
-                                {t('units.perNight')}
-                            </span>
-                    </div>
-
                     {property.average_rating > 0 && (
                         <div
                             style={{
                                 position: 'absolute',
                                 top: 10,
                                 right: 10,
-                                background: 'rgba(12,9,6,0.74)',
-                                backdropFilter: 'blur(12px)',
-                                borderRadius: 10,
-                                padding: '5px 8px',
+                                background: 'rgba(12,9,6,0.84)',
+                                backdropFilter: 'blur(18px)',
+                                WebkitBackdropFilter: 'blur(18px)',
+                                borderRadius: 12,
+                                padding: '7px 10px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: 4,
-                                border: '1px solid rgba(242,217,162,0.12)',
+                                border: '1px solid rgba(242,217,162,0.18)',
+                                boxShadow: '0 12px 24px rgba(0,0,0,0.18)',
                             }}
                         >
                             <span style={{ fontSize: 13, color: 'var(--color-gold)' }}>★</span>
@@ -132,15 +107,18 @@ export default function PropertyCard({ property }: { property: PropertySummary }
                             position: 'absolute',
                             top: 10,
                             left: 10,
-                            background: 'rgba(247,239,222,0.1)',
-                            borderRadius: 10,
-                            padding: '5px 10px',
-                            fontSize: 10,
+                            background: 'rgba(12,9,6,0.84)',
+                            backdropFilter: 'blur(20px)',
+                            WebkitBackdropFilter: 'blur(20px)',
+                            borderRadius: 12,
+                            padding: '7px 12px',
+                            fontSize: 11,
                             fontWeight: 800,
-                            color: 'var(--color-brand-light)',
+                            color: '#f2d9a2',
                             letterSpacing: '0.08em',
                             textTransform: 'uppercase',
-                            border: '1px solid rgba(242,217,162,0.16)',
+                            border: '1px solid rgba(242,217,162,0.22)',
+                            boxShadow: '0 14px 28px rgba(0,0,0,0.2)',
                         }}
                     >
                         {t(`propertyType.${property.property_type}`)}
@@ -162,6 +140,30 @@ export default function PropertyCard({ property }: { property: PropertySummary }
                     >
                         {property.title}
                     </h3>
+
+                    <div
+                        style={{
+                            marginBottom: 10,
+                            padding: '10px 12px',
+                            borderRadius: 14,
+                            background: 'rgba(255,247,232,0.03)',
+                            border: '1px solid rgba(242,217,162,0.12)',
+                            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)',
+                        }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+                            <PriceDisplay
+                                amount={property.price_per_night}
+                                baseCurrency={property.currency}
+                                primaryStyle={{ fontSize: 13, fontWeight: 800, color: '#fff7e8' }}
+                                secondaryStyle={{ fontSize: 10, color: 'rgba(242,217,162,0.72)' }}
+                                wrapperStyle={{ gap: 2 }}
+                            />
+                            <span style={{ fontSize: 11, color: 'rgba(242,217,162,0.72)' }}>
+                                {t('units.perNight')}
+                            </span>
+                        </div>
+                    </div>
 
                     <div
                         style={{

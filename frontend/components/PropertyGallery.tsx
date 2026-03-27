@@ -346,7 +346,7 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
                         onClick={closeViewer}
                         style={{
                             position: 'absolute',
-                            top: 'calc(12px + var(--tg-safe-top, 60px))',
+                            top: 'calc(34px + var(--tg-safe-top, 60px))',
                             right: 16,
                             width: 42,
                             height: 42,
@@ -364,7 +364,7 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
                     <div
                         style={{
                             position: 'absolute',
-                            inset: 'calc(18px + var(--tg-safe-top, 60px)) 14px 24px',
+                            inset: 'calc(42px + var(--tg-safe-top, 60px)) 14px 24px',
                             borderRadius: 24,
                             overflow: 'hidden',
                             background: '#080603',

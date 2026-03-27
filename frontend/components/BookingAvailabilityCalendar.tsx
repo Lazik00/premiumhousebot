@@ -47,6 +47,7 @@ export default function BookingAvailabilityCalendar({
     const monthMatrix = useMemo(() => buildMonthGrid(visibleMonth), [visibleMonth]);
     const todayKey = formatDateKey(new Date());
     const hasCompleteSelection = Boolean(draftStartDate && draftEndDate);
+    const selectedCheckoutBlocked = Boolean(draftEndDate && isNightBlocked(draftEndDate, blockedRanges));
 
     useEffect(() => {
         if (!isOpen) return;
@@ -161,6 +162,7 @@ export default function BookingAvailabilityCalendar({
                             { label: t('booking.calendarAvailable'), background: 'rgba(255,247,232,0.04)', border: 'rgba(242,217,162,0.08)' },
                             { label: t('booking.calendarUnavailable'), background: 'rgba(216,177,100,0.16)', border: 'rgba(216,177,100,0.34)' },
                             { label: t('booking.calendarManualBlock'), background: 'rgba(214,122,97,0.18)', border: 'rgba(214,122,97,0.34)' },
+                            { label: t('booking.calendarCheckoutAllowed'), background: 'linear-gradient(135deg, rgba(214,122,97,0.16) 0%, rgba(214,122,97,0.16) 48%, rgba(242,217,162,0.18) 48%, rgba(242,217,162,0.18) 100%)', border: 'rgba(242,217,162,0.34)' },
                             { label: t('booking.calendarSelected'), background: 'rgba(242,217,162,0.16)', border: 'rgba(242,217,162,0.34)' },
                         ].map((item) => (
                             <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--color-muted)' }}>
@@ -196,9 +198,12 @@ export default function BookingAvailabilityCalendar({
                                         const isStart = day.key === draftStartDate;
                                         const isEnd = day.key === draftEndDate;
                                         const canBeCheckout = Boolean(draftStartDate && !draftEndDate && isCheckoutCandidate(day.key, draftStartDate, blockedRanges));
+                                        const blockedCheckout = blocked && (canBeCheckout || isEnd) && !isStart;
 
                                         const background = isStart || isEnd
                                             ? 'linear-gradient(135deg, rgba(242,217,162,0.96) 0%, rgba(200,156,85,0.98) 100%)'
+                                            : blockedCheckout
+                                                ? 'linear-gradient(135deg, rgba(214,122,97,0.16) 0%, rgba(214,122,97,0.16) 48%, rgba(242,217,162,0.18) 48%, rgba(242,217,162,0.18) 100%)'
                                             : isSelected
                                                 ? 'rgba(242,217,162,0.16)'
                                                 : blocked
@@ -208,6 +213,8 @@ export default function BookingAvailabilityCalendar({
                                                     : 'rgba(255,247,232,0.04)';
                                         const border = isStart || isEnd
                                             ? '1px solid rgba(242,217,162,0.98)'
+                                            : blockedCheckout
+                                                ? '1px solid rgba(242,217,162,0.42)'
                                             : canBeCheckout
                                                 ? '1px dashed rgba(242,217,162,0.48)'
                                                 : blocked
@@ -238,6 +245,7 @@ export default function BookingAvailabilityCalendar({
                                                 {day.label}
                                                 {blocked && rangeSource === 'manual' ? <span style={{ position: 'absolute', bottom: 5, left: '50%', width: 5, height: 5, marginLeft: -2.5, borderRadius: 999, background: 'rgba(214,122,97,0.92)' }} /> : null}
                                                 {blocked && rangeSource === 'booking' ? <span style={{ position: 'absolute', bottom: 5, left: '50%', width: 5, height: 5, marginLeft: -2.5, borderRadius: 999, background: 'rgba(216,177,100,0.92)' }} /> : null}
+                                                {blockedCheckout ? <span style={{ position: 'absolute', top: 4, right: 5, fontSize: 9, fontWeight: 900, color: 'rgba(242,217,162,0.92)' }}>OUT</span> : null}
                                             </button>
                                         );
                                     })}
@@ -250,7 +258,11 @@ export default function BookingAvailabilityCalendar({
                         <div style={{ fontSize: 12, color: 'var(--color-muted)', marginBottom: 6 }}>{t('booking.calendarSelectedRange')}</div>
                         <div style={{ fontSize: 15, fontWeight: 800 }}>{formatSelectionSummary(draftStartDate, draftEndDate, locale)}</div>
                         <div style={{ fontSize: 12, color: 'var(--color-muted)', marginTop: 6 }}>
-                            {draftStartDate && !draftEndDate ? t('booking.calendarCheckoutHint') : t('booking.calendarFreeOnly')}
+                            {draftStartDate && !draftEndDate
+                                ? t('booking.calendarCheckoutHint')
+                                : selectedCheckoutBlocked
+                                    ? t('booking.calendarCheckoutAllowedHint')
+                                    : t('booking.calendarFreeOnly')}
                         </div>
                     </div>
 
