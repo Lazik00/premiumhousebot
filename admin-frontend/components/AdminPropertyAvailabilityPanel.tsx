@@ -26,6 +26,9 @@ function rangeLabel(startDate: string | null, endDate: string | null) {
   return `${formatDate(startDate)} → ${formatDate(endDate)}`;
 }
 
+const selectedDayBackground = 'linear-gradient(135deg, rgba(242,217,162,0.96) 0%, rgba(200,156,85,0.98) 100%)';
+const selectedDayBorder = '1px solid rgba(242,217,162,0.98)';
+
 export default function AdminPropertyAvailabilityPanel({ propertyId }: { propertyId: string }) {
   const [blocks, setBlocks] = useState<AdminPropertyAvailabilityBlock[]>([]);
   const [loading, setLoading] = useState(true);
@@ -143,7 +146,7 @@ export default function AdminPropertyAvailabilityPanel({ propertyId }: { propert
           { label: 'Bo‘sh', color: 'rgba(255,247,232,0.06)', border: 'rgba(242,217,162,0.12)' },
           { label: 'Booking band', color: 'rgba(216,177,100,0.16)', border: 'rgba(216,177,100,0.34)' },
           { label: 'Manual band', color: 'rgba(214,122,97,0.2)', border: 'rgba(214,122,97,0.34)' },
-          { label: 'Tanlangan oralik', color: 'rgba(242,217,162,0.18)', border: 'rgba(242,217,162,0.38)' },
+          { label: 'Tanlangan oralik', color: selectedDayBackground, border: 'rgba(242,217,162,0.98)' },
         ].map((item) => (
           <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-muted)', fontSize: 12 }}>
             <span style={{ width: 14, height: 14, borderRadius: 4, background: item.color, border: `1px solid ${item.border}` }} />
@@ -186,9 +189,9 @@ export default function AdminPropertyAvailabilityPanel({ propertyId }: { propert
                           const checkoutCandidate = Boolean(draftStart && !draftEnd && isCheckoutCandidate(day.key, draftStart, blocks));
 
                           const background = isStart || isEnd
-                            ? 'linear-gradient(135deg, rgba(242,217,162,0.96) 0%, rgba(200,156,85,0.96) 100%)'
+                            ? selectedDayBackground
                             : inSelectedRange
-                              ? 'rgba(242,217,162,0.16)'
+                              ? selectedDayBackground
                               : blocked
                                 ? source === 'manual'
                                   ? 'rgba(214,122,97,0.18)'
@@ -196,7 +199,9 @@ export default function AdminPropertyAvailabilityPanel({ propertyId }: { propert
                                 : 'rgba(255,247,232,0.04)';
 
                           const border = isStart || isEnd
-                            ? '1px solid rgba(242,217,162,0.98)'
+                            ? selectedDayBorder
+                            : inSelectedRange
+                              ? selectedDayBorder
                             : checkoutCandidate
                               ? '1px dashed rgba(242,217,162,0.58)'
                               : blocked
@@ -216,8 +221,8 @@ export default function AdminPropertyAvailabilityPanel({ propertyId }: { propert
                                 borderRadius: 12,
                                 border,
                                 background,
-                                color: isStart || isEnd ? '#130d08' : day.inCurrentMonth ? 'var(--color-text)' : 'rgba(247,239,222,0.32)',
-                                fontWeight: isStart || isEnd ? 900 : 700,
+                                color: isStart || isEnd || inSelectedRange ? '#130d08' : day.inCurrentMonth ? 'var(--color-text)' : 'rgba(247,239,222,0.32)',
+                                fontWeight: isStart || isEnd ? 900 : inSelectedRange ? 800 : 700,
                                 fontSize: 13,
                                 cursor: isPast ? 'not-allowed' : 'pointer',
                                 opacity: isPast ? 0.4 : 1,

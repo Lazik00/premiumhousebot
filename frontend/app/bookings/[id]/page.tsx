@@ -74,6 +74,33 @@ export default function BookingDetailPage() {
 
     const isTelegramBackVisible = useTelegramBackButton(handleBack);
 
+    const loadBookingDetail = useCallback(async (silent = false) => {
+        if (!bookingId || !isAuthenticated) {
+            if (!authLoading && !silent) setIsLoading(false);
+            return;
+        }
+
+        if (!silent) {
+            setIsLoading(true);
+        }
+
+        try {
+            const bookingData = await getBooking(bookingId);
+            setBooking(bookingData);
+            if (!property || property.id !== bookingData.property_id) {
+                const propertyData = await getProperty(bookingData.property_id);
+                setProperty(propertyData);
+            }
+            setError(null);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : t('bookings.detailMissing'));
+        } finally {
+            if (!silent) {
+                setIsLoading(false);
+            }
+        }
+    }, [authLoading, bookingId, isAuthenticated, property, t]);
+
     useEffect(() => {
         const timer = window.setInterval(() => setNowMs(Date.now()), 1000);
         return () => window.clearInterval(timer);
@@ -84,23 +111,20 @@ export default function BookingDetailPage() {
             if (!authLoading) setIsLoading(false);
             return;
         }
+        void loadBookingDetail();
+    }, [authLoading, bookingId, isAuthenticated, loadBookingDetail]);
 
-        const boot = async () => {
-            setIsLoading(true);
-            try {
-                const bookingData = await getBooking(bookingId);
-                setBooking(bookingData);
-                const propertyData = await getProperty(bookingData.property_id);
-                setProperty(propertyData);
-            } catch (err: unknown) {
-                setError(err instanceof Error ? err.message : t('bookings.detailMissing'));
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    useEffect(() => {
+        if (!booking || !['pending_payment', 'awaiting_confirmation'].includes(booking.status)) {
+            return;
+        }
 
-        boot();
-    }, [bookingId, isAuthenticated, authLoading, t]);
+        const interval = window.setInterval(() => {
+            void loadBookingDetail(true);
+        }, 2500);
+
+        return () => window.clearInterval(interval);
+    }, [booking?.id, booking?.status, loadBookingDetail]);
 
     useEffect(() => {
         if (!isAuthenticated) return;

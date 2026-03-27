@@ -63,15 +63,19 @@ export default function BookingsPage() {
     const [activeTab, setActiveTab] = useState('active');
     const [nowMs, setNowMs] = useState(() => Date.now());
 
-    const fetchBookings = useCallback(async () => {
-        setIsLoading(true);
+    const fetchBookings = useCallback(async (silent = false) => {
+        if (!silent) {
+            setIsLoading(true);
+        }
         try {
             const res = await getMyBookings(50, 0);
             setBookings(res.items);
         } catch (err) {
             console.error('Failed to fetch bookings:', err);
         } finally {
-            setIsLoading(false);
+            if (!silent) {
+                setIsLoading(false);
+            }
         }
     }, []);
 
@@ -90,6 +94,18 @@ export default function BookingsPage() {
 
         return () => window.clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        if (!bookings.some((booking) => ['pending_payment', 'awaiting_confirmation'].includes(booking.status))) {
+            return;
+        }
+
+        const interval = window.setInterval(() => {
+            void fetchBookings(true);
+        }, 2500);
+
+        return () => window.clearInterval(interval);
+    }, [bookings, fetchBookings]);
 
     const filteredBookings = bookings.filter((booking) => {
         if (activeTab === 'active') return ['pending_payment', 'awaiting_confirmation', 'confirmed'].includes(booking.status);

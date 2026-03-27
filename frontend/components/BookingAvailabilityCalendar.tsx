@@ -21,6 +21,9 @@ function formatSelectionSummary(startDate: string | null, endDate: string | null
     return `${format(startDate!)} → ${format(endDate!)}`;
 }
 
+const selectedDayBackground = 'linear-gradient(135deg, rgba(242,217,162,0.96) 0%, rgba(200,156,85,0.98) 100%)';
+const selectedDayBorder = '1px solid rgba(242,217,162,0.98)';
+
 export default function BookingAvailabilityCalendar({
     isOpen,
     blockedRanges,
@@ -163,7 +166,7 @@ export default function BookingAvailabilityCalendar({
                             { label: t('booking.calendarUnavailable'), background: 'rgba(216,177,100,0.16)', border: 'rgba(216,177,100,0.34)' },
                             { label: t('booking.calendarManualBlock'), background: 'rgba(214,122,97,0.18)', border: 'rgba(214,122,97,0.34)' },
                             { label: t('booking.calendarCheckoutAllowed'), background: 'linear-gradient(135deg, rgba(214,122,97,0.16) 0%, rgba(214,122,97,0.16) 48%, rgba(242,217,162,0.18) 48%, rgba(242,217,162,0.18) 100%)', border: 'rgba(242,217,162,0.34)' },
-                            { label: t('booking.calendarSelected'), background: 'rgba(242,217,162,0.16)', border: 'rgba(242,217,162,0.34)' },
+                            { label: t('booking.calendarSelected'), background: selectedDayBackground, border: 'rgba(242,217,162,0.98)' },
                         ].map((item) => (
                             <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--color-muted)' }}>
                                 <span style={{ width: 12, height: 12, borderRadius: 4, background: item.background, border: `1px solid ${item.border}` }} />
@@ -201,20 +204,22 @@ export default function BookingAvailabilityCalendar({
                                         const blockedCheckout = blocked && (canBeCheckout || isEnd) && !isStart;
 
                                         const background = isStart || isEnd
-                                            ? 'linear-gradient(135deg, rgba(242,217,162,0.96) 0%, rgba(200,156,85,0.98) 100%)'
+                                            ? selectedDayBackground
                                             : blockedCheckout
                                                 ? 'linear-gradient(135deg, rgba(214,122,97,0.16) 0%, rgba(214,122,97,0.16) 48%, rgba(242,217,162,0.18) 48%, rgba(242,217,162,0.18) 100%)'
                                             : isSelected
-                                                ? 'rgba(242,217,162,0.16)'
+                                                ? selectedDayBackground
                                                 : blocked
                                                     ? rangeSource === 'manual'
                                                         ? 'rgba(214,122,97,0.18)'
                                                         : 'rgba(216,177,100,0.16)'
                                                     : 'rgba(255,247,232,0.04)';
                                         const border = isStart || isEnd
-                                            ? '1px solid rgba(242,217,162,0.98)'
+                                            ? selectedDayBorder
                                             : blockedCheckout
                                                 ? '1px solid rgba(242,217,162,0.42)'
+                                            : isSelected
+                                                ? selectedDayBorder
                                             : canBeCheckout
                                                 ? '1px dashed rgba(242,217,162,0.48)'
                                                 : blocked
@@ -234,9 +239,9 @@ export default function BookingAvailabilityCalendar({
                                                     borderRadius: 12,
                                                     border,
                                                     background,
-                                                    color: isStart || isEnd ? '#130d08' : day.inCurrentMonth ? 'var(--color-text)' : 'rgba(247,239,222,0.28)',
+                                                    color: isStart || isEnd || isSelected ? '#130d08' : day.inCurrentMonth ? 'var(--color-text)' : 'rgba(247,239,222,0.28)',
                                                     fontSize: 13,
-                                                    fontWeight: isStart || isEnd ? 900 : 700,
+                                                    fontWeight: isStart || isEnd ? 900 : isSelected ? 800 : 700,
                                                     opacity: isPast ? 0.35 : 1,
                                                     cursor: isPast ? 'not-allowed' : 'pointer',
                                                     position: 'relative',

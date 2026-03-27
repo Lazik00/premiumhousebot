@@ -2,12 +2,12 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createBooking, getManualPaymentMethods, getProperty, getPropertyAvailability, submitManualPayment } from '../../lib/api';
+import { createBooking, getBooking, getManualPaymentMethods, getProperty, getPropertyAvailability, submitManualPayment } from '../../lib/api';
 import BookingAvailabilityCalendar from '../../components/BookingAvailabilityCalendar';
 import PaymentMethodLogo from '../../components/PaymentMethodLogo';
 import PriceDisplay from '../../components/PriceDisplay';
 import { copyText } from '../../lib/clipboard';
-import type { BlockedRange, ManualPaymentMethod, PropertyDetail } from '../../lib/types';
+import type { BlockedRange, Booking, ManualPaymentMethod, PropertyDetail } from '../../lib/types';
 import { useAuth } from '../../context/AuthContext';
 import { useAppPreferences } from '../../context/AppPreferencesContext';
 import useTelegramBackButton from '../../hooks/useTelegramBackButton';
@@ -128,6 +128,29 @@ function formatCountdownText(
     return t('bookings.expiresInSeconds', { seconds });
 }
 
+type BookingResultState = {
+    id: string;
+    code: string;
+    total: number;
+    status: Booking['status'];
+    expires_at?: string | null;
+    submitted_at?: string | null;
+};
+
+function mapBookingToResultState(
+    booking: Pick<Booking, 'id' | 'booking_code' | 'total_price' | 'status' | 'expires_at'>,
+    submittedAt?: string | null,
+): BookingResultState {
+    return {
+        id: booking.id,
+        code: booking.booking_code,
+        total: booking.total_price,
+        status: booking.status,
+        expires_at: booking.expires_at ?? null,
+        submitted_at: submittedAt ?? null,
+    };
+}
+
 function BookingContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -161,14 +184,7 @@ function BookingContent() {
     const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
 
     const [isBooking, setIsBooking] = useState(false);
-    const [bookingResult, setBookingResult] = useState<{
-        id: string;
-        code: string;
-        total: number;
-        status: 'pending_payment' | 'awaiting_confirmation' | 'confirmed' | 'cancelled' | 'completed' | 'expired';
-        expires_at?: string | null;
-        submitted_at?: string | null;
-    } | null>(null);
+    const [bookingResult, setBookingResult] = useState<BookingResultState | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const handleBack = useCallback(() => {
@@ -237,6 +253,36 @@ function BookingContent() {
         }, 1000);
         return () => window.clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        if (!bookingResult || !['pending_payment', 'awaiting_confirmation'].includes(bookingResult.status)) {
+            return;
+        }
+
+        let cancelled = false;
+        const pollBooking = async () => {
+            try {
+                const latestBooking = await getBooking(bookingResult.id);
+                if (cancelled) return;
+                setBookingResult((current) => {
+                    if (!current || current.id !== latestBooking.id) return current;
+                    return mapBookingToResultState(latestBooking, current.submitted_at);
+                });
+            } catch (err) {
+                console.error('Failed to refresh booking result status:', err);
+            }
+        };
+
+        void pollBooking();
+        const interval = window.setInterval(() => {
+            void pollBooking();
+        }, 2500);
+
+        return () => {
+            cancelled = true;
+            window.clearInterval(interval);
+        };
+    }, [bookingResult?.id, bookingResult?.status]);
 
     useEffect(() => {
         setAcceptedPrivacy(false);
@@ -343,13 +389,7 @@ function BookingContent() {
                 guestsChildren,
             );
 
-            setBookingResult({
-                id: booking.id,
-                code: booking.booking_code,
-                total: booking.total_price,
-                status: booking.status,
-                expires_at: booking.expires_at ?? null,
-            });
+            setBookingResult(mapBookingToResultState(booking));
             setShowPrivacyModal(false);
             haptic('medium');
         } catch (err: unknown) {
@@ -439,6 +479,41 @@ function BookingContent() {
 
     if (bookingResult) {
         const isAwaitingAdmin = bookingResult.status === 'awaiting_confirmation';
+        const isConfirmed = bookingResult.status === 'confirmed';
+        const isCancelled = bookingResult.status === 'cancelled';
+        const isExpired = bookingResult.status === 'expired';
+        const resultTitle = isAwaitingAdmin
+            ? t('booking.awaitingAdminTitle')
+            : isConfirmed
+                ? t('booking.confirmedTitle')
+                : isCancelled
+                    ? t('booking.cancelledTitle')
+                    : isExpired
+                        ? t('booking.expiredTitle')
+                        : t('booking.created');
+        const resultDescription = isAwaitingAdmin
+            ? t('booking.awaitingAdminDescription')
+            : isConfirmed
+                ? t('booking.confirmedDescription')
+                : isCancelled
+                    ? t('booking.cancelledDescription')
+                    : isExpired
+                        ? t('booking.expiredDescription')
+                        : t('booking.manualPaymentSubtitle');
+        const resultIcon = isAwaitingAdmin ? '⏳' : isConfirmed ? '✓' : isCancelled ? '✕' : isExpired ? '⌛' : '✓';
+        const resultIconBg = isAwaitingAdmin
+            ? 'rgba(210, 174, 104, 0.14)'
+            : isConfirmed
+                ? 'rgba(0, 184, 148, 0.16)'
+                : 'rgba(214,48,49,0.12)';
+        const resultIconColor = isAwaitingAdmin
+            ? 'var(--color-warning)'
+            : isConfirmed
+                ? '#00b894'
+                : isExpired
+                    ? 'var(--color-warning)'
+                    : 'var(--color-danger)';
+
         return (
             <div style={{ minHeight: '100vh', padding: 'calc(90px + var(--tg-safe-top, 60px)) 16px 36px' }}>
                 {!isTelegramBackVisible ? (
@@ -476,18 +551,18 @@ function BookingContent() {
                             height: 84,
                             borderRadius: 22,
                             margin: '0 auto 20px',
-                            background: isAwaitingAdmin ? 'rgba(210, 174, 104, 0.14)' : 'rgba(0, 184, 148, 0.16)',
+                            background: resultIconBg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontSize: 40,
-                            color: isAwaitingAdmin ? 'var(--color-warning)' : '#00b894',
+                            color: resultIconColor,
                         }}
                     >
-                        {isAwaitingAdmin ? '⏳' : '✓'}
+                        {resultIcon}
                     </div>
                     <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, marginBottom: 8 }}>
-                        {isAwaitingAdmin ? t('booking.awaitingAdminTitle') : t('booking.created')}
+                        {resultTitle}
                     </h2>
                     <p style={{ fontSize: 14, color: 'var(--color-muted)', marginBottom: 4 }}>
                         {t('booking.bookingCode')}: <strong style={{ color: 'var(--color-text)' }}>#{bookingResult.code}</strong>
@@ -502,31 +577,33 @@ function BookingContent() {
                         />
                     </div>
                     <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--color-muted)' }}>
-                        {isAwaitingAdmin ? t('booking.awaitingAdminDescription') : t('booking.manualPaymentSubtitle')}
+                        {resultDescription}
                     </p>
                 </div>
 
-                <div
-                    style={{
-                        padding: 16,
-                        borderRadius: 18,
-                        border: '1px solid rgba(210,174,104,0.22)',
-                        background: 'rgba(210,174,104,0.1)',
-                        marginBottom: 16,
-                    }}
-                >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-brand-light)' }}>{t('booking.timerTitle')}</span>
-                        <span style={{ fontFamily: 'monospace', fontSize: 16, fontWeight: 800, color: bookingRemainingMs > 0 ? 'var(--color-warning)' : 'var(--color-danger)' }}>
-                            {bookingCountdown}
-                        </span>
+                {['pending_payment', 'awaiting_confirmation'].includes(bookingResult.status) ? (
+                    <div
+                        style={{
+                            padding: 16,
+                            borderRadius: 18,
+                            border: '1px solid rgba(210,174,104,0.22)',
+                            background: 'rgba(210,174,104,0.1)',
+                            marginBottom: 16,
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 6 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-brand-light)' }}>{t('booking.timerTitle')}</span>
+                            <span style={{ fontFamily: 'monospace', fontSize: 16, fontWeight: 800, color: bookingRemainingMs > 0 ? 'var(--color-warning)' : 'var(--color-danger)' }}>
+                                {bookingCountdown}
+                            </span>
+                        </div>
+                        <div style={{ fontSize: 12, color: bookingRemainingMs > 0 ? 'var(--color-brand-light)' : 'var(--color-danger)' }}>
+                            {bookingCountdownText}
+                        </div>
                     </div>
-                    <div style={{ fontSize: 12, color: bookingRemainingMs > 0 ? 'var(--color-brand-light)' : 'var(--color-danger)' }}>
-                        {bookingCountdownText}
-                    </div>
-                </div>
+                ) : null}
 
-                {selectedPaymentMethod ? (
+                {selectedPaymentMethod && ['pending_payment', 'awaiting_confirmation'].includes(bookingResult.status) ? (
                     <div
                         style={{
                             padding: 18,
@@ -595,7 +672,7 @@ function BookingContent() {
                     </div>
                 ) : null}
 
-                {!isAwaitingAdmin ? (
+                {bookingResult.status === 'pending_payment' ? (
                     <>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
                             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700 }}>
