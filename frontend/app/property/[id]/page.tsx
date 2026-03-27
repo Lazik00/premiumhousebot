@@ -127,7 +127,7 @@ export default function PropertyDetailPage() {
             />
 
             {/* Content */}
-            <div style={{ padding: '0 16px 20px', marginTop: -28, position: 'relative', zIndex: 2 }}>
+            <div style={{ padding: '14px 16px 20px', marginTop: 0, position: 'relative', zIndex: 2 }}>
                 <div
                     style={{
                         padding: '18px 18px 16px',
@@ -230,47 +230,6 @@ export default function PropertyDetailPage() {
 
                     </div>
                 </div>
-
-                {/* Host info */}
-                {property.host && (
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 12,
-                            padding: '16px 18px',
-                            borderRadius: 20,
-                            background: 'var(--color-surface)',
-                            border: '1px solid var(--color-line)',
-                            marginBottom: 20,
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: 52,
-                                height: 52,
-                                borderRadius: 16,
-                                background: property.host.photo_url
-                                    ? `url(${property.host.photo_url}) center/cover`
-                                    : 'var(--gradient-brand)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: 20,
-                                color: 'var(--color-ink-soft)',
-                                fontWeight: 700,
-                            }}
-                        >
-                            {!property.host.photo_url && property.host.first_name[0]}
-                        </div>
-                        <div>
-                            <div style={{ fontSize: 15, fontWeight: 700 }}>
-                                {property.host.first_name} {property.host.last_name || ''}
-                            </div>
-                            <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>{t('property.host')}</div>
-                        </div>
-                    </div>
-                )}
 
                 {/* Features grid */}
                 <div

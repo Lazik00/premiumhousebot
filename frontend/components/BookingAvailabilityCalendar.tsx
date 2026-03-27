@@ -43,7 +43,8 @@ export default function BookingAvailabilityCalendar({
     const [error, setError] = useState<string | null>(null);
 
     const weekdayLabels = useMemo(() => getWeekdayLabels(locale), [locale]);
-    const months = useMemo(() => [visibleMonth, addMonths(visibleMonth, 1)], [visibleMonth]);
+    const monthLabel = useMemo(() => formatMonthLabel(visibleMonth, locale), [locale, visibleMonth]);
+    const monthMatrix = useMemo(() => buildMonthGrid(visibleMonth), [visibleMonth]);
     const todayKey = formatDateKey(new Date());
     const hasCompleteSelection = Boolean(draftStartDate && draftEndDate);
 
@@ -177,81 +178,72 @@ export default function BookingAvailabilityCalendar({
                         <button type="button" onClick={() => setVisibleMonth(addMonths(visibleMonth, 1))} style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid rgba(242,217,162,0.12)', background: 'rgba(255,247,232,0.04)', color: 'var(--color-text)', cursor: 'pointer' }}>→</button>
                     </div>
 
-                    <div style={{ display: 'grid', gap: 14 }}>
-                        {months.map((month) => {
-                            const monthLabel = formatMonthLabel(month, locale);
-                            const matrix = buildMonthGrid(month);
+                    <div style={{ padding: 14, borderRadius: 20, border: '1px solid rgba(242,217,162,0.1)', background: 'rgba(255,247,232,0.02)' }}>
+                        <div style={{ fontSize: 16, fontWeight: 800, textTransform: 'capitalize', marginBottom: 12 }}>{monthLabel}</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6, marginBottom: 8 }}>
+                            {weekdayLabels.map((label) => (
+                                <div key={label} style={{ textAlign: 'center', fontSize: 10, color: 'var(--color-muted)', textTransform: 'uppercase' }}>{label}</div>
+                            ))}
+                        </div>
+                        <div style={{ display: 'grid', gap: 6 }}>
+                            {monthMatrix.map((week, weekIndex) => (
+                                <div key={`${monthLabel}-${weekIndex}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
+                                    {week.map((day) => {
+                                        const isPast = day.key < todayKey;
+                                        const blocked = isNightBlocked(day.key, blockedRanges);
+                                        const rangeSource = blockedRanges.find((item) => item.start_date <= day.key && day.key < item.end_date)?.source;
+                                        const isSelected = isDateInRange(day.key, draftStartDate, draftEndDate);
+                                        const isStart = day.key === draftStartDate;
+                                        const isEnd = day.key === draftEndDate;
+                                        const canBeCheckout = Boolean(draftStartDate && !draftEndDate && isCheckoutCandidate(day.key, draftStartDate, blockedRanges));
 
-                            return (
-                                <div key={monthLabel} style={{ padding: 14, borderRadius: 20, border: '1px solid rgba(242,217,162,0.1)', background: 'rgba(255,247,232,0.02)' }}>
-                                    <div style={{ fontSize: 16, fontWeight: 800, textTransform: 'capitalize', marginBottom: 12 }}>{monthLabel}</div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6, marginBottom: 8 }}>
-                                        {weekdayLabels.map((label) => (
-                                            <div key={label} style={{ textAlign: 'center', fontSize: 10, color: 'var(--color-muted)', textTransform: 'uppercase' }}>{label}</div>
-                                        ))}
-                                    </div>
-                                    <div style={{ display: 'grid', gap: 6 }}>
-                                        {matrix.map((week, weekIndex) => (
-                                            <div key={`${monthLabel}-${weekIndex}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
-                                                {week.map((day) => {
-                                                    const isPast = day.key < todayKey;
-                                                    const blocked = isNightBlocked(day.key, blockedRanges);
-                                                    const rangeSource = blockedRanges.find((item) => item.start_date <= day.key && day.key < item.end_date)?.source;
-                                                    const isSelected = isDateInRange(day.key, draftStartDate, draftEndDate);
-                                                    const isStart = day.key === draftStartDate;
-                                                    const isEnd = day.key === draftEndDate;
-                                                    const canBeCheckout = Boolean(draftStartDate && !draftEndDate && isCheckoutCandidate(day.key, draftStartDate, blockedRanges));
+                                        const background = isStart || isEnd
+                                            ? 'linear-gradient(135deg, rgba(242,217,162,0.96) 0%, rgba(200,156,85,0.98) 100%)'
+                                            : isSelected
+                                                ? 'rgba(242,217,162,0.16)'
+                                                : blocked
+                                                    ? rangeSource === 'manual'
+                                                        ? 'rgba(214,122,97,0.18)'
+                                                        : 'rgba(216,177,100,0.16)'
+                                                    : 'rgba(255,247,232,0.04)';
+                                        const border = isStart || isEnd
+                                            ? '1px solid rgba(242,217,162,0.98)'
+                                            : canBeCheckout
+                                                ? '1px dashed rgba(242,217,162,0.48)'
+                                                : blocked
+                                                    ? rangeSource === 'manual'
+                                                        ? '1px solid rgba(214,122,97,0.34)'
+                                                        : '1px solid rgba(216,177,100,0.34)'
+                                                    : '1px solid rgba(242,217,162,0.08)';
 
-                                                    const background = isStart || isEnd
-                                                        ? 'linear-gradient(135deg, rgba(242,217,162,0.96) 0%, rgba(200,156,85,0.98) 100%)'
-                                                        : isSelected
-                                                            ? 'rgba(242,217,162,0.16)'
-                                                            : blocked
-                                                                ? rangeSource === 'manual'
-                                                                    ? 'rgba(214,122,97,0.18)'
-                                                                    : 'rgba(216,177,100,0.16)'
-                                                                : 'rgba(255,247,232,0.04)';
-                                                    const border = isStart || isEnd
-                                                        ? '1px solid rgba(242,217,162,0.98)'
-                                                        : canBeCheckout
-                                                            ? '1px dashed rgba(242,217,162,0.48)'
-                                                            : blocked
-                                                                ? rangeSource === 'manual'
-                                                                    ? '1px solid rgba(214,122,97,0.34)'
-                                                                    : '1px solid rgba(216,177,100,0.34)'
-                                                                : '1px solid rgba(242,217,162,0.08)';
-
-                                                    return (
-                                                        <button
-                                                            key={day.key}
-                                                            type="button"
-                                                            disabled={isPast || (!canBeCheckout && blocked && !isStart && !isEnd)}
-                                                            onClick={() => handleDayClick(day.key)}
-                                                            style={{
-                                                                minHeight: 42,
-                                                                borderRadius: 12,
-                                                                border,
-                                                                background,
-                                                                color: isStart || isEnd ? '#130d08' : day.inCurrentMonth ? 'var(--color-text)' : 'rgba(247,239,222,0.28)',
-                                                                fontSize: 13,
-                                                                fontWeight: isStart || isEnd ? 900 : 700,
-                                                                opacity: isPast ? 0.35 : 1,
-                                                                cursor: isPast ? 'not-allowed' : 'pointer',
-                                                                position: 'relative',
-                                                            }}
-                                                        >
-                                                            {day.label}
-                                                            {blocked && rangeSource === 'manual' ? <span style={{ position: 'absolute', bottom: 5, left: '50%', width: 5, height: 5, marginLeft: -2.5, borderRadius: 999, background: 'rgba(214,122,97,0.92)' }} /> : null}
-                                                            {blocked && rangeSource === 'booking' ? <span style={{ position: 'absolute', bottom: 5, left: '50%', width: 5, height: 5, marginLeft: -2.5, borderRadius: 999, background: 'rgba(216,177,100,0.92)' }} /> : null}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        ))}
-                                    </div>
+                                        return (
+                                            <button
+                                                key={day.key}
+                                                type="button"
+                                                disabled={isPast || (!canBeCheckout && blocked && !isStart && !isEnd)}
+                                                onClick={() => handleDayClick(day.key)}
+                                                style={{
+                                                    minHeight: 42,
+                                                    borderRadius: 12,
+                                                    border,
+                                                    background,
+                                                    color: isStart || isEnd ? '#130d08' : day.inCurrentMonth ? 'var(--color-text)' : 'rgba(247,239,222,0.28)',
+                                                    fontSize: 13,
+                                                    fontWeight: isStart || isEnd ? 900 : 700,
+                                                    opacity: isPast ? 0.35 : 1,
+                                                    cursor: isPast ? 'not-allowed' : 'pointer',
+                                                    position: 'relative',
+                                                }}
+                                            >
+                                                {day.label}
+                                                {blocked && rangeSource === 'manual' ? <span style={{ position: 'absolute', bottom: 5, left: '50%', width: 5, height: 5, marginLeft: -2.5, borderRadius: 999, background: 'rgba(214,122,97,0.92)' }} /> : null}
+                                                {blocked && rangeSource === 'booking' ? <span style={{ position: 'absolute', bottom: 5, left: '50%', width: 5, height: 5, marginLeft: -2.5, borderRadius: 999, background: 'rgba(216,177,100,0.92)' }} /> : null}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
-                            );
-                        })}
+                            ))}
+                        </div>
                     </div>
 
                     <div style={{ marginTop: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,247,232,0.03)', border: '1px solid rgba(242,217,162,0.08)' }}>
