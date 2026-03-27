@@ -39,6 +39,7 @@ export default function AdminShell({
   const knownAlertIdsRef = useRef<Set<string>>(new Set());
   const pollInFlightRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const audioUnlockedRef = useRef(false);
 
   const persistKnownAlertIds = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -46,7 +47,7 @@ export default function AdminShell({
     window.localStorage.setItem(ALERTS_KNOWN_IDS_KEY, JSON.stringify(ids));
   }, []);
 
-  const playNewBookingChime = useCallback(() => {
+  const ensureAudioReady = useCallback(async () => {
     if (typeof window === 'undefined') return;
     try {
       const AudioContextCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -55,8 +56,19 @@ export default function AdminShell({
       const context = audioContextRef.current ?? new AudioContextCtor();
       audioContextRef.current = context;
       if (context.state === 'suspended') {
-        void context.resume();
+        await context.resume();
       }
+      audioUnlockedRef.current = context.state === 'running';
+    } catch {
+      audioUnlockedRef.current = false;
+    }
+  }, []);
+
+  const playNewBookingChime = useCallback(() => {
+    if (typeof window === 'undefined' || !audioUnlockedRef.current) return;
+    try {
+      const context = audioContextRef.current;
+      if (!context || context.state !== 'running') return;
 
       const masterGain = context.createGain();
       masterGain.connect(context.destination);
@@ -122,9 +134,11 @@ export default function AdminShell({
     setAlertsEnabled(enabled);
     window.localStorage.setItem(ALERTS_ENABLED_KEY, enabled ? '1' : '0');
     if (enabled) {
-      playNewBookingChime();
+      void ensureAudioReady().finally(() => {
+        playNewBookingChime();
+      });
     }
-  }, [playNewBookingChime]);
+  }, [ensureAudioReady, playNewBookingChime]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -151,21 +165,39 @@ export default function AdminShell({
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined' || !alertsEnabled) return;
+    if (audioUnlockedRef.current) return;
+
+    const unlockAudio = () => {
+      void ensureAudioReady();
+    };
+
+    window.addEventListener('pointerdown', unlockAudio, { passive: true });
+    window.addEventListener('keydown', unlockAudio);
+
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, [alertsEnabled, ensureAudioReady]);
+
+  useEffect(() => {
     if (isLoading || !isAuthenticated) return;
     let cancelled = false;
 
-    const pollAwaitingBookings = async () => {
+    const pollLatestBookings = async () => {
       if (pollInFlightRef.current) return;
       pollInFlightRef.current = true;
       try {
         const response = await listBookings({
-          status: 'awaiting_confirmation',
           limit: 20,
           offset: 0,
         });
         if (cancelled) return;
 
-        setPendingApprovalCount(response.total);
+        setPendingApprovalCount(
+          response.items.filter((booking) => ['pending_payment', 'awaiting_confirmation'].includes(booking.status)).length,
+        );
 
         if (typeof window === 'undefined') return;
 
@@ -202,9 +234,9 @@ export default function AdminShell({
       }
     };
 
-    void pollAwaitingBookings();
+    void pollLatestBookings();
     const timer = window.setInterval(() => {
-      void pollAwaitingBookings();
+      void pollLatestBookings();
     }, 15000);
 
     return () => {
