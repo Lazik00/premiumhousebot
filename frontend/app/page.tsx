@@ -321,10 +321,11 @@ export default function HomePage() {
                             src="/brand/logo-full.png"
                             alt="Premium House"
                             style={{
-                                width: 'min(100%, 236px)',
+                                width: 168,
+                                maxWidth: '48vw',
                                 height: 'auto',
                                 display: 'block',
-                                filter: 'brightness(0) invert(1) drop-shadow(0 12px 24px rgba(0,0,0,0.4))',
+                                filter: 'brightness(0) saturate(100%) invert(76%) sepia(31%) saturate(896%) hue-rotate(356deg) brightness(96%) contrast(92%) drop-shadow(0 12px 24px rgba(0,0,0,0.4))',
                             }}
                         />
                         <PreferenceDock />

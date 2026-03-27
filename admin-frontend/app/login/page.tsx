@@ -38,7 +38,7 @@ export default function LoginPage() {
         <img
           src="/admin/brand/logo-full.png"
           alt="Premium House"
-          style={{ width: 220, marginBottom: 24, filter: 'brightness(0) invert(1)' }}
+          style={{ width: 188, marginBottom: 24, filter: 'brightness(0) saturate(100%) invert(76%) sepia(31%) saturate(896%) hue-rotate(356deg) brightness(96%) contrast(92%)' }}
         />
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 44, lineHeight: 0.92, marginBottom: 10 }}>Admin kirishi</div>
         <div style={{ color: 'var(--color-muted)', marginBottom: 22 }}>

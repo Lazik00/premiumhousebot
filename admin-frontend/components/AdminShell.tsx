@@ -117,7 +117,7 @@ export default function AdminShell({
           <img
             src="/admin/brand/logo-full.png"
             alt="Premium House"
-            style={{ width: 180, opacity: 0.88, filter: 'brightness(0) invert(1)' }}
+            style={{ width: 156, opacity: 0.92, filter: 'brightness(0) saturate(100%) invert(76%) sepia(31%) saturate(896%) hue-rotate(356deg) brightness(96%) contrast(92%)' }}
           />
         </div>
         {children}
