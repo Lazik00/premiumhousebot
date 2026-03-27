@@ -48,10 +48,27 @@ export default function AdminShell({
     <div className="admin-shell">
       <aside className="admin-sidebar">
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
-          <img src="/admin/brand/logo-mark.png" alt="Premium House" style={{ width: 52, height: 52, objectFit: 'contain' }} />
+          <img src="/admin/brand/logo-mark.png" alt="Premium House" style={{ width: 48, height: 48, objectFit: 'contain' }} />
           <div>
-            <div style={{ fontSize: 12, color: 'var(--color-brand-light)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Premium House</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: 1 }}>Admin Panel</div>
+            <div
+              style={{
+                fontSize: 20,
+                lineHeight: 0.94,
+                fontWeight: 900,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                fontFamily: 'var(--font-body)',
+                background: 'linear-gradient(135deg, #f6e7bd 0%, #d3a758 48%, #f5de9d 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              Premium
+            </div>
+            <div style={{ fontSize: 11, color: '#d9b061', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800 }}>
+              House Rent
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, marginTop: 6 }}>Admin Panel</div>
           </div>
         </div>
 
@@ -114,11 +131,29 @@ export default function AdminShell({
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 42, lineHeight: 0.95 }}>{title}</div>
             {subtitle ? <div style={{ color: 'var(--color-muted)', marginTop: 10 }}>{subtitle}</div> : null}
           </div>
-          <img
-            src="/admin/brand/logo-full.png"
-            alt="Premium House"
-            style={{ width: 156, opacity: 0.92, filter: 'brightness(0) saturate(100%) invert(76%) sepia(31%) saturate(896%) hue-rotate(356deg) brightness(96%) contrast(92%)' }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, opacity: 0.92 }}>
+            <img src="/admin/brand/logo-mark.png" alt="Premium House" style={{ width: 38, height: 38, objectFit: 'contain' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <div
+                style={{
+                  fontSize: 18,
+                  lineHeight: 0.94,
+                  fontWeight: 900,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  fontFamily: 'var(--font-body)',
+                  background: 'linear-gradient(135deg, #f6e7bd 0%, #d3a758 48%, #f5de9d 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                Premium
+              </div>
+              <div style={{ fontSize: 10, color: '#d9b061', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800 }}>
+                House Rent
+              </div>
+            </div>
+          </div>
         </div>
         {children}
       </main>

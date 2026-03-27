@@ -35,11 +35,52 @@ export default function LoginPage() {
   return (
     <div className="login-shell">
       <form className="login-card" onSubmit={handleSubmit}>
-        <img
-          src="/admin/brand/logo-full.png"
-          alt="Premium House"
-          style={{ width: 188, marginBottom: 24, filter: 'brightness(0) saturate(100%) invert(76%) sepia(31%) saturate(896%) hue-rotate(356deg) brightness(96%) contrast(92%)' }}
-        />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            marginBottom: 24,
+            alignSelf: 'flex-start',
+            filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.26))',
+          }}
+        >
+          <img
+            src="/admin/brand/logo-mark.png"
+            alt="Premium House mark"
+            style={{ width: 46, height: 46, objectFit: 'contain', flexShrink: 0 }}
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div
+              style={{
+                fontSize: 24,
+                lineHeight: 0.92,
+                fontWeight: 900,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                fontFamily: 'var(--font-body)',
+                background: 'linear-gradient(135deg, #f6e7bd 0%, #d3a758 48%, #f5de9d 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              Premium
+            </div>
+            <div
+              style={{
+                fontSize: 13,
+                lineHeight: 1,
+                fontWeight: 800,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                fontFamily: 'var(--font-body)',
+                color: '#d9b061',
+              }}
+            >
+              House Rent
+            </div>
+          </div>
+        </div>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 44, lineHeight: 0.92, marginBottom: 10 }}>Admin kirishi</div>
         <div style={{ color: 'var(--color-muted)', marginBottom: 22 }}>
           Moderatsiya, bronlar, to'lovlar va host balanslarini boshqarish uchun kiriting.

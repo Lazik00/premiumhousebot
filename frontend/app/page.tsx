@@ -317,17 +317,55 @@ export default function HomePage() {
                             marginBottom: 18,
                         }}
                     >
-                        <img
-                            src="/brand/logo-full.png"
-                            alt="Premium House"
+                        <div
                             style={{
-                                width: 168,
-                                maxWidth: '48vw',
-                                height: 'auto',
-                                display: 'block',
-                                filter: 'brightness(0) saturate(100%) invert(76%) sepia(31%) saturate(896%) hue-rotate(356deg) brightness(96%) contrast(92%) drop-shadow(0 12px 24px rgba(0,0,0,0.4))',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 12,
+                                filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.34))',
                             }}
-                        />
+                        >
+                            <img
+                                src="/brand/logo-mark.png"
+                                alt="Premium House mark"
+                                style={{
+                                    width: 54,
+                                    height: 54,
+                                    objectFit: 'contain',
+                                    flexShrink: 0,
+                                }}
+                            />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <div
+                                    style={{
+                                        fontSize: 28,
+                                        lineHeight: 0.9,
+                                        fontWeight: 900,
+                                        letterSpacing: '0.04em',
+                                        textTransform: 'uppercase',
+                                        fontFamily: 'var(--font-body)',
+                                        background: 'linear-gradient(135deg, #f6e7bd 0%, #d3a758 48%, #f5de9d 100%)',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                    }}
+                                >
+                                    Premium
+                                </div>
+                                <div
+                                    style={{
+                                        fontSize: 16,
+                                        lineHeight: 1,
+                                        fontWeight: 800,
+                                        letterSpacing: '0.18em',
+                                        textTransform: 'uppercase',
+                                        fontFamily: 'var(--font-body)',
+                                        color: '#d9b061',
+                                    }}
+                                >
+                                    House Rent
+                                </div>
+                            </div>
+                        </div>
                         <PreferenceDock />
                     </div>
 
