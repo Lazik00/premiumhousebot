@@ -4,7 +4,9 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createBooking, getManualPaymentMethods, getProperty, getPropertyAvailability, submitManualPayment } from '../../lib/api';
 import BookingAvailabilityCalendar from '../../components/BookingAvailabilityCalendar';
+import PaymentMethodLogo from '../../components/PaymentMethodLogo';
 import PriceDisplay from '../../components/PriceDisplay';
+import { copyText } from '../../lib/clipboard';
 import type { BlockedRange, ManualPaymentMethod, PropertyDetail } from '../../lib/types';
 import { useAuth } from '../../context/AuthContext';
 import { useAppPreferences } from '../../context/AppPreferencesContext';
@@ -145,6 +147,7 @@ function BookingContent() {
     const [isPaymentMethodsLoading, setIsPaymentMethodsLoading] = useState(true);
     const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
     const [nowMs, setNowMs] = useState(() => Date.now());
+    const [copiedCardNumber, setCopiedCardNumber] = useState(false);
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -383,6 +386,17 @@ function BookingContent() {
         }
     };
 
+    const handleCopyCardNumber = async (cardNumber: string) => {
+        try {
+            await copyText(cardNumber);
+            setCopiedCardNumber(true);
+            haptic('light');
+            window.setTimeout(() => setCopiedCardNumber(false), 1400);
+        } catch {
+            setError(t('booking.cardNumberCopyFailed'));
+        }
+    };
+
     if (isLoading) {
         return (
             <div style={{ padding: 32 }}>
@@ -426,7 +440,7 @@ function BookingContent() {
     if (bookingResult) {
         const isAwaitingAdmin = bookingResult.status === 'awaiting_confirmation';
         return (
-            <div style={{ minHeight: '100vh', padding: 'calc(52px + var(--tg-safe-top, 60px)) 16px 36px' }}>
+            <div style={{ minHeight: '100vh', padding: 'calc(90px + var(--tg-safe-top, 60px)) 16px 36px' }}>
                 {!isTelegramBackVisible ? (
                     <button
                         onClick={() => {
@@ -531,22 +545,7 @@ function BookingContent() {
                                     {selectedPaymentMethod.name}
                                 </div>
                             </div>
-                            <div
-                                style={{
-                                    width: 52,
-                                    height: 52,
-                                    borderRadius: 16,
-                                    background: 'rgba(210,174,104,0.12)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: 'var(--color-brand)',
-                                    fontWeight: 800,
-                                    textTransform: 'uppercase',
-                                }}
-                            >
-                                {selectedPaymentMethod.brand.slice(0, 2)}
-                            </div>
+                            <PaymentMethodLogo brand={selectedPaymentMethod.brand} size="lg" />
                         </div>
                         <div style={{ display: 'grid', gap: 10 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
@@ -555,11 +554,41 @@ function BookingContent() {
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                                 <span style={{ fontSize: 13, color: 'var(--color-muted)' }}>{t('booking.paymentMethodCardNumber')}</span>
-                                <strong style={{ textAlign: 'right', letterSpacing: '0.04em' }}>{selectedPaymentMethod.card_number}</strong>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => void handleCopyCardNumber(selectedPaymentMethod.card_number)}
+                                        aria-label={t('booking.copyCardNumber')}
+                                        style={{
+                                            width: 32,
+                                            height: 32,
+                                            borderRadius: 10,
+                                            border: '1px solid rgba(242,217,162,0.16)',
+                                            background: 'rgba(255,247,232,0.04)',
+                                            color: 'var(--color-brand-light)',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            flexShrink: 0,
+                                        }}
+                                    >
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <rect x="9" y="9" width="10" height="10" rx="2" />
+                                            <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" />
+                                        </svg>
+                                    </button>
+                                    <strong style={{ textAlign: 'right', letterSpacing: '0.04em' }}>{selectedPaymentMethod.card_number}</strong>
+                                </div>
                             </div>
                             {selectedPaymentMethod.instructions ? (
                                 <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,247,232,0.04)', fontSize: 13, color: 'var(--color-brand-light)', lineHeight: 1.6 }}>
                                     {selectedPaymentMethod.instructions}
+                                </div>
+                            ) : null}
+                            {copiedCardNumber ? (
+                                <div style={{ fontSize: 12, color: 'var(--color-brand-light)' }}>
+                                    {t('booking.cardNumberCopied')}
                                 </div>
                             ) : null}
                         </div>
@@ -602,23 +631,7 @@ function BookingContent() {
                                             }}
                                         >
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                                <span
-                                                    style={{
-                                                        width: 42,
-                                                        height: 42,
-                                                        borderRadius: 12,
-                                                        background: active ? 'var(--gradient-brand)' : 'rgba(210,174,104,0.12)',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        color: active ? 'var(--color-ink-soft)' : 'var(--color-brand)',
-                                                        fontSize: 12,
-                                                        fontWeight: 800,
-                                                        textTransform: 'uppercase',
-                                                    }}
-                                                >
-                                                    {item.brand.slice(0, 2)}
-                                                </span>
+                                                <PaymentMethodLogo brand={item.brand} size="md" />
                                                 <div>
                                                     <div style={{ fontSize: 15, fontWeight: 800 }}>{item.name}</div>
                                                     <div style={{ fontSize: 12, color: 'var(--color-muted)', marginTop: 4 }}>

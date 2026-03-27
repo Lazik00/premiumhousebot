@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import AdminShell from '../../components/AdminShell';
+import AdminPaymentMethodLogo from '../../components/AdminPaymentMethodLogo';
 import AdminStatusPill from '../../components/AdminStatusPill';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { listPayments } from '../../lib/api';
@@ -112,7 +113,10 @@ export default function PaymentsPage() {
                     <td>
                       {payment.payment_method_name ? (
                         <div>
-                          <div style={{ fontWeight: 800 }}>{payment.payment_method_name}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                            <AdminPaymentMethodLogo brand={payment.payment_method_brand || 'manual'} size="md" />
+                            <div style={{ fontWeight: 800 }}>{payment.payment_method_name}</div>
+                          </div>
                           <div style={{ marginTop: 8, color: 'var(--color-muted)', fontSize: 12 }}>
                             {payment.payment_method_brand || 'manual'} {payment.payment_method_card_number ? `• ${payment.payment_method_card_number}` : ''}
                           </div>

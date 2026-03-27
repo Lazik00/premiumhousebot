@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import AdminShell from '../../../components/AdminShell';
+import AdminPaymentMethodLogo from '../../../components/AdminPaymentMethodLogo';
 import AdminStatusPill from '../../../components/AdminStatusPill';
 import { useAdminAuth } from '../../../context/AdminAuthContext';
 import { getPayment, refundPayment } from '../../../lib/api';
@@ -99,7 +100,13 @@ export default function PaymentDetailPage() {
                 <div className="admin-kv"><span>Customer</span><strong>{payment.customer_name}</strong></div>
                 <div className="admin-kv"><span>Email</span><strong>{payment.customer_email || 'Yo\'q'}</strong></div>
                 <div className="admin-kv"><span>To'lov usuli</span><strong>{payment.payment_method_name || 'Gateway checkout'}</strong></div>
-                <div className="admin-kv"><span>Brand / karta</span><strong>{payment.payment_method_brand ? `${payment.payment_method_brand} • ${payment.payment_method_card_number || 'raqam yo\'q'}` : 'Mavjud emas'}</strong></div>
+                <div className="admin-kv">
+                  <span>Brand / karta</span>
+                  <strong style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, flexWrap: 'wrap' }}>
+                    {payment.payment_method_brand ? <AdminPaymentMethodLogo brand={payment.payment_method_brand} size="sm" /> : null}
+                    <span>{payment.payment_method_brand ? `${payment.payment_method_brand} • ${payment.payment_method_card_number || 'raqam yo\'q'}` : 'Mavjud emas'}</span>
+                  </strong>
+                </div>
                 <div className="admin-kv"><span>Karta egasi</span><strong>{payment.payment_method_card_holder || 'Mavjud emas'}</strong></div>
                 <div className="admin-kv"><span>Provider payment ID</span><strong>{payment.provider_payment_id || 'Yo\'q'}</strong></div>
                 <div className="admin-kv"><span>Yaratilgan</span><strong>{formatDateTime(payment.created_at)}</strong></div>
@@ -145,8 +152,9 @@ export default function PaymentDetailPage() {
               <div className="admin-subgrid" style={{ marginTop: 16 }}>
                 <div className="admin-alert">
                   <div style={{ fontWeight: 800, marginBottom: 8 }}>Buyerga ko'rsatilgan rekvizit</div>
-                  <div style={{ color: 'var(--color-muted)', lineHeight: 1.6 }}>
-                    {payment.payment_method_name || 'Manual payment'} • {payment.payment_method_brand || 'manual'}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', color: 'var(--color-muted)', lineHeight: 1.6 }}>
+                    <AdminPaymentMethodLogo brand={payment.payment_method_brand || 'manual'} size="md" />
+                    <span>{payment.payment_method_name || 'Manual payment'} • {payment.payment_method_brand || 'manual'}</span>
                   </div>
                   <div style={{ marginTop: 8 }}><code className="admin-code">{payment.payment_method_card_number || 'Karta raqami yo\'q'}</code></div>
                 </div>

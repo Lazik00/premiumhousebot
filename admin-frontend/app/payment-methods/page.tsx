@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import AdminShell from '../../components/AdminShell';
+import AdminPaymentMethodLogo from '../../components/AdminPaymentMethodLogo';
 import AdminStatusPill from '../../components/AdminStatusPill';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { createPaymentMethod, listPaymentMethods, updatePaymentMethod } from '../../lib/api';
@@ -156,6 +157,24 @@ export default function PaymentMethodsPage() {
               </label>
             </div>
 
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 14,
+                padding: '12px 14px',
+                borderRadius: 16,
+                border: '1px solid rgba(201,156,66,0.16)',
+                background: 'rgba(255,255,255,0.02)',
+              }}
+            >
+              <AdminPaymentMethodLogo brand={form.brand} size="lg" />
+              <div>
+                <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>Ko‘rinish preview</div>
+                <div style={{ marginTop: 4, fontWeight: 800 }}>{brandLabel(form.brand)}</div>
+              </div>
+            </div>
+
             <div className="admin-form-grid admin-form-grid-2">
               <label className="admin-field">
                 <span>Karta egasi</span>
@@ -233,8 +252,13 @@ export default function PaymentMethodsPage() {
               {items.map((item) => (
                 <tr key={item.id}>
                   <td>
-                    <div style={{ fontWeight: 800 }}>{brandLabel(item.brand)}</div>
-                    <div style={{ color: 'var(--color-muted)', fontSize: 12, marginTop: 6 }}>{item.brand}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <AdminPaymentMethodLogo brand={item.brand} size="md" />
+                      <div>
+                        <div style={{ fontWeight: 800 }}>{brandLabel(item.brand)}</div>
+                        <div style={{ color: 'var(--color-muted)', fontSize: 12, marginTop: 6 }}>{item.brand}</div>
+                      </div>
+                    </div>
                   </td>
                   <td>
                     <div style={{ fontWeight: 800 }}>{item.name}</div>

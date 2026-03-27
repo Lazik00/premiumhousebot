@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import AdminShell from '../../../components/AdminShell';
+import AdminPaymentMethodLogo from '../../../components/AdminPaymentMethodLogo';
 import AdminStatusPill from '../../../components/AdminStatusPill';
 import { useAdminAuth } from '../../../context/AdminAuthContext';
 import { approveBookingPayment, getBooking, rejectBookingPayment } from '../../../lib/api';
@@ -131,8 +132,13 @@ export default function BookingDetailPage() {
               <div className="admin-subgrid" style={{ marginTop: 18 }}>
                 <div className="admin-panel" style={{ padding: 18 }}>
                   <div className="admin-section-subtitle">Tanlangan usul</div>
-                  <div style={{ marginTop: 12, fontWeight: 800, fontSize: 20 }}>{pendingManualPayment.payment_method_name || 'Manual payment'}</div>
-                  <div style={{ marginTop: 10, color: 'var(--color-muted)' }}>{pendingManualPayment.payment_method_brand || 'manual'} • {pendingManualPayment.payment_method_card_number || 'Karta raqami yo\'q'}</div>
+                  <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <AdminPaymentMethodLogo brand={pendingManualPayment.payment_method_brand || 'manual'} size="lg" />
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: 20 }}>{pendingManualPayment.payment_method_name || 'Manual payment'}</div>
+                      <div style={{ marginTop: 10, color: 'var(--color-muted)' }}>{pendingManualPayment.payment_method_brand || 'manual'} • {pendingManualPayment.payment_method_card_number || 'Karta raqami yo\'q'}</div>
+                    </div>
+                  </div>
                   <div style={{ marginTop: 16 }} className="admin-kv-list">
                     <div className="admin-kv"><span>Karta egasi</span><strong>{pendingManualPayment.payment_method_card_holder || 'Mavjud emas'}</strong></div>
                     <div className="admin-kv"><span>Buyer izohi</span><strong>{pendingManualPayment.customer_note || 'Qoldirilmagan'}</strong></div>
@@ -235,7 +241,10 @@ export default function BookingDetailPage() {
                       <td>
                         {payment.payment_method_name ? (
                           <div>
-                            <div style={{ fontWeight: 800 }}>{payment.payment_method_name}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                              <AdminPaymentMethodLogo brand={payment.payment_method_brand || 'manual'} size="md" />
+                              <div style={{ fontWeight: 800 }}>{payment.payment_method_name}</div>
+                            </div>
                             <div style={{ color: 'var(--color-muted)', fontSize: 12, marginTop: 8 }}>
                               {payment.payment_method_brand || 'manual'} • {payment.payment_method_card_number || 'raqam yo\'q'}
                             </div>

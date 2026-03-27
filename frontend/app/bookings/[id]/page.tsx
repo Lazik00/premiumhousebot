@@ -4,7 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getBooking, getManualPaymentMethods, getProperty, submitManualPayment } from '../../../lib/api';
 import PriceDisplay from '../../../components/PriceDisplay';
+import PaymentMethodLogo from '../../../components/PaymentMethodLogo';
 import useTelegramBackButton from '../../../hooks/useTelegramBackButton';
+import { copyText } from '../../../lib/clipboard';
 import type { Booking, ManualPaymentMethod, PropertyDetail } from '../../../lib/types';
 import { getTelegramWebApp, haptic } from '../../../lib/telegram';
 import { useAuth } from '../../../context/AuthContext';
@@ -64,6 +66,7 @@ export default function BookingDetailPage() {
     const [selectedMethodId, setSelectedMethodId] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [nowMs, setNowMs] = useState(() => Date.now());
+    const [copiedCardNumber, setCopiedCardNumber] = useState(false);
 
     const handleBack = useCallback(() => {
         router.push('/bookings');
@@ -154,6 +157,17 @@ export default function BookingDetailPage() {
             setError(err instanceof Error ? err.message : t('booking.continuePaymentError'));
         } finally {
             setIsSubmittingPayment(false);
+        }
+    };
+
+    const handleCopyCardNumber = async (cardNumber: string) => {
+        try {
+            await copyText(cardNumber);
+            setCopiedCardNumber(true);
+            haptic('light');
+            window.setTimeout(() => setCopiedCardNumber(false), 1400);
+        } catch {
+            setError(t('booking.cardNumberCopyFailed'));
         }
     };
 
@@ -461,15 +475,42 @@ export default function BookingDetailPage() {
                                 marginBottom: 12,
                             }}
                         >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', marginBottom: 10 }}>
-                                <div>
-                                    <div style={{ fontSize: 12, color: 'var(--color-brand-light)', textTransform: 'uppercase' }}>{selectedMethod.brand}</div>
-                                    <div style={{ fontSize: 16, fontWeight: 800 }}>{selectedMethod.name}</div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', marginBottom: 10 }}>
+                                    <div>
+                                        <div style={{ fontSize: 12, color: 'var(--color-brand-light)', textTransform: 'uppercase' }}>{selectedMethod.brand}</div>
+                                        <div style={{ fontSize: 16, fontWeight: 800 }}>{selectedMethod.name}</div>
+                                    </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <PaymentMethodLogo brand={selectedMethod.brand} size="md" />
+                                    <button
+                                        type="button"
+                                        onClick={() => void handleCopyCardNumber(selectedMethod.card_number)}
+                                        aria-label={t('booking.copyCardNumber')}
+                                        style={{
+                                            width: 32,
+                                            height: 32,
+                                            borderRadius: 10,
+                                            border: '1px solid rgba(242,217,162,0.16)',
+                                            background: 'rgba(255,247,232,0.04)',
+                                            color: 'var(--color-brand-light)',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            flexShrink: 0,
+                                        }}
+                                    >
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <rect x="9" y="9" width="10" height="10" rx="2" />
+                                            <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" />
+                                        </svg>
+                                    </button>
+                                    <div style={{ fontSize: 12, color: 'var(--color-brand-light)' }}>{selectedMethod.card_number}</div>
                                 </div>
-                                <div style={{ fontSize: 12, color: 'var(--color-brand-light)' }}>{selectedMethod.card_number}</div>
                             </div>
                             <div style={{ fontSize: 13, color: 'var(--color-muted)', marginBottom: selectedMethod.instructions ? 10 : 0 }}>{selectedMethod.card_holder}</div>
                             {selectedMethod.instructions ? <div style={{ fontSize: 12, color: 'var(--color-brand-light)', lineHeight: 1.5 }}>{selectedMethod.instructions}</div> : null}
+                            {copiedCardNumber ? <div style={{ marginTop: 10, fontSize: 12, color: 'var(--color-brand-light)' }}>{t('booking.cardNumberCopied')}</div> : null}
                         </div>
                     ) : null}
                     <div style={{ display: 'grid', gap: 10 }}>
@@ -494,7 +535,13 @@ export default function BookingDetailPage() {
                                     textAlign: 'left',
                                 }}
                             >
-                                {item.name} • {item.card_number}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <PaymentMethodLogo brand={item.brand} size="md" />
+                                    <div>
+                                        <div style={{ fontWeight: 800 }}>{item.name}</div>
+                                        <div style={{ marginTop: 6, color: 'var(--color-muted)', fontSize: 12 }}>{item.card_number}</div>
+                                    </div>
+                                </div>
                             </button>
                         ))}
                         <button
