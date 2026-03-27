@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createPaymentLink, getBooking, getProperty } from '../../../lib/api';
 import PriceDisplay from '../../../components/PriceDisplay';
+import useTelegramBackButton from '../../../hooks/useTelegramBackButton';
 import type { Booking, PropertyDetail } from '../../../lib/types';
 import { getTelegramWebApp, haptic } from '../../../lib/telegram';
 import { useAuth } from '../../../context/AuthContext';
@@ -27,6 +28,12 @@ export default function BookingDetailPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isPaying, setIsPaying] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const handleBack = useCallback(() => {
+        router.push('/bookings');
+    }, [router]);
+
+    const isTelegramBackVisible = useTelegramBackButton(handleBack);
 
     useEffect(() => {
         if (!bookingId || !isAuthenticated) {
@@ -117,7 +124,7 @@ export default function BookingDetailPage() {
         return (
             <div style={{ minHeight: '100vh', padding: '40px 20px' }}>
                 <button
-                    onClick={() => router.push('/bookings')}
+                    onClick={handleBack}
                     style={{
                         marginBottom: 18,
                         border: 'none',
@@ -171,30 +178,32 @@ export default function BookingDetailPage() {
 
     return (
         <div style={{ minHeight: '100vh', padding: 'calc(16px + var(--tg-safe-top, 60px)) 16px 36px' }}>
-            <button
-                onClick={() => {
-                    haptic('light');
-                    router.push('/bookings');
-                }}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    border: 'none',
-                    background: 'none',
-                    color: 'var(--color-brand-light)',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    padding: 0,
-                    marginBottom: 16,
-                }}
-            >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="15 18 9 12 15 6" />
-                </svg>
-                {t('bookings.detailBack')}
-            </button>
+            {!isTelegramBackVisible ? (
+                <button
+                    onClick={() => {
+                        haptic('light');
+                        handleBack();
+                    }}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        border: 'none',
+                        background: 'none',
+                        color: 'var(--color-brand-light)',
+                        fontSize: 14,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        padding: 0,
+                        marginBottom: 16,
+                    }}
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                    {t('bookings.detailBack')}
+                </button>
+            ) : null}
 
             <div
                 style={{

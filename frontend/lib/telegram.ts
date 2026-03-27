@@ -111,7 +111,7 @@ export function getColorScheme(): 'light' | 'dark' {
     return tg?.colorScheme ?? 'light';
 }
 
-function hasTelegramBridge(): boolean {
+export function hasTelegramBridge(): boolean {
     if (typeof window === 'undefined') return false;
     return Boolean(
         window.TelegramWebviewProxy ||

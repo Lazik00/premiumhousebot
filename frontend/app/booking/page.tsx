@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createBooking, createPaymentLink, getProperty, getPropertyAvailability } from '../../lib/api';
 import BookingAvailabilityCalendar from '../../components/BookingAvailabilityCalendar';
@@ -8,6 +8,7 @@ import PriceDisplay from '../../components/PriceDisplay';
 import type { BlockedRange, PropertyDetail } from '../../lib/types';
 import { useAuth } from '../../context/AuthContext';
 import { useAppPreferences } from '../../context/AppPreferencesContext';
+import useTelegramBackButton from '../../hooks/useTelegramBackButton';
 import { formatUnitCount } from '../../lib/i18n';
 import { getTelegramWebApp, haptic } from '../../lib/telegram';
 
@@ -118,6 +119,16 @@ function BookingContent() {
     const [isBooking, setIsBooking] = useState(false);
     const [bookingResult, setBookingResult] = useState<{ id: string; code: string; total: number } | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    const handleBack = useCallback(() => {
+        if (step > 1) {
+            setStep((currentStep) => currentStep - 1);
+            return;
+        }
+        router.back();
+    }, [router, step]);
+
+    const isTelegramBackVisible = useTelegramBackButton(handleBack);
     const today = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
@@ -425,35 +436,33 @@ function BookingContent() {
         <>
             <div style={{ minHeight: '100vh', paddingBottom: 28 }}>
                 <div style={{ padding: 'calc(16px + var(--tg-safe-top, 60px)) 16px 0' }}>
-                    <button
-                        onClick={() => {
-                            haptic('light');
-                            if (step > 1) {
-                                setStep((currentStep) => currentStep - 1);
-                                return;
-                            }
-                            router.back();
-                        }}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            padding: 0,
-                            marginBottom: 16,
-                            border: 'none',
-                            background: 'none',
-                            color: 'var(--color-brand-light)',
-                            cursor: 'pointer',
-                            fontSize: 14,
-                            fontWeight: 700,
-                            fontFamily: 'var(--font-body)',
-                        }}
-                    >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="15 18 9 12 15 6" />
-                        </svg>
-                        {t('booking.back')}
-                    </button>
+                    {!isTelegramBackVisible ? (
+                        <button
+                            onClick={() => {
+                                haptic('light');
+                                handleBack();
+                            }}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                padding: 0,
+                                marginBottom: 16,
+                                border: 'none',
+                                background: 'none',
+                                color: 'var(--color-brand-light)',
+                                cursor: 'pointer',
+                                fontSize: 14,
+                                fontWeight: 700,
+                                fontFamily: 'var(--font-body)',
+                            }}
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polyline points="15 18 9 12 15 6" />
+                            </svg>
+                            {t('booking.back')}
+                        </button>
+                    ) : null}
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
                         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, margin: 0 }}>

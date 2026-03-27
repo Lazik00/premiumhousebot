@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getProperty } from '../../../lib/api';
 import PriceDisplay from '../../../components/PriceDisplay';
 import { useAppPreferences } from '../../../context/AppPreferencesContext';
 import { formatUnitCount, getAmenityLabel } from '../../../lib/i18n';
 import { getTelegramWebApp, haptic } from '../../../lib/telegram';
+import useTelegramBackButton from '../../../hooks/useTelegramBackButton';
 import type { PropertyDetail } from '../../../lib/types';
 import PropertyGallery from '../../../components/PropertyGallery';
 import { DetailSkeleton } from '../../../components/LoadingSkeleton';
@@ -36,6 +37,12 @@ export default function PropertyDetailPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const handleBack = useCallback(() => {
+        router.back();
+    }, [router]);
+
+    const isTelegramBackVisible = useTelegramBackButton(handleBack);
+
     useEffect(() => {
         const fetchProperty = async () => {
             try {
@@ -61,7 +68,7 @@ export default function PropertyDetailPage() {
                     {error || t('property.notFound')}
                 </h2>
                 <button
-                    onClick={() => router.back()}
+                    onClick={handleBack}
                     style={{
                         padding: '10px 24px',
                         borderRadius: 12,
@@ -86,29 +93,31 @@ export default function PropertyDetailPage() {
     return (
         <div style={{ minHeight: '100vh', paddingBottom: 100 }}>
             {/* Back button */}
-            <button
-                onClick={() => { haptic('light'); router.back(); }}
-                style={{
-                    position: 'fixed',
-                    top: 'calc(16px + var(--tg-safe-top, 60px))',
-                    left: 16,
-                    zIndex: 50,
-                    width: 40,
-                    height: 40,
-                    borderRadius: 12,
-                    background: 'rgba(12,9,6,0.62)',
-                    backdropFilter: 'blur(12px)',
-                    border: '1px solid rgba(242,217,162,0.14)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                }}
-            >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff7e8" strokeWidth="2">
-                    <polyline points="15 18 9 12 15 6" />
-                </svg>
-            </button>
+            {!isTelegramBackVisible ? (
+                <button
+                    onClick={() => { haptic('light'); handleBack(); }}
+                    style={{
+                        position: 'fixed',
+                        top: 'calc(16px + var(--tg-safe-top, 60px))',
+                        left: 16,
+                        zIndex: 50,
+                        width: 40,
+                        height: 40,
+                        borderRadius: 12,
+                        background: 'rgba(12,9,6,0.62)',
+                        backdropFilter: 'blur(12px)',
+                        border: '1px solid rgba(242,217,162,0.14)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                    }}
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff7e8" strokeWidth="2">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                </button>
+            ) : null}
 
             {/* Gallery */}
             <PropertyGallery
