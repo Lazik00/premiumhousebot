@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { listBookings } from '../lib/api';
+import { formatMoney } from '../lib/format';
 
 const navigation = [
   { href: '/', label: 'Dashboard' },
@@ -14,6 +16,10 @@ const navigation = [
   { href: '/payments', label: 'To\'lovlar' },
   { href: '/hosts', label: 'Host balanslari' },
 ];
+
+const ALERTS_ENABLED_KEY = 'ph_admin_booking_alerts_enabled';
+const ALERTS_KNOWN_IDS_KEY = 'ph_admin_booking_alerts_known_ids';
+const ALERTS_BOOTSTRAPPED_KEY = 'ph_admin_booking_alerts_bootstrapped';
 
 export default function AdminShell({
   title,
@@ -27,12 +33,160 @@ export default function AdminShell({
   const pathname = usePathname();
   const router = useRouter();
   const { user, isLoading, isAuthenticated, logout } = useAdminAuth();
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | 'unsupported'>('default');
+  const [alertsEnabled, setAlertsEnabled] = useState(false);
+  const [pendingApprovalCount, setPendingApprovalCount] = useState(0);
+  const knownAlertIdsRef = useRef<Set<string>>(new Set());
+  const pollInFlightRef = useRef(false);
+
+  const persistKnownAlertIds = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const ids = Array.from(knownAlertIdsRef.current).slice(-200);
+    window.localStorage.setItem(ALERTS_KNOWN_IDS_KEY, JSON.stringify(ids));
+  }, []);
+
+  const speakNewBooking = useCallback(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance('Yangi buyurtma');
+      utterance.lang = 'uz-UZ';
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      // Ignore speech synthesis failures. Notification remains visible.
+    }
+  }, []);
+
+  const pushBookingNotification = useCallback(
+    (bookingId: string, title: string, body: string) => {
+      if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') {
+        return;
+      }
+      const notification = new Notification(title, {
+        body,
+        tag: `booking-${bookingId}`,
+      });
+      notification.onclick = () => {
+        window.focus();
+        router.push(`/bookings/${bookingId}`);
+        notification.close();
+      };
+    },
+    [router],
+  );
+
+  const enableBrowserAlerts = useCallback(async () => {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      setNotificationPermission('unsupported');
+      return;
+    }
+    let permission: NotificationPermission = Notification.permission;
+    if (permission === 'default') {
+      permission = await Notification.requestPermission();
+    }
+    setNotificationPermission(permission);
+    const enabled = permission === 'granted';
+    setAlertsEnabled(enabled);
+    window.localStorage.setItem(ALERTS_ENABLED_KEY, enabled ? '1' : '0');
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.replace('/login');
     }
   }, [isAuthenticated, isLoading, router]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!('Notification' in window)) {
+      setNotificationPermission('unsupported');
+      return;
+    }
+    setNotificationPermission(Notification.permission);
+    setAlertsEnabled(window.localStorage.getItem(ALERTS_ENABLED_KEY) === '1');
+    try {
+      const parsed = JSON.parse(window.localStorage.getItem(ALERTS_KNOWN_IDS_KEY) || '[]');
+      if (Array.isArray(parsed)) {
+        knownAlertIdsRef.current = new Set(parsed.filter((item): item is string => typeof item === 'string').slice(-200));
+      }
+    } catch {
+      knownAlertIdsRef.current = new Set();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isLoading || !isAuthenticated) return;
+    let cancelled = false;
+
+    const pollAwaitingBookings = async () => {
+      if (pollInFlightRef.current) return;
+      pollInFlightRef.current = true;
+      try {
+        const response = await listBookings({
+          status: 'awaiting_confirmation',
+          limit: 20,
+          offset: 0,
+        });
+        if (cancelled) return;
+
+        setPendingApprovalCount(response.total);
+
+        if (typeof window === 'undefined') return;
+
+        const bootstrapped = window.localStorage.getItem(ALERTS_BOOTSTRAPPED_KEY) === '1';
+        const knownIds = knownAlertIdsRef.current;
+
+        if (!bootstrapped) {
+          response.items.forEach((booking) => knownIds.add(booking.id));
+          window.localStorage.setItem(ALERTS_BOOTSTRAPPED_KEY, '1');
+          persistKnownAlertIds();
+          return;
+        }
+
+        const newItems = response.items.filter((booking) => !knownIds.has(booking.id));
+        if (newItems.length > 0) {
+          newItems.forEach((booking) => knownIds.add(booking.id));
+          persistKnownAlertIds();
+        }
+
+        if (newItems.length > 0 && alertsEnabled && notificationPermission === 'granted') {
+          for (const booking of [...newItems].reverse()) {
+            pushBookingNotification(
+              booking.id,
+              'Yangi buyurtma',
+              `${booking.customer_name} • ${booking.property_title} • ${formatMoney(booking.total_price, booking.currency)}`,
+            );
+          }
+          speakNewBooking();
+        }
+      } catch {
+        // Silent polling failure. Admin pages remain usable.
+      } finally {
+        pollInFlightRef.current = false;
+      }
+    };
+
+    void pollAwaitingBookings();
+    const timer = window.setInterval(() => {
+      void pollAwaitingBookings();
+    }, 15000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [alertsEnabled, isAuthenticated, isLoading, notificationPermission, persistKnownAlertIds, pushBookingNotification, speakNewBooking]);
+
+  const notificationLabel = useMemo(() => {
+    if (notificationPermission === 'unsupported') return 'Brauzer qo‘llamaydi';
+    if (notificationPermission === 'granted' && alertsEnabled) {
+      return pendingApprovalCount > 0 ? `Bildirishnoma • ${pendingApprovalCount}` : 'Bildirishnoma yoqilgan';
+    }
+    if (notificationPermission === 'denied') return 'Bildirishnoma bloklangan';
+    return 'Bildirishnomani yoqish';
+  }, [alertsEnabled, notificationPermission, pendingApprovalCount]);
 
   if (isLoading || !user) {
     return (
@@ -131,7 +285,21 @@ export default function AdminShell({
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 42, lineHeight: 0.95 }}>{title}</div>
             {subtitle ? <div style={{ color: 'var(--color-muted)', marginTop: 10 }}>{subtitle}</div> : null}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, opacity: 0.92 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, opacity: 0.92, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {notificationPermission !== 'unsupported' ? (
+              <button
+                type="button"
+                className={`admin-button secondary${alertsEnabled && notificationPermission === 'granted' ? ' notification-live' : ''}`}
+                onClick={() => void enableBrowserAlerts()}
+                style={{ position: 'relative' }}
+              >
+                <span style={{ fontSize: 16 }}>{alertsEnabled && notificationPermission === 'granted' ? '🔔' : '🔕'}</span>
+                <span>{notificationLabel}</span>
+                {alertsEnabled && notificationPermission === 'granted' && pendingApprovalCount > 0 ? (
+                  <span className="admin-header-badge">{pendingApprovalCount}</span>
+                ) : null}
+              </button>
+            ) : null}
             <img src="/admin/brand/logo-mark.png" alt="Premium House" style={{ width: 38, height: 38, objectFit: 'contain' }} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <div

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AdminMetricCard from '../components/AdminMetricCard';
 import AdminShell from '../components/AdminShell';
@@ -11,6 +12,7 @@ import { formatDate, formatMoney } from '../lib/format';
 import type { AdminDashboard } from '../lib/types';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAdminAuth();
   const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,8 +122,20 @@ export default function DashboardPage() {
                   </thead>
                   <tbody>
                     {dashboard.recent_bookings.map((booking) => (
-                      <tr key={booking.id}>
-                        <td><Link href={`/bookings/${booking.id}`} style={{ color: 'var(--color-text)', textDecoration: 'none', fontWeight: 700 }}>#{booking.booking_code}</Link></td>
+                      <tr
+                        key={booking.id}
+                        className="admin-row-link"
+                        role="link"
+                        tabIndex={0}
+                        onClick={() => router.push(`/bookings/${booking.id}`)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            router.push(`/bookings/${booking.id}`);
+                          }
+                        }}
+                      >
+                        <td style={{ fontWeight: 700 }}>#{booking.booking_code}</td>
                         <td>{booking.customer_name}</td>
                         <td>{booking.property_title}</td>
                         <td><AdminStatusPill value={booking.status} /></td>

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import AdminShell from '../../components/AdminShell';
 import AdminStatusPill from '../../components/AdminStatusPill';
@@ -33,6 +33,7 @@ function remainingTime(expiresAt?: string | null, now = Date.now()) {
 }
 
 export default function BookingsPage() {
+  const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAdminAuth();
   const [items, setItems] = useState<AdminBookingRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,12 +104,23 @@ export default function BookingsPage() {
                 <th>Payment</th>
                 <th>Summa</th>
                 <th>Timer</th>
-                <th>Amal</th>
               </tr>
             </thead>
             <tbody>
               {items.map((booking) => (
-                <tr key={booking.id}>
+                <tr
+                  key={booking.id}
+                  className="admin-row-link"
+                  role="link"
+                  tabIndex={0}
+                  onClick={() => router.push(`/bookings/${booking.id}`)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      router.push(`/bookings/${booking.id}`);
+                    }
+                  }}
+                >
                   <td>
                     <div style={{ fontWeight: 800 }}>#{booking.booking_code}</div>
                     <div style={{ color: 'var(--color-muted)', fontSize: 12 }}>{booking.total_nights} kecha • {booking.guests_total} mehmon</div>
@@ -129,9 +141,6 @@ export default function BookingsPage() {
                         <div style={{ color: 'var(--color-muted)', fontSize: 12 }}>{formatDateTime(booking.expires_at)}</div>
                       </div>
                     ) : booking.confirmed_at ? formatDateTime(booking.confirmed_at) : '-'}
-                  </td>
-                  <td>
-                    <Link href={`/bookings/${booking.id}`} className="admin-button secondary" style={{ textDecoration: 'none' }}>Batafsil</Link>
                   </td>
                 </tr>
               ))}

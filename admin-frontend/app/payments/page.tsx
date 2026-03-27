@@ -105,7 +105,14 @@ export default function PaymentsPage() {
                       <AdminStatusPill value={payment.provider} />
                       <div style={{ marginTop: 8, color: 'var(--color-muted)', fontSize: 12 }}>{payment.provider_payment_id || 'Provider ID yo\'q'}</div>
                     </td>
-                    <td>#{payment.booking_code}</td>
+                    <td>
+                      <Link
+                        href={`/bookings/${payment.booking_id}`}
+                        style={{ color: 'var(--color-text)', textDecoration: 'none', fontWeight: 800 }}
+                      >
+                        #{payment.booking_code}
+                      </Link>
+                    </td>
                     <td>{payment.customer_name}</td>
                     <td>{payment.property_title}</td>
                     <td><AdminStatusPill value={payment.status} /></td>
