@@ -18,6 +18,15 @@ const adminContact = {
     link: 'https://t.me/premiumhouse_admin',
 };
 
+function openExternalLink(url: string) {
+    const tg = getTelegramWebApp();
+    if (tg?.openLink) {
+        tg.openLink(url);
+        return;
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
+}
+
 function getRemainingMs(expiresAt: string | undefined | null, nowMs: number): number {
     if (!expiresAt) return 0;
     return Math.max(new Date(expiresAt).getTime() - nowMs, 0);
@@ -282,6 +291,8 @@ export default function BookingDetailPage() {
     const countdown = remainingMs > 0 ? formatCountdown(remainingMs) : '00:00';
     const countdownText = remainingMs > 0 ? formatCountdownText(remainingMs, t) : t('bookings.expiredWindow');
     const selectedMethod = manualMethods.find((item) => item.id === selectedMethodId) || null;
+    const googleMapsUrl = property ? `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}` : '';
+    const yandexMapsUrl = property ? `https://yandex.com/maps/?ll=${property.longitude}%2C${property.latitude}&z=16&pt=${property.longitude},${property.latitude},pm2dgl` : '';
 
     return (
         <div style={{ minHeight: '100vh', padding: 'calc(16px + var(--tg-safe-top, 60px)) 16px 36px' }}>
@@ -377,6 +388,106 @@ export default function BookingDetailPage() {
                     {t('bookings.totalHint', { count: formatUnitCount(language, 'night', booking.total_nights) })}
                 </div>
             </div>
+
+            {property ? (
+                <div
+                    style={{
+                        marginBottom: 16,
+                        padding: 18,
+                        borderRadius: 20,
+                        background: 'linear-gradient(180deg, rgba(20,16,12,0.96) 0%, rgba(13,10,7,0.98) 100%)',
+                        border: '1px solid rgba(242,217,162,0.12)',
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+                        <div
+                            style={{
+                                width: 54,
+                                height: 54,
+                                borderRadius: 16,
+                                background: 'rgba(255,247,232,0.04)',
+                                border: '1px solid rgba(242,217,162,0.12)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                            }}
+                        >
+                            <img src="/brand/icon-location-gold.svg" alt="Location" style={{ width: 26, height: 26 }} />
+                        </div>
+                        <div>
+                            <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-brand-light)', marginBottom: 4 }}>
+                                {t('property.location')}
+                            </div>
+                            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 800, lineHeight: 1.05 }}>
+                                {t('property.whereLocated')}
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div
+                        style={{
+                            padding: '14px 16px',
+                            borderRadius: 18,
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(210,174,104,0.12) 100%)',
+                            border: '1px solid rgba(242,217,162,0.12)',
+                            marginBottom: 14,
+                        }}
+                    >
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff7e8', marginBottom: 6 }}>
+                            {property.address}
+                        </div>
+                        <div style={{ fontSize: 13, color: 'var(--color-muted)', lineHeight: 1.7 }}>
+                            {property.city}, {property.region}
+                            <br />
+                            {t('property.coordinates')}: {property.latitude.toFixed(5)}, {property.longitude.toFixed(5)}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                haptic('light');
+                                openExternalLink(googleMapsUrl);
+                            }}
+                            style={{
+                                padding: '13px 12px',
+                                borderRadius: 14,
+                                border: '1px solid rgba(242,217,162,0.14)',
+                                background: 'rgba(255,247,232,0.04)',
+                                color: 'var(--color-text)',
+                                fontSize: 13,
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                fontFamily: 'var(--font-body)',
+                            }}
+                        >
+                            {t('property.googleMaps')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                haptic('light');
+                                openExternalLink(yandexMapsUrl);
+                            }}
+                            style={{
+                                padding: '13px 12px',
+                                borderRadius: 14,
+                                border: 'none',
+                                background: 'var(--gradient-brand)',
+                                color: 'var(--color-ink-soft)',
+                                fontSize: 13,
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                fontFamily: 'var(--font-body)',
+                            }}
+                        >
+                            {t('property.yandexMap')}
+                        </button>
+                    </div>
+                </div>
+            ) : null}
 
             {['pending_payment', 'awaiting_confirmation'].includes(booking.status) && (
                 <div
