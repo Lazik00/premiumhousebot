@@ -38,6 +38,7 @@ export default function AdminShell({
   const [pendingApprovalCount, setPendingApprovalCount] = useState(0);
   const knownAlertIdsRef = useRef<Set<string>>(new Set());
   const pollInFlightRef = useRef(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   const persistKnownAlertIds = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -45,17 +46,47 @@ export default function AdminShell({
     window.localStorage.setItem(ALERTS_KNOWN_IDS_KEY, JSON.stringify(ids));
   }, []);
 
-  const speakNewBooking = useCallback(() => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+  const playNewBookingChime = useCallback(() => {
+    if (typeof window === 'undefined') return;
     try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance('Yangi buyurtma');
-      utterance.lang = 'uz-UZ';
-      utterance.rate = 1;
-      utterance.pitch = 1;
-      window.speechSynthesis.speak(utterance);
+      const AudioContextCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextCtor) return;
+
+      const context = audioContextRef.current ?? new AudioContextCtor();
+      audioContextRef.current = context;
+      if (context.state === 'suspended') {
+        void context.resume();
+      }
+
+      const masterGain = context.createGain();
+      masterGain.connect(context.destination);
+      masterGain.gain.value = 0.045;
+
+      const tones: Array<{ freq: number; duration: number; delay: number }> = [
+        { freq: 880, duration: 0.09, delay: 0 },
+        { freq: 1174, duration: 0.12, delay: 0.12 },
+      ];
+
+      const now = context.currentTime;
+      tones.forEach((tone) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = tone.freq;
+        oscillator.connect(gain);
+        gain.connect(masterGain);
+
+        const startAt = now + tone.delay;
+        const endAt = startAt + tone.duration;
+        gain.gain.setValueAtTime(0.0001, startAt);
+        gain.gain.exponentialRampToValueAtTime(1, startAt + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, endAt);
+
+        oscillator.start(startAt);
+        oscillator.stop(endAt + 0.02);
+      });
     } catch {
-      // Ignore speech synthesis failures. Notification remains visible.
+      // Ignore audio failures. Notification remains visible.
     }
   }, []);
 
@@ -90,7 +121,10 @@ export default function AdminShell({
     const enabled = permission === 'granted';
     setAlertsEnabled(enabled);
     window.localStorage.setItem(ALERTS_ENABLED_KEY, enabled ? '1' : '0');
-  }, []);
+    if (enabled) {
+      playNewBookingChime();
+    }
+  }, [playNewBookingChime]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -159,7 +193,7 @@ export default function AdminShell({
               `${booking.customer_name} • ${booking.property_title} • ${formatMoney(booking.total_price, booking.currency)}`,
             );
           }
-          speakNewBooking();
+          playNewBookingChime();
         }
       } catch {
         // Silent polling failure. Admin pages remain usable.
@@ -177,7 +211,7 @@ export default function AdminShell({
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [alertsEnabled, isAuthenticated, isLoading, notificationPermission, persistKnownAlertIds, pushBookingNotification, speakNewBooking]);
+  }, [alertsEnabled, isAuthenticated, isLoading, notificationPermission, persistKnownAlertIds, playNewBookingChime, pushBookingNotification]);
 
   const notificationLabel = useMemo(() => {
     if (notificationPermission === 'unsupported') return 'Brauzer qo‘llamaydi';
