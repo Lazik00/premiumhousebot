@@ -17,6 +17,7 @@ from app.schemas.property import (
     PropertyListResponse,
     PropertySummaryResponse,
 )
+from app.schemas.review import PropertyReviewResponse
 from app.services.property_service import PropertyService
 
 router = APIRouter(prefix='/properties', tags=['properties'])
@@ -112,6 +113,7 @@ async def get_property(property_id: str, db: AsyncSession = Depends(get_db)) -> 
     images = await property_service.get_property_images(db=db, property_id=property_uuid)
     amenities = await property_service.get_property_amenities(db=db, property_id=property_uuid)
     host = await property_service.get_host(db=db, host_id=property_obj.host_id)
+    reviews = await property_service.get_property_reviews(db=db, property_id=property_uuid)
 
     return PropertyDetailResponse(
         **summary.model_dump(),
@@ -152,6 +154,21 @@ async def get_property(property_id: str, db: AsyncSession = Depends(get_db)) -> 
             last_name=host.last_name,
             photo_url=host.photo_url,
         ) if host else None,
+        reviews=[
+            PropertyReviewResponse(
+                id=str(review.id),
+                booking_id=str(review.booking_id),
+                rating=int(review.rating),
+                comment=review.comment,
+                host_reply=review.host_reply,
+                author_name=' '.join(
+                    part for part in [user.first_name, (user.last_name or '')[:1] + '.' if user.last_name else '']
+                    if part
+                ) or (user.username or 'Premium House guest'),
+                created_at=review.created_at,
+            )
+            for review, user in reviews
+        ],
     )
 
 

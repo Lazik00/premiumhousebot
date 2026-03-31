@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     media_router,
     payment_router,
     property_router,
+    telegram_router,
 )
 
 router = APIRouter()
@@ -20,3 +21,4 @@ router.include_router(admin_router)
 router.include_router(property_router)
 router.include_router(booking_router)
 router.include_router(payment_router)
+router.include_router(telegram_router)

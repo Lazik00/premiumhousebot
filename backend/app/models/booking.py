@@ -51,6 +51,7 @@ class Booking(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    review_prompt_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     cancel_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 

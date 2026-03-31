@@ -7,6 +7,83 @@ import httpx
 class TelegramNotificationService:
     def __init__(self, bot_token: str | None) -> None:
         self.bot_token = (bot_token or '').strip()
+        self._cached_me: dict | None = None
+
+    async def send_message(
+        self,
+        *,
+        chat_id: int,
+        text: str,
+        parse_mode: str = 'HTML',
+        reply_markup: dict | None = None,
+        disable_web_page_preview: bool = True,
+    ) -> dict | None:
+        if not self.bot_token or not chat_id:
+            return None
+
+        payload: dict = {
+            'chat_id': chat_id,
+            'text': text,
+            'parse_mode': parse_mode,
+            'disable_web_page_preview': disable_web_page_preview,
+        }
+        if reply_markup is not None:
+            payload['reply_markup'] = reply_markup
+        return await self._post('sendMessage', payload)
+
+    async def answer_callback_query(
+        self,
+        *,
+        callback_query_id: str,
+        text: str | None = None,
+        show_alert: bool = False,
+    ) -> dict | None:
+        if not self.bot_token:
+            return None
+        payload = {'callback_query_id': callback_query_id, 'show_alert': show_alert}
+        if text:
+            payload['text'] = text
+        return await self._post('answerCallbackQuery', payload)
+
+    async def edit_message_reply_markup(
+        self,
+        *,
+        chat_id: int,
+        message_id: int,
+        reply_markup: dict | None = None,
+    ) -> dict | None:
+        if not self.bot_token:
+            return None
+        payload: dict = {'chat_id': chat_id, 'message_id': message_id}
+        if reply_markup is not None:
+            payload['reply_markup'] = reply_markup
+        return await self._post('editMessageReplyMarkup', payload)
+
+    async def set_webhook(self, *, url: str, secret_token: str | None = None) -> bool:
+        if not self.bot_token or not url:
+            return False
+        payload: dict = {
+            'url': url,
+            'allowed_updates': ['message', 'callback_query'],
+            'drop_pending_updates': False,
+        }
+        if secret_token:
+            payload['secret_token'] = secret_token
+        response = await self._post('setWebhook', payload)
+        return bool(response and response.get('ok'))
+
+    async def get_bot_username(self) -> str | None:
+        me = await self.get_me()
+        username = (me or {}).get('username')
+        return username if isinstance(username, str) and username else None
+
+    async def get_me(self) -> dict | None:
+        if self._cached_me is not None:
+            return self._cached_me
+        if not self.bot_token:
+            return None
+        self._cached_me = await self._post('getMe', {})
+        return self._cached_me
 
     async def send_booking_confirmed(
         self,
@@ -39,18 +116,22 @@ class TelegramNotificationService:
             'Premium House tomonidan buyurtmangiz tasdiqlandi. Manzil va bron tafsilotlari ilova ichida saqlanadi.'
         )
 
+        await self.send_message(chat_id=telegram_id, text=text)
+        return True
+
+    async def _post(self, method: str, payload: dict) -> dict | None:
+        if not self.bot_token:
+            return None
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.post(
-                f'https://api.telegram.org/bot{self.bot_token}/sendMessage',
-                json={
-                    'chat_id': telegram_id,
-                    'text': text,
-                    'parse_mode': 'HTML',
-                    'disable_web_page_preview': True,
-                },
+                f'https://api.telegram.org/bot{self.bot_token}/{method}',
+                json=payload,
             )
             response.raise_for_status()
-        return True
+            data = response.json()
+        if not data.get('ok', False):
+            raise RuntimeError(f'Telegram API {method} failed')
+        return data.get('result')
 
     @staticmethod
     def _format_amount(amount: float, currency: str) -> str:

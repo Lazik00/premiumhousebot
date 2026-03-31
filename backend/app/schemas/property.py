@@ -2,6 +2,8 @@ from datetime import date, datetime
 
 from pydantic import BaseModel
 
+from app.schemas.review import PropertyReviewResponse
+
 
 class PropertyImageResponse(BaseModel):
     id: str
@@ -59,6 +61,7 @@ class PropertyDetailResponse(PropertySummaryResponse):
     images: list[PropertyImageResponse] = []
     amenities: list[AmenityResponse] = []
     host: HostBriefResponse | None = None
+    reviews: list[PropertyReviewResponse] = []
 
 
 class PropertyListResponse(BaseModel):

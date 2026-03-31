@@ -27,6 +27,15 @@ function formatArea(value: number | null | undefined) {
     return Number.isInteger(value) ? `${value} m²` : `${value.toFixed(1)} m²`;
 }
 
+function formatReviewDate(value: string, language: 'uz' | 'ru' | 'en') {
+    const locale = language === 'ru' ? 'ru-RU' : language === 'en' ? 'en-US' : 'uz-UZ';
+    return new Intl.DateTimeFormat(locale, {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    }).format(new Date(value));
+}
+
 export default function PropertyDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -493,6 +502,119 @@ export default function PropertyDetailPage() {
                         </div>
                     </div>
                 )}
+
+                <div style={{ marginBottom: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                        <h2
+                            style={{
+                                fontFamily: 'var(--font-display)',
+                                fontSize: 18,
+                                fontWeight: 700,
+                            }}
+                        >
+                            {t('property.reviews')}
+                        </h2>
+                        {property.review_count > 0 ? (
+                            <div
+                                style={{
+                                    padding: '6px 10px',
+                                    borderRadius: 999,
+                                    background: 'rgba(255,247,232,0.04)',
+                                    border: '1px solid var(--color-line)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6,
+                                    fontSize: 12,
+                                    color: 'var(--color-muted)',
+                                }}
+                            >
+                                <span style={{ color: 'var(--color-gold)' }}>★</span>
+                                <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{property.average_rating.toFixed(1)}</span>
+                                <span>({property.review_count})</span>
+                            </div>
+                        ) : null}
+                    </div>
+
+                    {property.reviews.length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            {property.reviews.map((review) => (
+                                <div
+                                    key={review.id}
+                                    style={{
+                                        padding: '16px 16px 14px',
+                                        borderRadius: 18,
+                                        background: 'var(--color-surface)',
+                                        border: '1px solid var(--color-line)',
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 8 }}>
+                                        <div>
+                                            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text)', marginBottom: 4 }}>
+                                                {review.author_name}
+                                            </div>
+                                            <div style={{ fontSize: 11, color: 'var(--color-muted)' }}>
+                                                {formatReviewDate(review.created_at, language)}
+                                            </div>
+                                        </div>
+                                        <div
+                                            style={{
+                                                padding: '6px 10px',
+                                                borderRadius: 999,
+                                                background: 'rgba(210,174,104,0.12)',
+                                                border: '1px solid rgba(242,217,162,0.18)',
+                                                color: 'var(--color-brand-light)',
+                                                fontSize: 12,
+                                                fontWeight: 800,
+                                                letterSpacing: '0.04em',
+                                            }}
+                                        >
+                                            {'★'.repeat(review.rating)}
+                                        </div>
+                                    </div>
+
+                                    {review.comment?.trim() ? (
+                                        <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--color-muted)' }}>
+                                            {review.comment}
+                                        </p>
+                                    ) : null}
+
+                                    {review.host_reply?.trim() ? (
+                                        <div
+                                            style={{
+                                                marginTop: 10,
+                                                padding: '12px 13px',
+                                                borderRadius: 14,
+                                                background: 'rgba(255,247,232,0.03)',
+                                                border: '1px solid rgba(242,217,162,0.12)',
+                                            }}
+                                        >
+                                            <div style={{ fontSize: 11, color: 'var(--color-brand-light)', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>
+                                                {t('property.hostReply')}
+                                            </div>
+                                            <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--color-muted)' }}>
+                                                {review.host_reply}
+                                            </p>
+                                        </div>
+                                    ) : null}
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div
+                            style={{
+                                padding: '16px 18px',
+                                borderRadius: 18,
+                                background: 'var(--color-surface)',
+                                border: '1px solid var(--color-line)',
+                                fontSize: 14,
+                                lineHeight: 1.7,
+                                color: 'var(--color-muted)',
+                            }}
+                        >
+                            {t('property.noReviews')}
+                        </div>
+                    )}
+                </div>
 
                 {/* House rules */}
                 {property.house_rules && (

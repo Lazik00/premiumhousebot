@@ -10,6 +10,7 @@ from app.core.media import normalize_media_url
 from app.models.booking import Booking
 from app.models.enums import BookingStatus, PropertyStatus
 from app.models.property import Amenity, City, Property, PropertyAmenity, PropertyDateBlock, PropertyImage, Region
+from app.models.review import Review
 from app.models.user import User
 
 
@@ -171,6 +172,21 @@ class PropertyService:
         query = select(User).where(User.id == host_id, User.deleted_at.is_(None))
         result = await db.execute(query)
         return result.scalar_one_or_none()
+
+    async def get_property_reviews(self, db: AsyncSession, property_id: uuid.UUID, limit: int = 12) -> list[tuple[Review, User]]:
+        query = (
+            select(Review, User)
+            .join(User, User.id == Review.user_id)
+            .where(
+                Review.property_id == property_id,
+                Review.deleted_at.is_(None),
+                User.deleted_at.is_(None),
+            )
+            .order_by(Review.created_at.desc())
+            .limit(limit)
+        )
+        result = await db.execute(query)
+        return list(result.all())
 
     async def get_property_detail(self, db: AsyncSession, property_id: uuid.UUID) -> tuple[Property, City, Region] | None:
         query = (

@@ -21,6 +21,10 @@ class Settings(BaseSettings):
 
     telegram_bot_token: str = ''
     telegram_auth_max_age_seconds: int = 300
+    telegram_webhook_url: str | None = None
+    telegram_webhook_secret: str | None = None
+    telegram_mini_app_url: str | None = None
+    telegram_support_url: str | None = None
     admin_bootstrap_email: str | None = None
     admin_bootstrap_password: str | None = None
     admin_bootstrap_first_name: str = 'Premium'
@@ -95,6 +99,26 @@ class Settings(BaseSettings):
     @property
     def octo_payment_method_list(self) -> list[str]:
         return [method.strip() for method in self.octo_payment_methods.split(',') if method.strip()]
+
+    @property
+    def public_base_url(self) -> str | None:
+        if not self.payment_public_base_url:
+            return None
+        return self.payment_public_base_url.rstrip('/')
+
+    @property
+    def resolved_telegram_mini_app_url(self) -> str | None:
+        if self.telegram_mini_app_url:
+            return self.telegram_mini_app_url.rstrip('/')
+        return self.public_base_url
+
+    @property
+    def resolved_telegram_webhook_url(self) -> str | None:
+        if self.telegram_webhook_url:
+            return self.telegram_webhook_url.rstrip('/')
+        if not self.public_base_url:
+            return None
+        return f'{self.public_base_url}{self.api_prefix}/telegram/webhook'
 
 
 settings = Settings()

@@ -39,6 +39,16 @@ export interface HostBrief {
     photo_url?: string;
 }
 
+export interface PropertyReview {
+    id: string;
+    booking_id: string;
+    rating: number;
+    comment?: string | null;
+    host_reply?: string | null;
+    author_name: string;
+    created_at: string;
+}
+
 export interface PropertySummary {
     id: string;
     title: string;
@@ -72,6 +82,7 @@ export interface PropertyDetail extends PropertySummary {
     images: PropertyImage[];
     amenities: Amenity[];
     host?: HostBrief;
+    reviews: PropertyReview[];
 }
 
 export interface PropertyListResponse {
