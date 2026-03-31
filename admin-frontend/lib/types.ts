@@ -210,6 +210,11 @@ export interface AdminPropertyDetail {
   capacity: number;
   rooms: number;
   bathrooms: number;
+  total_area_sqm?: number | null;
+  floor?: number | null;
+  total_floors?: number | null;
+  bedrooms?: number | null;
+  beds?: number | null;
   price_per_night: number;
   currency: string;
   cancellation_policy?: string | null;
@@ -261,6 +266,11 @@ export interface AdminPropertyPayload {
   capacity: number;
   rooms: number;
   bathrooms: number;
+  total_area_sqm?: number | null;
+  floor?: number | null;
+  total_floors?: number | null;
+  bedrooms?: number | null;
+  beds?: number | null;
   price_per_night: number;
   currency: string;
   cancellation_policy?: string | null;

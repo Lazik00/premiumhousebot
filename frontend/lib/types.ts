@@ -62,6 +62,11 @@ export interface PropertySummary {
 }
 
 export interface PropertyDetail extends PropertySummary {
+    total_area_sqm?: number | null;
+    floor?: number | null;
+    total_floors?: number | null;
+    bedrooms?: number | null;
+    beds?: number | null;
     cancellation_policy?: string;
     house_rules?: string;
     images: PropertyImage[];

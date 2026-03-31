@@ -59,6 +59,11 @@ class Property(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     capacity: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     rooms: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     bathrooms: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    total_area_sqm: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
+    floor: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    total_floors: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    bedrooms: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    beds: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
 
     price_per_night: Mapped[float] = mapped_column(Numeric(14, 2), nullable=False)
     currency: Mapped[str] = mapped_column(String(3), nullable=False, default='UZS')

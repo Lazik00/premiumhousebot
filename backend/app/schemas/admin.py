@@ -146,6 +146,11 @@ class AdminPropertyDetailResponse(BaseModel):
     capacity: int
     rooms: int
     bathrooms: int
+    total_area_sqm: float | None = None
+    floor: int | None = None
+    total_floors: int | None = None
+    bedrooms: int | None = None
+    beds: int | None = None
     price_per_night: float
     currency: str
     cancellation_policy: str | None
@@ -172,6 +177,11 @@ class AdminPropertyCreateRequest(BaseModel):
     capacity: int = Field(ge=1, le=50)
     rooms: int = Field(ge=1, le=50)
     bathrooms: int = Field(ge=1, le=50)
+    total_area_sqm: float | None = Field(default=None, ge=0)
+    floor: int | None = Field(default=None, ge=0, le=200)
+    total_floors: int | None = Field(default=None, ge=1, le=200)
+    bedrooms: int | None = Field(default=None, ge=0, le=50)
+    beds: int | None = Field(default=None, ge=0, le=100)
     price_per_night: float = Field(gt=0)
     currency: str = Field(default='UZS', min_length=3, max_length=3)
     cancellation_policy: str | None = Field(default=None, max_length=2000)

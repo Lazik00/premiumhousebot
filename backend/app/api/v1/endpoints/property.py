@@ -4,6 +4,8 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
+from app.core.media import normalize_media_url
 from app.db.session import get_db
 from app.schemas.property import (
     AmenityResponse,
@@ -113,12 +115,21 @@ async def get_property(property_id: str, db: AsyncSession = Depends(get_db)) -> 
 
     return PropertyDetailResponse(
         **summary.model_dump(),
+        total_area_sqm=float(property_obj.total_area_sqm) if property_obj.total_area_sqm is not None else None,
+        floor=int(property_obj.floor) if property_obj.floor is not None else None,
+        total_floors=int(property_obj.total_floors) if property_obj.total_floors is not None else None,
+        bedrooms=int(property_obj.bedrooms) if property_obj.bedrooms is not None else None,
+        beds=int(property_obj.beds) if property_obj.beds is not None else None,
         cancellation_policy=property_obj.cancellation_policy,
         house_rules=property_obj.house_rules,
         images=[
             PropertyImageResponse(
                 id=str(img.id),
-                image_url=img.image_url,
+                image_url=normalize_media_url(
+                    img.image_url,
+                    object_key=img.object_key,
+                    configured_base_url=settings.payment_public_base_url,
+                ),
                 is_cover=img.is_cover,
                 sort_order=img.sort_order,
             )

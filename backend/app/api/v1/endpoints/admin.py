@@ -216,6 +216,7 @@ async def upload_property_image(
             content_type=file.content_type,
             data=data,
             request_base_url=_request_base_url(request),
+            public_base_url=settings.payment_public_base_url,
         )
     except RuntimeError as exc:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc

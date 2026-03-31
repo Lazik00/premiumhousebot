@@ -5,6 +5,8 @@ from datetime import date, datetime
 from sqlalchemy import and_, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
+from app.core.media import normalize_media_url
 from app.models.booking import Booking
 from app.models.enums import BookingStatus, PropertyStatus
 from app.models.property import Amenity, City, Property, PropertyAmenity, PropertyDateBlock, PropertyImage, Region
@@ -105,7 +107,7 @@ class PropertyService:
 
     async def get_cover_image(self, db: AsyncSession, property_id: uuid.UUID) -> str | None:
         query = (
-            select(PropertyImage.image_url)
+            select(PropertyImage)
             .where(
                 PropertyImage.property_id == property_id,
                 PropertyImage.deleted_at.is_(None),
@@ -116,9 +118,13 @@ class PropertyService:
         result = await db.execute(query)
         row = result.scalar_one_or_none()
         if row:
-            return row
+            return normalize_media_url(
+                row.image_url,
+                object_key=row.object_key,
+                configured_base_url=settings.payment_public_base_url,
+            )
         fallback = (
-            select(PropertyImage.image_url)
+            select(PropertyImage)
             .where(
                 PropertyImage.property_id == property_id,
                 PropertyImage.deleted_at.is_(None),
@@ -126,7 +132,14 @@ class PropertyService:
             .order_by(PropertyImage.sort_order.asc())
             .limit(1)
         )
-        return (await db.execute(fallback)).scalar_one_or_none()
+        fallback_image = (await db.execute(fallback)).scalar_one_or_none()
+        if fallback_image is None:
+            return None
+        return normalize_media_url(
+            fallback_image.image_url,
+            object_key=fallback_image.object_key,
+            configured_base_url=settings.payment_public_base_url,
+        )
 
     async def get_property_images(self, db: AsyncSession, property_id: uuid.UUID) -> list[PropertyImage]:
         query = (

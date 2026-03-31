@@ -10,6 +10,8 @@ from botocore.exceptions import BotoCoreError
 from botocore.exceptions import ClientError
 from botocore.exceptions import EndpointConnectionError
 
+from app.core.media import build_media_url
+
 
 @dataclass(slots=True)
 class StoredObject:
@@ -48,6 +50,7 @@ class StorageService:
         content_type: str | None,
         data: bytes,
         request_base_url: str,
+        public_base_url: str | None = None,
     ) -> StoredObject:
         if not self.endpoint or not self.access_key or not self.secret_key:
             raise RuntimeError('S3 storage is not configured')
@@ -59,7 +62,11 @@ class StorageService:
             await asyncio.to_thread(self._upload_sync, object_key, data, resolved_content_type)
         except (BotoCoreError, OSError) as exc:
             raise RuntimeError('S3 storage is unavailable') from exc
-        image_url = f"{request_base_url.rstrip('/')}/api/v1/media/{object_key}"
+        image_url = build_media_url(
+            object_key,
+            request_base_url=request_base_url,
+            configured_base_url=public_base_url,
+        )
         return StoredObject(
             object_key=object_key,
             image_url=image_url,

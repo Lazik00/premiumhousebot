@@ -19,6 +19,11 @@ const defaultPayload: AdminPropertyPayload = {
   capacity: 2,
   rooms: 1,
   bathrooms: 1,
+  total_area_sqm: null,
+  floor: null,
+  total_floors: null,
+  bedrooms: null,
+  beds: null,
   price_per_night: 500000,
   currency: 'UZS',
   cancellation_policy: '',
@@ -42,6 +47,11 @@ function detailToPayload(detail: AdminPropertyDetail): AdminPropertyPayload {
     capacity: detail.capacity,
     rooms: detail.rooms,
     bathrooms: detail.bathrooms,
+    total_area_sqm: detail.total_area_sqm ?? null,
+    floor: detail.floor ?? null,
+    total_floors: detail.total_floors ?? null,
+    bedrooms: detail.bedrooms ?? null,
+    beds: detail.beds ?? null,
     price_per_night: detail.price_per_night,
     currency: detail.currency,
     cancellation_policy: detail.cancellation_policy || '',
@@ -78,6 +88,19 @@ function normalizeImages(images: AdminPropertyImageInput[]) {
   }
 
   return filtered;
+}
+
+function parseOptionalNumber(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseOptionalInteger(value: string) {
+  const parsed = parseOptionalNumber(value);
+  if (parsed === null) return null;
+  return Math.trunc(parsed);
 }
 
 export default function AdminPropertyForm({
@@ -385,6 +408,26 @@ export default function AdminPropertyForm({
             <input type="number" min={1} max={50} value={form.bathrooms} onChange={(event) => updateField('bathrooms', Number(event.target.value) || 1)} required />
           </label>
           <label className="admin-field">
+            <span>Umumiy maydon (m²)</span>
+            <input type="number" min={0} step="0.01" value={form.total_area_sqm ?? ''} onChange={(event) => updateField('total_area_sqm', parseOptionalNumber(event.target.value))} placeholder="Masalan: 130" />
+          </label>
+          <label className="admin-field">
+            <span>Qavat</span>
+            <input type="number" min={0} max={200} value={form.floor ?? ''} onChange={(event) => updateField('floor', parseOptionalInteger(event.target.value))} placeholder="Masalan: 6" />
+          </label>
+          <label className="admin-field">
+            <span>Qavatlar soni</span>
+            <input type="number" min={1} max={200} value={form.total_floors ?? ''} onChange={(event) => updateField('total_floors', parseOptionalInteger(event.target.value))} placeholder="Masalan: 7" />
+          </label>
+          <label className="admin-field">
+            <span>Spalni</span>
+            <input type="number" min={0} max={50} value={form.bedrooms ?? ''} onChange={(event) => updateField('bedrooms', parseOptionalInteger(event.target.value))} placeholder="Masalan: 2" />
+          </label>
+          <label className="admin-field">
+            <span>Karavotlar</span>
+            <input type="number" min={0} max={100} value={form.beds ?? ''} onChange={(event) => updateField('beds', parseOptionalInteger(event.target.value))} placeholder="Masalan: 2" />
+          </label>
+          <label className="admin-field">
             <span>Bir kecha narxi</span>
             <input type="number" min={1} step="0.01" value={form.price_per_night} onChange={(event) => updateField('price_per_night', Number(event.target.value) || 0)} required />
           </label>
@@ -446,6 +489,10 @@ export default function AdminPropertyForm({
             <div className="admin-kv"><span>Hudud</span><strong>{selectedRegion?.name || 'Viloyat'} / {selectedCity?.name || 'Shahar'}</strong></div>
             <div className="admin-kv"><span>Sig'im</span><strong>{form.capacity} mehmon</strong></div>
             <div className="admin-kv"><span>Koordinata</span><strong>{form.latitude}, {form.longitude}</strong></div>
+            <div className="admin-kv"><span>Maydon</span><strong>{form.total_area_sqm ? `${form.total_area_sqm} m²` : 'Kiritilmagan'}</strong></div>
+            <div className="admin-kv"><span>Qavat</span><strong>{form.floor ?? 'Kiritilmagan'}{form.total_floors ? ` / ${form.total_floors}` : ''}</strong></div>
+            <div className="admin-kv"><span>Spalni</span><strong>{form.bedrooms ?? 'Kiritilmagan'}</strong></div>
+            <div className="admin-kv"><span>Karavot</span><strong>{form.beds ?? 'Kiritilmagan'}</strong></div>
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 16 }}>
             <a className="admin-button secondary" href={`https://maps.google.com/?q=${form.latitude},${form.longitude}`} target="_blank" rel="noreferrer">Google Maps</a>

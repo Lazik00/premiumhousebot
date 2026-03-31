@@ -49,6 +49,11 @@ class PropertySummaryResponse(BaseModel):
 
 
 class PropertyDetailResponse(PropertySummaryResponse):
+    total_area_sqm: float | None = None
+    floor: int | None = None
+    total_floors: int | None = None
+    bedrooms: int | None = None
+    beds: int | None = None
     cancellation_policy: str | None
     house_rules: str | None
     images: list[PropertyImageResponse] = []

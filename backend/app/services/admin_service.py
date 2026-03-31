@@ -4,6 +4,8 @@ from datetime import UTC, date, datetime, timedelta
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
+from app.core.media import normalize_media_url
 from app.models.balance import BalanceLedgerEntry, HostBalance
 from app.models.booking import Booking, BookingEvent
 from app.models.enums import (
@@ -387,6 +389,11 @@ class AdminService:
             capacity=int(property_obj.capacity),
             rooms=int(property_obj.rooms),
             bathrooms=int(property_obj.bathrooms),
+            total_area_sqm=float(property_obj.total_area_sqm) if property_obj.total_area_sqm is not None else None,
+            floor=int(property_obj.floor) if property_obj.floor is not None else None,
+            total_floors=int(property_obj.total_floors) if property_obj.total_floors is not None else None,
+            bedrooms=int(property_obj.bedrooms) if property_obj.bedrooms is not None else None,
+            beds=int(property_obj.beds) if property_obj.beds is not None else None,
             price_per_night=float(property_obj.price_per_night),
             currency=property_obj.currency,
             cancellation_policy=property_obj.cancellation_policy,
@@ -521,6 +528,7 @@ class AdminService:
         db: AsyncSession,
         payload: AdminPropertyCreateRequest,
     ) -> AdminPropertyDetailResponse:
+        self._validate_property_payload_constraints(payload)
         host, region, city, _amenities = await self._validate_property_references(
             db=db,
             host_id=uuid.UUID(payload.host_id),
@@ -541,6 +549,11 @@ class AdminService:
             capacity=payload.capacity,
             rooms=payload.rooms,
             bathrooms=payload.bathrooms,
+            total_area_sqm=payload.total_area_sqm,
+            floor=payload.floor,
+            total_floors=payload.total_floors,
+            bedrooms=payload.bedrooms,
+            beds=payload.beds,
             price_per_night=payload.price_per_night,
             currency=payload.currency.upper(),
             cleaning_fee=0,
@@ -561,6 +574,7 @@ class AdminService:
         property_id: uuid.UUID,
         payload: AdminPropertyCreateRequest,
     ) -> AdminPropertyDetailResponse:
+        self._validate_property_payload_constraints(payload)
         result = await db.execute(select(Property).where(Property.id == property_id, Property.deleted_at.is_(None)))
         property_obj = result.scalar_one_or_none()
         if property_obj is None:
@@ -585,6 +599,11 @@ class AdminService:
         property_obj.capacity = payload.capacity
         property_obj.rooms = payload.rooms
         property_obj.bathrooms = payload.bathrooms
+        property_obj.total_area_sqm = payload.total_area_sqm
+        property_obj.floor = payload.floor
+        property_obj.total_floors = payload.total_floors
+        property_obj.bedrooms = payload.bedrooms
+        property_obj.beds = payload.beds
         property_obj.price_per_night = payload.price_per_night
         property_obj.currency = payload.currency.upper()
         property_obj.cancellation_policy = payload.cancellation_policy.strip() if payload.cancellation_policy else None
@@ -1158,13 +1177,24 @@ class AdminService:
         return [
             AdminPropertyImageResponse(
                 id=str(image.id),
-                image_url=image.image_url,
+                image_url=normalize_media_url(
+                    image.image_url,
+                    object_key=image.object_key,
+                    configured_base_url=settings.payment_public_base_url,
+                ),
                 object_key=image.object_key,
                 is_cover=image.is_cover,
                 sort_order=image.sort_order,
             )
             for image in rows.scalars().all()
         ]
+
+    @staticmethod
+    def _validate_property_payload_constraints(payload: AdminPropertyCreateRequest) -> None:
+        if payload.floor is not None and payload.total_floors is not None and payload.floor > payload.total_floors:
+            raise ValueError('floor cannot exceed total_floors')
+        if payload.bedrooms is not None and payload.bedrooms > payload.rooms:
+            raise ValueError('bedrooms cannot exceed rooms')
 
     async def _load_property_amenities(self, db: AsyncSession, property_id: uuid.UUID) -> list[AdminAmenityOptionResponse]:
         rows = await db.execute(

@@ -29,6 +29,11 @@ function openExternalLink(url: string) {
     window.open(url, '_blank', 'noopener,noreferrer');
 }
 
+function formatArea(value: number | null | undefined) {
+    if (value === null || value === undefined) return null;
+    return Number.isInteger(value) ? `${value} m²` : `${value.toFixed(1)} m²`;
+}
+
 export default function PropertyDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -89,6 +94,15 @@ export default function PropertyDetailPage() {
 
     const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`;
     const yandexMapsUrl = `https://yandex.com/maps/?ll=${property.longitude}%2C${property.latitude}&z=16&pt=${property.longitude},${property.latitude},pm2dgl`;
+    const propertySpecs = [
+        { icon: '🚪', label: t('property.rooms'), value: formatUnitCount(language, 'room', property.rooms) },
+        { icon: '📐', label: t('property.totalArea'), value: formatArea(property.total_area_sqm) },
+        { icon: '🛗', label: t('property.floor'), value: property.floor !== null && property.floor !== undefined ? String(property.floor) : null },
+        { icon: '🏢', label: t('property.totalFloors'), value: property.total_floors !== null && property.total_floors !== undefined ? String(property.total_floors) : null },
+        { icon: '🛏️', label: t('property.bedrooms'), value: property.bedrooms !== null && property.bedrooms !== undefined ? formatUnitCount(language, 'bedroom', property.bedrooms) : null },
+        { icon: '🛌', label: t('property.beds'), value: property.beds !== null && property.beds !== undefined ? formatUnitCount(language, 'bed', property.beds) : null },
+        { icon: '🚿', label: t('property.bathrooms'), value: formatUnitCount(language, 'bathroom', property.bathrooms) },
+    ].filter((item) => item.value);
 
     return (
         <div style={{ minHeight: '100vh', paddingBottom: 100 }}>
@@ -261,6 +275,71 @@ export default function PropertyDetailPage() {
                         </div>
                     ))}
                 </div>
+
+                {propertySpecs.length > 0 ? (
+                    <div
+                        style={{
+                            marginBottom: 20,
+                            padding: '18px',
+                            borderRadius: 20,
+                            background: 'var(--color-surface)',
+                            border: '1px solid var(--color-line)',
+                        }}
+                    >
+                        <h2
+                            style={{
+                                fontFamily: 'var(--font-display)',
+                                fontSize: 18,
+                                fontWeight: 700,
+                                marginBottom: 12,
+                            }}
+                        >
+                            {t('property.details')}
+                        </h2>
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                                gap: 10,
+                            }}
+                        >
+                            {propertySpecs.map((item) => (
+                                <div
+                                    key={item.label}
+                                    style={{
+                                        padding: '14px 14px 12px',
+                                        borderRadius: 16,
+                                        background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+                                        border: '1px solid var(--color-line)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 10,
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: 14,
+                                            background: 'rgba(210, 174, 104, 0.14)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: 18,
+                                            flexShrink: 0,
+                                        }}
+                                    >
+                                        {item.icon}
+                                    </div>
+                                    <div style={{ minWidth: 0 }}>
+                                        <div style={{ fontSize: 11, color: 'var(--color-muted)', marginBottom: 2 }}>{item.label}</div>
+                                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text)' }}>{item.value}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ) : null}
 
                 <div
                     style={{
