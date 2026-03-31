@@ -276,7 +276,7 @@ function BookingContent() {
         void pollBooking();
         const interval = window.setInterval(() => {
             void pollBooking();
-        }, 2500);
+        }, 1200);
 
         return () => {
             cancelled = true;

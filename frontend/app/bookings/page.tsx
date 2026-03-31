@@ -102,7 +102,7 @@ export default function BookingsPage() {
 
         const interval = window.setInterval(() => {
             void fetchBookings(true);
-        }, 2500);
+        }, 1200);
 
         return () => window.clearInterval(interval);
     }, [bookings, fetchBookings]);

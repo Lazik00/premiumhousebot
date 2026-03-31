@@ -76,13 +76,14 @@ async function request<T>(
     const res = await fetch(`${API_BASE}${path}`, {
         ...options,
         headers,
+        cache: 'no-store',
     });
 
     if (res.status === 401 && requireAuth && refreshToken) {
         const refreshed = await tryRefresh();
         if (refreshed) {
             headers['Authorization'] = `Bearer ${accessToken}`;
-            const retryRes = await fetch(`${API_BASE}${path}`, { ...options, headers });
+            const retryRes = await fetch(`${API_BASE}${path}`, { ...options, headers, cache: 'no-store' });
             if (!retryRes.ok) {
                 throw new ApiError(retryRes.status, await retryRes.text());
             }

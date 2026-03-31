@@ -361,8 +361,10 @@ class ManualPaymentService:
         }
 
         previous_status = booking.status
-        next_status = BookingStatus.EXPIRED if booking.expires_at and booking.expires_at <= now else BookingStatus.PENDING_PAYMENT
+        next_status = BookingStatus.CANCELLED if not (booking.expires_at and booking.expires_at <= now) else BookingStatus.EXPIRED
         booking.status = next_status
+        booking.cancelled_at = now if next_status == BookingStatus.CANCELLED else booking.cancelled_at
+        booking.cancel_reason = reviewer_note.strip() if reviewer_note else 'Admin rejected manual payment'
         db.add(
             BookingEvent(
                 booking_id=booking.id,
@@ -372,6 +374,7 @@ class ManualPaymentService:
                 event_payload={
                     'payment_id': str(payment.id),
                     'review_note': reviewer_note.strip() if reviewer_note else None,
+                    'cancelled': next_status == BookingStatus.CANCELLED,
                 },
             )
         )

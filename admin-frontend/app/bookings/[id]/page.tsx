@@ -90,9 +90,13 @@ export default function BookingDetailPage() {
     setActionError(null);
     setActionSuccess(null);
     try {
-      await rejectBookingPayment(booking.id, reviewNote || undefined);
+      const result = await rejectBookingPayment(booking.id, reviewNote || undefined);
       await refreshBooking();
-      setActionSuccess('Manual payment rad etildi. Buyer qayta to\'lov yuborishi mumkin.');
+      setActionSuccess(
+        result.booking_status === 'cancelled'
+          ? 'Bron bekor qilindi. Buyer tomonda status darrov yangilanadi.'
+          : 'Manual payment rad etildi.',
+      );
       setReviewNote('');
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Rad etish amalga oshmadi');

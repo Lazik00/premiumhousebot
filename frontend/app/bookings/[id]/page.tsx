@@ -130,7 +130,7 @@ export default function BookingDetailPage() {
 
         const interval = window.setInterval(() => {
             void loadBookingDetail(true);
-        }, 2500);
+        }, 1200);
 
         return () => window.clearInterval(interval);
     }, [booking?.id, booking?.status, loadBookingDetail]);
