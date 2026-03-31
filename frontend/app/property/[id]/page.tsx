@@ -11,14 +11,7 @@ import useTelegramBackButton from '../../../hooks/useTelegramBackButton';
 import type { PropertyDetail } from '../../../lib/types';
 import PropertyGallery from '../../../components/PropertyGallery';
 import { DetailSkeleton } from '../../../components/LoadingSkeleton';
-
-const amenityIcons: Record<string, string> = {
-    wifi: '📶', parking: '🅿️', pool: '🏊', gym: '💪', ac: '❄️',
-    heating: '🔥', kitchen: '🍳', washer: '🧺', dryer: '👕', tv: '📺',
-    balcony: '🌇', garden: '🌿', bbq: '🍖', elevator: '🛗', security: '🔒',
-    pets_allowed: '🐾', smoking_allowed: '🚬', breakfast: '🍞', airport_transfer: '✈️',
-    spa: '💆', sauna: '🧖', playground: '🎠', concierge: '🛎️',
-};
+import AppIcon, { resolveAmenityIconName } from '../../../components/AppIcon';
 
 function openExternalLink(url: string) {
     const tg = getTelegramWebApp();
@@ -95,13 +88,22 @@ export default function PropertyDetailPage() {
     const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`;
     const yandexMapsUrl = `https://yandex.com/maps/?ll=${property.longitude}%2C${property.latitude}&z=16&pt=${property.longitude},${property.latitude},pm2dgl`;
     const propertySpecs = [
-        { icon: '🚪', label: t('property.rooms'), value: formatUnitCount(language, 'room', property.rooms) },
-        { icon: '📐', label: t('property.totalArea'), value: formatArea(property.total_area_sqm) },
-        { icon: '🛗', label: t('property.floor'), value: property.floor !== null && property.floor !== undefined ? String(property.floor) : null },
-        { icon: '🏢', label: t('property.totalFloors'), value: property.total_floors !== null && property.total_floors !== undefined ? String(property.total_floors) : null },
-        { icon: '🛏️', label: t('property.bedrooms'), value: property.bedrooms !== null && property.bedrooms !== undefined ? formatUnitCount(language, 'bedroom', property.bedrooms) : null },
-        { icon: '🛌', label: t('property.beds'), value: property.beds !== null && property.beds !== undefined ? formatUnitCount(language, 'bed', property.beds) : null },
-        { icon: '🚿', label: t('property.bathrooms'), value: formatUnitCount(language, 'bathroom', property.bathrooms) },
+        { icon: 'users', label: t('property.capacity'), value: formatUnitCount(language, 'guest', property.capacity) },
+        { icon: 'door', label: t('property.rooms'), value: formatUnitCount(language, 'room', property.rooms) },
+        { icon: 'shower', label: t('property.bathrooms'), value: formatUnitCount(language, 'bathroom', property.bathrooms) },
+        { icon: 'ruler', label: t('property.totalArea'), value: formatArea(property.total_area_sqm) },
+        {
+            icon: 'floor',
+            label: t('property.floor'),
+            value:
+                property.floor !== null && property.floor !== undefined
+                    ? property.total_floors !== null && property.total_floors !== undefined
+                        ? `${property.floor} / ${property.total_floors}`
+                        : String(property.floor)
+                    : null,
+        },
+        { icon: 'bedroom', label: t('property.bedrooms'), value: property.bedrooms !== null && property.bedrooms !== undefined ? formatUnitCount(language, 'bedroom', property.bedrooms) : null },
+        { icon: 'bed', label: t('property.beds'), value: property.beds !== null && property.beds !== undefined ? formatUnitCount(language, 'bed', property.beds) : null },
     ].filter((item) => item.value);
 
     return (
@@ -245,37 +247,6 @@ export default function PropertyDetailPage() {
                     </div>
                 </div>
 
-                {/* Features grid */}
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(3, 1fr)',
-                        gap: 12,
-                        marginBottom: 20,
-                    }}
-                >
-                    {[
-                        { icon: '👥', label: t('property.capacity'), value: formatUnitCount(language, 'guest', property.capacity) },
-                        { icon: '🚪', label: t('property.rooms'), value: formatUnitCount(language, 'room', property.rooms) },
-                        { icon: '🚿', label: t('property.bathrooms'), value: formatUnitCount(language, 'bathroom', property.bathrooms) },
-                    ].map((f) => (
-                        <div
-                            key={f.label}
-                            style={{
-                                padding: '16px 12px',
-                                borderRadius: 18,
-                                background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
-                                border: '1px solid var(--color-line)',
-                                textAlign: 'center',
-                            }}
-                        >
-                            <div style={{ fontSize: 24, marginBottom: 4 }}>{f.icon}</div>
-                            <div style={{ fontSize: 14, fontWeight: 700 }}>{f.value}</div>
-                            <div style={{ fontSize: 11, color: 'var(--color-muted)' }}>{f.label}</div>
-                        </div>
-                    ))}
-                </div>
-
                 {propertySpecs.length > 0 ? (
                     <div
                         style={{
@@ -296,6 +267,16 @@ export default function PropertyDetailPage() {
                         >
                             {t('property.details')}
                         </h2>
+                        <div
+                            style={{
+                                fontSize: 13,
+                                color: 'var(--color-muted)',
+                                lineHeight: 1.6,
+                                marginBottom: 14,
+                            }}
+                        >
+                            {t('propertyType.' + property.property_type)} • {formatUnitCount(language, 'guest', property.capacity)}
+                        </div>
                         <div
                             style={{
                                 display: 'grid',
@@ -322,14 +303,14 @@ export default function PropertyDetailPage() {
                                             height: 40,
                                             borderRadius: 14,
                                             background: 'rgba(210, 174, 104, 0.14)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: 18,
-                                            flexShrink: 0,
-                                        }}
-                                    >
-                                        {item.icon}
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flexShrink: 0,
+                                        color: 'var(--color-brand-light)',
+                                    }}
+                                >
+                                        <AppIcon name={item.icon as never} size={18} color="currentColor" />
                                     </div>
                                     <div style={{ minWidth: 0 }}>
                                         <div style={{ fontSize: 11, color: 'var(--color-muted)', marginBottom: 2 }}>{item.label}</div>
@@ -501,7 +482,9 @@ export default function PropertyDetailPage() {
                                         fontWeight: 600,
                                     }}
                                 >
-                                    <span>{amenityIcons[a.code] || a.icon || '✅'}</span>
+                                    <span style={{ width: 18, height: 18, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-brand-light)', flexShrink: 0 }}>
+                                        <AppIcon name={resolveAmenityIconName(a.code, a.icon)} size={18} color="currentColor" />
+                                    </span>
                                     <span>{getAmenityLabel(a, language)}</span>
                                 </div>
                             ))}

@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from 'react';
 import type { TouchEvent as ReactTouchEvent } from 'react';
 import type { PropertyImage } from '../lib/types';
+import AppIcon from './AppIcon';
 
 interface PropertyGalleryProps {
     images: PropertyImage[];
@@ -47,8 +48,6 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
 
     const hasImages = images.length > 0;
     const slideCount = hasImages ? images.length : 1;
-    const icons: Record<string, string> = { apartment: '🏢', house: '🏠', villa: '🏡' };
-
     const currentImage = useMemo(() => (hasImages ? images[currentIndex] : null), [currentIndex, hasImages, images]);
 
     const goTo = (idx: number) => {
@@ -160,7 +159,14 @@ export default function PropertyGallery({ images, title, propertyType }: Propert
                         gap: 12,
                     }}
                 >
-                    <span style={{ fontSize: 64, opacity: 0.6 }}>{icons[propertyType || ''] || '🏠'}</span>
+                    <span style={{ display: 'inline-flex', opacity: 0.72, color: '#fff7e8' }}>
+                        <AppIcon
+                            name={propertyType === 'apartment' || propertyType === 'house' || propertyType === 'villa' ? propertyType : 'house'}
+                            size={64}
+                            color="currentColor"
+                            strokeWidth={1.55}
+                        />
+                    </span>
                     <span style={{ fontSize: 16, color: 'rgba(255,247,232,0.76)', fontFamily: 'var(--font-display)' }}>{title}</span>
                 </div>
             )}

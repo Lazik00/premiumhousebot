@@ -2,17 +2,14 @@
 
 import Link from 'next/link';
 import PriceDisplay from './PriceDisplay';
+import AppIcon from './AppIcon';
 import { useAppPreferences } from '../context/AppPreferencesContext';
 import { haptic } from '../lib/telegram';
 import type { PropertySummary } from '../lib/types';
 
 function PropertyTypeIcon({ type }: { type: string }) {
-    const icons: Record<string, string> = {
-        apartment: '🏢',
-        house: '🏠',
-        villa: '🏡',
-    };
-    return <span>{icons[type] || '🏠'}</span>;
+    const normalizedType = type === 'apartment' || type === 'house' || type === 'villa' ? type : 'house';
+    return <AppIcon name={normalizedType} size={46} color="rgba(255,247,232,0.82)" strokeWidth={1.6} />;
 }
 
 export default function PropertyCard({ property }: { property: PropertySummary }) {

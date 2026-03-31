@@ -1087,7 +1087,7 @@ class AdminService:
         if city is None:
             raise ValueError('City not found for selected region')
 
-        parsed_amenity_ids = [uuid.UUID(item) for item in amenity_ids]
+        parsed_amenity_ids = list(dict.fromkeys(uuid.UUID(item) for item in amenity_ids))
         amenities: list[Amenity] = []
         if parsed_amenity_ids:
             amenity_rows = await db.execute(
@@ -1107,35 +1107,59 @@ class AdminService:
         images: list,
     ) -> None:
         now = datetime.now(UTC)
-        existing_amenities = await db.execute(
-            select(PropertyAmenity).where(PropertyAmenity.property_id == property_id, PropertyAmenity.deleted_at.is_(None))
-        )
-        for item in existing_amenities.scalars().all():
-            item.deleted_at = now
+        normalized_amenity_ids = list(dict.fromkeys(uuid.UUID(item) for item in amenity_ids))
+        amenity_rows = await db.execute(select(PropertyAmenity).where(PropertyAmenity.property_id == property_id))
+        existing_amenities = {item.amenity_id: item for item in amenity_rows.scalars().all()}
 
-        existing_images = await db.execute(
-            select(PropertyImage).where(PropertyImage.property_id == property_id, PropertyImage.deleted_at.is_(None))
-        )
-        for image in existing_images.scalars().all():
-            image.deleted_at = now
+        for amenity_id in normalized_amenity_ids:
+            existing = existing_amenities.get(amenity_id)
+            if existing is None:
+                db.add(PropertyAmenity(property_id=property_id, amenity_id=amenity_id))
+            else:
+                existing.deleted_at = None
 
-        for amenity_id in amenity_ids:
-            db.add(PropertyAmenity(property_id=property_id, amenity_id=uuid.UUID(amenity_id)))
+        for amenity_id, existing in existing_amenities.items():
+            if amenity_id not in normalized_amenity_ids:
+                existing.deleted_at = now
 
         normalized_images = list(images)
         if normalized_images and not any(image.is_cover for image in normalized_images):
             normalized_images[0].is_cover = True
 
+        image_rows = await db.execute(
+            select(PropertyImage)
+            .where(PropertyImage.property_id == property_id)
+            .order_by(PropertyImage.sort_order.asc(), PropertyImage.created_at.asc())
+        )
+        existing_images = list(image_rows.scalars().all())
+        reusable_images = [image for image in existing_images if image.deleted_at is None]
+        reusable_images.extend(image for image in existing_images if image.deleted_at is not None)
+
+        used_image_ids: set[uuid.UUID] = set()
         for index, image in enumerate(normalized_images, start=1):
-            db.add(
-                PropertyImage(
-                    property_id=property_id,
-                    object_key=(image.object_key or image.image_url).strip(),
-                    image_url=image.image_url.strip(),
-                    is_cover=bool(image.is_cover),
-                    sort_order=image.sort_order or index,
+            reusable = reusable_images[index - 1] if index <= len(reusable_images) else None
+            if reusable is None:
+                db.add(
+                    PropertyImage(
+                        property_id=property_id,
+                        object_key=(image.object_key or image.image_url).strip(),
+                        image_url=image.image_url.strip(),
+                        is_cover=bool(image.is_cover),
+                        sort_order=index,
+                    )
                 )
-            )
+                continue
+
+            reusable.object_key = (image.object_key or image.image_url).strip()
+            reusable.image_url = image.image_url.strip()
+            reusable.is_cover = bool(image.is_cover)
+            reusable.sort_order = index
+            reusable.deleted_at = None
+            used_image_ids.add(reusable.id)
+
+        for image in existing_images:
+            if image.id not in used_image_ids:
+                image.deleted_at = now
         await db.flush()
 
     def _admin_property_base_query(self):
