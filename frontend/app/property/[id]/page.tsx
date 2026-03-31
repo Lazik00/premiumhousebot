@@ -423,29 +423,31 @@ export default function PropertyDetailPage() {
                 </div>
 
                 {/* Description */}
-                <div
-                    style={{
-                        marginBottom: 20,
-                        padding: '18px',
-                        borderRadius: 20,
-                        background: 'var(--color-surface)',
-                        border: '1px solid var(--color-line)',
-                    }}
-                >
-                    <h2
+                {property.description?.trim() ? (
+                    <div
                         style={{
-                            fontFamily: 'var(--font-display)',
-                            fontSize: 18,
-                            fontWeight: 700,
-                            marginBottom: 10,
+                            marginBottom: 20,
+                            padding: '18px',
+                            borderRadius: 20,
+                            background: 'var(--color-surface)',
+                            border: '1px solid var(--color-line)',
                         }}
                     >
-                        {t('property.description')}
-                    </h2>
-                    <p style={{ fontSize: 14, lineHeight: 1.8, color: 'var(--color-muted)' }}>
-                        {property.description}
-                    </p>
-                </div>
+                        <h2
+                            style={{
+                                fontFamily: 'var(--font-display)',
+                                fontSize: 18,
+                                fontWeight: 700,
+                                marginBottom: 10,
+                            }}
+                        >
+                            {t('property.description')}
+                        </h2>
+                        <p style={{ fontSize: 14, lineHeight: 1.8, color: 'var(--color-muted)' }}>
+                            {property.description}
+                        </p>
+                    </div>
+                ) : null}
 
                 {/* Amenities */}
                 {property.amenities.length > 0 && (

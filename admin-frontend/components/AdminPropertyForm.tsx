@@ -390,7 +390,7 @@ export default function AdminPropertyForm({
           </label>
           <label className="admin-field">
             <span>Tavsif</span>
-            <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} rows={5} placeholder="Uyning afzalliklari, interyer va qoidalarni yozing" required />
+            <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} rows={5} placeholder="Ixtiyoriy: uyning afzalliklari, interyer va qoidalarni yozing" />
           </label>
         </div>
 

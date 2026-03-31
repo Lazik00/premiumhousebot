@@ -169,7 +169,7 @@ class AdminPropertyCreateRequest(BaseModel):
     region_id: str
     city_id: str
     title: str = Field(min_length=3, max_length=180)
-    description: str = Field(min_length=10, max_length=5000)
+    description: str | None = Field(default=None, max_length=5000)
     address: str = Field(min_length=5, max_length=1000)
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)

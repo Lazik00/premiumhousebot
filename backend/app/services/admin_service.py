@@ -541,7 +541,7 @@ class AdminService:
             region_id=region.id,
             city_id=city.id,
             title=payload.title.strip(),
-            description=payload.description.strip(),
+            description=payload.description.strip() if payload.description else '',
             address=payload.address.strip(),
             latitude=payload.latitude,
             longitude=payload.longitude,
@@ -591,7 +591,7 @@ class AdminService:
         property_obj.region_id = region.id
         property_obj.city_id = city.id
         property_obj.title = payload.title.strip()
-        property_obj.description = payload.description.strip()
+        property_obj.description = payload.description.strip() if payload.description else ''
         property_obj.address = payload.address.strip()
         property_obj.latitude = payload.latitude
         property_obj.longitude = payload.longitude
