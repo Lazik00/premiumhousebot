@@ -44,6 +44,28 @@ export default function PropertyDetailPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const fetchProperty = useCallback(
+        async (showLoader = false) => {
+            if (showLoader) {
+                setIsLoading(true);
+            }
+            try {
+                const id = params.id as string;
+                const data = await getProperty(id);
+                setProperty(data);
+                setError(null);
+            } catch (err) {
+                setError(t('property.notFound'));
+                console.error(err);
+            } finally {
+                if (showLoader) {
+                    setIsLoading(false);
+                }
+            }
+        },
+        [params.id, t],
+    );
+
     const handleBack = useCallback(() => {
         router.back();
     }, [router]);
@@ -51,20 +73,28 @@ export default function PropertyDetailPage() {
     const isTelegramBackVisible = useTelegramBackButton(handleBack);
 
     useEffect(() => {
-        const fetchProperty = async () => {
-            try {
-                const id = params.id as string;
-                const data = await getProperty(id);
-                setProperty(data);
-            } catch (err) {
-                setError(t('property.notFound'));
-                console.error(err);
-            } finally {
-                setIsLoading(false);
+        fetchProperty(true);
+    }, [fetchProperty]);
+
+    useEffect(() => {
+        const handleVisibilityRefresh = () => {
+            if (document.visibilityState === 'visible') {
+                fetchProperty(false);
             }
         };
-        fetchProperty();
-    }, [params.id, t]);
+
+        const handleWindowFocus = () => {
+            fetchProperty(false);
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityRefresh);
+        window.addEventListener('focus', handleWindowFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityRefresh);
+            window.removeEventListener('focus', handleWindowFocus);
+        };
+    }, [fetchProperty]);
 
     if (isLoading) return <DetailSkeleton />;
     if (error || !property) {

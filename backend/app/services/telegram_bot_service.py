@@ -198,7 +198,8 @@ class TelegramBotService:
         user.first_name = telegram_user.get('first_name') or user.first_name
         user.last_name = telegram_user.get('last_name') or user.last_name
         user.username = telegram_user.get('username') or user.username
-        user.language_code = language_code or user.language_code
+        if not user.language_code or user.language_code not in {'uz', 'ru', 'en'}:
+            user.language_code = language_code
         return user
 
     async def _welcome_markup(self, locale: str) -> dict:
