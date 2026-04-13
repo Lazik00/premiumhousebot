@@ -231,6 +231,37 @@ class AdminPropertyAvailabilityCreateRequest(BaseModel):
     note: str | None = Field(default=None, max_length=500)
 
 
+class AdminChannelCalendarConfigResponse(BaseModel):
+    channel: str
+    is_enabled: bool
+    import_ical_url: str | None = None
+    export_ical_url: str
+    last_synced_at: datetime | None = None
+    last_sync_status: str | None = None
+    last_sync_error: str | None = None
+    active_events: int = 0
+
+
+class AdminChannelCalendarListResponse(BaseModel):
+    property_id: str
+    channels: list[AdminChannelCalendarConfigResponse]
+
+
+class AdminChannelCalendarUpdateRequest(BaseModel):
+    import_ical_url: str | None = Field(default=None, max_length=2000)
+    is_enabled: bool = True
+
+
+class AdminChannelCalendarSyncResponse(BaseModel):
+    channel: str
+    imported_count: int
+    updated_count: int
+    deactivated_count: int
+    status: str
+    error: str | None = None
+    synced_at: datetime | None = None
+
+
 class AdminBookingResponse(BaseModel):
     id: str
     booking_code: str

@@ -253,6 +253,37 @@ export interface AdminPropertyAvailabilityCreatePayload {
   note?: string | null;
 }
 
+export interface AdminChannelCalendarConfig {
+  channel: 'airbnb' | 'booking' | string;
+  is_enabled: boolean;
+  import_ical_url?: string | null;
+  export_ical_url: string;
+  last_synced_at?: string | null;
+  last_sync_status?: string | null;
+  last_sync_error?: string | null;
+  active_events: number;
+}
+
+export interface AdminChannelCalendarList {
+  property_id: string;
+  channels: AdminChannelCalendarConfig[];
+}
+
+export interface AdminChannelCalendarUpdatePayload {
+  import_ical_url?: string | null;
+  is_enabled: boolean;
+}
+
+export interface AdminChannelCalendarSyncResult {
+  channel: string;
+  imported_count: number;
+  updated_count: number;
+  deactivated_count: number;
+  status: string;
+  error?: string | null;
+  synced_at?: string | null;
+}
+
 export interface AdminPropertyPayload {
   host_id: string;
   region_id: string;

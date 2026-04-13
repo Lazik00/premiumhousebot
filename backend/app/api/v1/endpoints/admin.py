@@ -10,6 +10,10 @@ from app.db.session import get_db
 from app.models.enums import PropertyStatus, UserStatus
 from app.models.user import User
 from app.schemas.admin import (
+    AdminChannelCalendarConfigResponse,
+    AdminChannelCalendarListResponse,
+    AdminChannelCalendarSyncResponse,
+    AdminChannelCalendarUpdateRequest,
     AdminBookingActionResponse,
     AdminBookingApprovalRequest,
     AdminBookingDetailResponse,
@@ -37,12 +41,14 @@ from app.schemas.admin import (
     AdminUserStatusUpdateRequest,
 )
 from app.services.admin_service import AdminService
+from app.services.calendar_sync_service import CalendarSyncService
 from app.services.manual_payment_service import ManualPaymentService
 from app.services.storage_service import StorageService
 
 router = APIRouter(prefix='/admin', tags=['admin'])
 admin_service = AdminService()
 manual_payment_service = ManualPaymentService()
+calendar_sync_service = CalendarSyncService()
 admin_guard = require_roles('super_admin', 'admin')
 
 
@@ -73,6 +79,10 @@ def _request_base_url(request: Request) -> str:
         if not is_default_port:
             host = f'{host}:{forwarded_port}'
     return f'{scheme}://{host}'
+
+
+def _integration_public_base_url(request: Request) -> str:
+    return settings.public_base_url or _request_base_url(request)
 
 
 @router.get('/dashboard', response_model=AdminDashboardResponse)
@@ -355,6 +365,101 @@ async def delete_property_availability_block(
         )
     except ValueError as exc:
         _raise_service_error(exc)
+
+
+@router.get('/properties/{property_id}/channel-calendars', response_model=AdminChannelCalendarListResponse)
+async def get_property_channel_calendars(
+    request: Request,
+    property_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminChannelCalendarListResponse:
+    del current_user
+    property_uuid = _to_uuid(property_id, 'property_id')
+    try:
+        channels = await calendar_sync_service.list_property_channels(
+            db=db,
+            property_id=property_uuid,
+            public_base_url=_integration_public_base_url(request),
+        )
+    except ValueError as exc:
+        _raise_service_error(exc)
+    return AdminChannelCalendarListResponse(
+        property_id=str(property_uuid),
+        channels=[AdminChannelCalendarConfigResponse(**item) for item in channels],
+    )
+
+
+@router.put('/properties/{property_id}/channel-calendars/{channel}', response_model=AdminChannelCalendarConfigResponse)
+async def update_property_channel_calendar(
+    request: Request,
+    property_id: str,
+    channel: str,
+    payload: AdminChannelCalendarUpdateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminChannelCalendarConfigResponse:
+    del current_user
+    try:
+        item = await calendar_sync_service.update_property_channel(
+            db=db,
+            property_id=_to_uuid(property_id, 'property_id'),
+            channel=channel,
+            import_ical_url=payload.import_ical_url,
+            is_enabled=payload.is_enabled,
+            public_base_url=_integration_public_base_url(request),
+        )
+    except ValueError as exc:
+        _raise_service_error(exc)
+    return AdminChannelCalendarConfigResponse(**item)
+
+
+@router.post('/properties/{property_id}/channel-calendars/{channel}/sync', response_model=AdminChannelCalendarSyncResponse)
+async def sync_property_channel_calendar(
+    property_id: str,
+    channel: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminChannelCalendarSyncResponse:
+    del current_user
+    try:
+        result = await calendar_sync_service.sync_property_channel(
+            db=db,
+            property_id=_to_uuid(property_id, 'property_id'),
+            channel=channel,
+        )
+    except ValueError as exc:
+        _raise_service_error(exc)
+    return AdminChannelCalendarSyncResponse(
+        channel=result.channel,
+        imported_count=result.imported_count,
+        updated_count=result.updated_count,
+        deactivated_count=result.deactivated_count,
+        status=result.status,
+        error=result.error,
+        synced_at=result.synced_at,
+    )
+
+
+@router.post('/properties/{property_id}/channel-calendars/{channel}/rotate-token', response_model=AdminChannelCalendarConfigResponse)
+async def rotate_property_channel_calendar_token(
+    request: Request,
+    property_id: str,
+    channel: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(admin_guard),
+) -> AdminChannelCalendarConfigResponse:
+    del current_user
+    try:
+        item = await calendar_sync_service.rotate_channel_token(
+            db=db,
+            property_id=_to_uuid(property_id, 'property_id'),
+            channel=channel,
+            public_base_url=_integration_public_base_url(request),
+        )
+    except ValueError as exc:
+        _raise_service_error(exc)
+    return AdminChannelCalendarConfigResponse(**item)
 
 
 @router.post('/properties', response_model=AdminPropertyDetailResponse, status_code=status.HTTP_201_CREATED)

@@ -11,6 +11,7 @@ from app.models.enums import BookingStatus, PaymentProvider, PaymentStatus
 from app.models.payment import ManualPaymentMethod, Payment
 from app.models.property import City, Property, Region
 from app.models.user import User
+from app.services.integration_dispatcher import enqueue_booking_sheet_export
 from app.services.payment_service import PaymentService
 from app.services.telegram_notification_service import TelegramNotificationService
 
@@ -253,6 +254,7 @@ class ManualPaymentService:
 
         await db.refresh(booking)
         await db.refresh(payment)
+        enqueue_booking_sheet_export(booking.id, 'manual_payment_submitted')
         return booking, payment
 
     async def approve_manual_payment(
@@ -307,6 +309,7 @@ class ManualPaymentService:
         await db.commit()
         await db.refresh(booking)
         await db.refresh(payment)
+        enqueue_booking_sheet_export(booking.id, 'booking_confirmed_manual')
 
         if user_row.telegram_id:
             property_obj, city_obj, _region_obj = property_row
@@ -381,6 +384,10 @@ class ManualPaymentService:
         await db.commit()
         await db.refresh(booking)
         await db.refresh(payment)
+        if booking.status == BookingStatus.CANCELLED:
+            enqueue_booking_sheet_export(booking.id, 'booking_cancelled_manual_rejected')
+        elif booking.status == BookingStatus.EXPIRED:
+            enqueue_booking_sheet_export(booking.id, 'booking_expired_manual_rejected')
         return booking, payment
 
     async def _latest_manual_payment(

@@ -8,3 +8,4 @@ def ping() -> str:
 
 # Register tasks
 from app.tasks import booking_tasks  # noqa: E402,F401
+from app.tasks import integration_tasks  # noqa: E402,F401

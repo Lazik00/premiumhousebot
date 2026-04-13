@@ -11,6 +11,7 @@ from app.models.enums import BookingStatus, PaymentProvider, PaymentStatus
 from app.models.payment import Payment
 from app.models.property import City, Property
 from app.models.user import User
+from app.services.integration_dispatcher import enqueue_booking_sheet_export
 from app.services.review_service import ReviewService
 from app.services.telegram_bot_service import TelegramBotService
 from app.tasks.celery_app import celery_app
@@ -32,10 +33,12 @@ async def _expire_pending_bookings() -> int:
             .with_for_update(skip_locked=True)
         )
         bookings = result.scalars().all()
+        expired_booking_ids = []
 
         for booking in bookings:
             previous_status = booking.status
             booking.status = BookingStatus.EXPIRED
+            expired_booking_ids.append(booking.id)
             payment_result = await db.execute(
                 select(Payment).where(
                     Payment.booking_id == booking.id,
@@ -58,6 +61,8 @@ async def _expire_pending_bookings() -> int:
             )
 
         await db.commit()
+        for booking_id in expired_booking_ids:
+            enqueue_booking_sheet_export(booking_id, 'booking_expired')
         return len(bookings)
 
 
@@ -75,11 +80,13 @@ async def _complete_finished_bookings() -> int:
             .with_for_update(skip_locked=True)
         )
         bookings = result.scalars().all()
+        completed_booking_ids = []
 
         for booking in bookings:
             previous_status = booking.status
             booking.status = BookingStatus.COMPLETED
             booking.completed_at = now
+            completed_booking_ids.append(booking.id)
             db.add(
                 BookingEvent(
                     booking_id=booking.id,
@@ -91,6 +98,8 @@ async def _complete_finished_bookings() -> int:
             )
 
         await db.commit()
+        for booking_id in completed_booking_ids:
+            enqueue_booking_sheet_export(booking_id, 'booking_completed')
         return len(bookings)
 
 

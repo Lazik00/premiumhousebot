@@ -85,6 +85,16 @@ class Settings(BaseSettings):
     octo_language: str = 'uz'
     octo_payment_methods: str = 'bank_card,uzcard,humo'
 
+    google_sheets_enabled: bool = False
+    google_sheets_spreadsheet_id: str | None = None
+    google_sheets_sheet_name: str = 'Bookings'
+    google_sheets_service_account_email: str | None = None
+    google_sheets_private_key: str | None = None
+    google_sheets_token_uri: str = 'https://oauth2.googleapis.com/token'
+    google_sheets_timeout_seconds: int = 12
+
+    channel_sync_fetch_timeout_seconds: int = 15
+
     @field_validator('octo_shop_id', mode='before')
     @classmethod
     def _blank_int_to_none(cls, value):
@@ -119,6 +129,12 @@ class Settings(BaseSettings):
         if not self.public_base_url:
             return None
         return f'{self.public_base_url}{self.api_prefix}/telegram/webhook'
+
+    @property
+    def resolved_google_sheets_private_key(self) -> str | None:
+        if not self.google_sheets_private_key:
+            return None
+        return self.google_sheets_private_key.replace('\\n', '\n')
 
 
 settings = Settings()

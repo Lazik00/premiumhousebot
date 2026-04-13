@@ -12,7 +12,7 @@ celery_app.conf.update(
     timezone='Asia/Tashkent',
     enable_utc=True,
     broker_connection_retry_on_startup=True,
-    imports=('app.tasks.booking_tasks',),
+    imports=('app.tasks.booking_tasks', 'app.tasks.integration_tasks'),
     beat_schedule={
         'expire-pending-bookings-every-minute': {
             'task': 'booking.expire_pending',
@@ -24,6 +24,10 @@ celery_app.conf.update(
         },
         'send-review-prompts-every-five-minutes': {
             'task': 'booking.send_review_prompts',
+            'schedule': 300.0,
+        },
+        'sync-external-calendars-every-five-minutes': {
+            'task': 'integration.sync_external_calendars',
             'schedule': 300.0,
         },
     },

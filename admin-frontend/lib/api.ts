@@ -2,6 +2,10 @@ import type {
   AdminBookingDetail,
   AdminBookingActionResponse,
   AdminBookingRow,
+  AdminChannelCalendarConfig,
+  AdminChannelCalendarList,
+  AdminChannelCalendarSyncResult,
+  AdminChannelCalendarUpdatePayload,
   AdminDashboard,
   AdminHostBalanceDetail,
   AdminHostBalanceRow,
@@ -257,6 +261,33 @@ export async function createPropertyAvailabilityBlock(propertyId: string, payloa
 export async function deletePropertyAvailabilityBlock(propertyId: string, blockId: string): Promise<void> {
   return request<void>(`/admin/properties/${propertyId}/availability/blocks/${blockId}`, {
     method: 'DELETE',
+  });
+}
+
+export async function getPropertyChannelCalendars(propertyId: string): Promise<AdminChannelCalendarList> {
+  return request<AdminChannelCalendarList>(`/admin/properties/${propertyId}/channel-calendars`);
+}
+
+export async function updatePropertyChannelCalendar(
+  propertyId: string,
+  channel: string,
+  payload: AdminChannelCalendarUpdatePayload,
+): Promise<AdminChannelCalendarConfig> {
+  return request<AdminChannelCalendarConfig>(`/admin/properties/${propertyId}/channel-calendars/${channel}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function syncPropertyChannelCalendar(propertyId: string, channel: string): Promise<AdminChannelCalendarSyncResult> {
+  return request<AdminChannelCalendarSyncResult>(`/admin/properties/${propertyId}/channel-calendars/${channel}/sync`, {
+    method: 'POST',
+  });
+}
+
+export async function rotatePropertyChannelCalendarToken(propertyId: string, channel: string): Promise<AdminChannelCalendarConfig> {
+  return request<AdminChannelCalendarConfig>(`/admin/properties/${propertyId}/channel-calendars/${channel}/rotate-token`, {
+    method: 'POST',
   });
 }
 

@@ -41,5 +41,7 @@ Production-ready architecture blueprint and implementation scaffold for a rental
 ## Notes
 
 - Payment adapters are designed for Click, Payme, and Rahmat integrations.
+- Airbnb/Booking calendar sync is implemented via iCal import/export (`/api/v1/integrations/ical/{token}.ics`) with admin channel settings per property.
+- Google Sheets booking export is supported via service account credentials (`GOOGLE_SHEETS_*` env vars).
 - Currency defaults to `UZS`, timezone defaults to `Asia/Tashkent`.
 - This scaffold is intended as a strong production baseline and can be extended by implementing full business logic in backend services.

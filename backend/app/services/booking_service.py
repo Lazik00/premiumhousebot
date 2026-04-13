@@ -8,8 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.models.booking import Booking, BookingEvent
+from app.models.integration import ExternalCalendarEvent, PropertyChannelCalendar
 from app.models.enums import BookingStatus, PropertyStatus
 from app.models.property import Property, PropertyDateBlock
+from app.services.integration_dispatcher import enqueue_booking_sheet_export
 from app.utils.locks import redis_lock
 
 
@@ -105,6 +107,25 @@ class BookingService:
             if manual_block:
                 raise ValueError('Selected dates are unavailable')
 
+            external_block_result = await db.execute(
+                select(ExternalCalendarEvent)
+                .join(
+                    PropertyChannelCalendar,
+                    PropertyChannelCalendar.id == ExternalCalendarEvent.channel_calendar_id,
+                )
+                .where(
+                    ExternalCalendarEvent.property_id == property_id,
+                    ExternalCalendarEvent.deleted_at.is_(None),
+                    PropertyChannelCalendar.deleted_at.is_(None),
+                    PropertyChannelCalendar.is_enabled.is_(True),
+                    and_(ExternalCalendarEvent.start_date < end_date, ExternalCalendarEvent.end_date > start_date),
+                )
+                .limit(1)
+            )
+            external_block = external_block_result.scalars().first()
+            if external_block:
+                raise ValueError('Selected dates are unavailable')
+
             nights = (end_date - start_date).days
             base_price = nights * float(property_obj.price_per_night)
             cleaning_fee = 0.0  # Fees removed as per requirements
@@ -167,6 +188,7 @@ class BookingService:
                 raise ValueError('Booking conflict detected') from exc
 
             await db.refresh(booking)
+            enqueue_booking_sheet_export(booking.id, 'booking_created')
             return booking
 
     async def get_booking(self, db: AsyncSession, booking_id: uuid.UUID) -> Booking | None:
@@ -224,4 +246,5 @@ class BookingService:
         )
         await db.commit()
         await db.refresh(booking)
+        enqueue_booking_sheet_export(booking.id, 'booking_cancelled')
         return booking

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import AdminChannelSyncPanel from '../../../components/AdminChannelSyncPanel';
 import AdminPropertyAvailabilityPanel from '../../../components/AdminPropertyAvailabilityPanel';
 import AdminPropertyForm from '../../../components/AdminPropertyForm';
 import AdminShell from '../../../components/AdminShell';
@@ -97,6 +98,7 @@ export default function PropertyDetailPage() {
           </div>
 
           <AdminPropertyAvailabilityPanel propertyId={propertyId} />
+          <AdminChannelSyncPanel propertyId={propertyId} />
         </>
       ) : null}
 

@@ -25,6 +25,7 @@ from app.models.enums import (
 )
 from app.models.payment import Payment, PaymentCallback, Refund, Transaction
 from app.models.property import Property
+from app.services.integration_dispatcher import enqueue_booking_sheet_export
 
 
 @dataclass(slots=True)
@@ -443,6 +444,8 @@ class PaymentService:
             )
 
         await db.commit()
+        if booking.status == BookingStatus.CANCELLED:
+            enqueue_booking_sheet_export(booking.id, 'booking_cancelled_refunded')
         await db.refresh(refund)
         return refund
 
@@ -735,6 +738,7 @@ class PaymentService:
             )
             await self._record_financials(db=db, booking=booking, payment=payment)
             await db.commit()
+            enqueue_booking_sheet_export(booking.id, 'booking_confirmed_payment_success')
             return 'processed', booking.id
 
         payment.status = PaymentStatus.FAILED
@@ -755,6 +759,8 @@ class PaymentService:
             )
 
         await db.commit()
+        if booking.status == BookingStatus.CANCELLED:
+            enqueue_booking_sheet_export(booking.id, 'booking_cancelled_payment_failed')
         return 'processed_failed', booking.id
 
     async def _callback_booking_id(self, db: AsyncSession, payment_id: uuid.UUID | None) -> uuid.UUID | None:

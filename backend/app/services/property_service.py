@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.media import normalize_media_url
 from app.models.booking import Booking
+from app.models.integration import ExternalCalendarEvent, PropertyChannelCalendar
 from app.models.enums import BookingStatus, PropertyStatus
 from app.models.property import Amenity, City, Property, PropertyAmenity, PropertyDateBlock, PropertyImage, Region
 from app.models.review import Review
@@ -97,7 +98,21 @@ class PropertyService:
                     and_(PropertyDateBlock.start_date < check_out, PropertyDateBlock.end_date > check_in),
                 )
             )
-            base_query = base_query.where(~booking_overlap_exists, ~manual_overlap_exists)
+            external_overlap_exists = exists(
+                select(ExternalCalendarEvent.id)
+                .join(
+                    PropertyChannelCalendar,
+                    PropertyChannelCalendar.id == ExternalCalendarEvent.channel_calendar_id,
+                )
+                .where(
+                    ExternalCalendarEvent.property_id == Property.id,
+                    ExternalCalendarEvent.deleted_at.is_(None),
+                    PropertyChannelCalendar.deleted_at.is_(None),
+                    PropertyChannelCalendar.is_enabled.is_(True),
+                    and_(ExternalCalendarEvent.start_date < check_out, ExternalCalendarEvent.end_date > check_in),
+                )
+            )
+            base_query = base_query.where(~booking_overlap_exists, ~manual_overlap_exists, ~external_overlap_exists)
 
         total_query = select(func.count()).select_from(base_query.subquery())
         total = int((await db.execute(total_query)).scalar_one())
@@ -213,6 +228,7 @@ class PropertyService:
         property_id: uuid.UUID,
         from_date: date | None,
         to_date: date | None,
+        exclude_external_channel: str | None = None,
     ) -> list[AvailabilityRange]:
         booking_query = select(Booking).where(
             Booking.property_id == property_id,
@@ -230,21 +246,43 @@ class PropertyService:
             PropertyDateBlock.property_id == property_id,
             PropertyDateBlock.deleted_at.is_(None),
         )
+        external_query = (
+            select(ExternalCalendarEvent, PropertyChannelCalendar.channel)
+            .join(
+                PropertyChannelCalendar,
+                PropertyChannelCalendar.id == ExternalCalendarEvent.channel_calendar_id,
+            )
+            .where(
+                ExternalCalendarEvent.property_id == property_id,
+                ExternalCalendarEvent.deleted_at.is_(None),
+                PropertyChannelCalendar.deleted_at.is_(None),
+                PropertyChannelCalendar.is_enabled.is_(True),
+            )
+        )
+        if exclude_external_channel:
+            external_query = external_query.where(PropertyChannelCalendar.channel != exclude_external_channel)
 
         if from_date and to_date:
             booking_query = booking_query.where(and_(Booking.start_date < to_date, Booking.end_date > from_date))
             manual_query = manual_query.where(and_(PropertyDateBlock.start_date < to_date, PropertyDateBlock.end_date > from_date))
+            external_query = external_query.where(
+                and_(ExternalCalendarEvent.start_date < to_date, ExternalCalendarEvent.end_date > from_date)
+            )
         elif from_date:
             booking_query = booking_query.where(Booking.end_date > from_date)
             manual_query = manual_query.where(PropertyDateBlock.end_date > from_date)
+            external_query = external_query.where(ExternalCalendarEvent.end_date > from_date)
         elif to_date:
             booking_query = booking_query.where(Booking.start_date < to_date)
             manual_query = manual_query.where(PropertyDateBlock.start_date < to_date)
+            external_query = external_query.where(ExternalCalendarEvent.start_date < to_date)
 
         booking_query = booking_query.order_by(Booking.start_date.asc())
         manual_query = manual_query.order_by(PropertyDateBlock.start_date.asc())
+        external_query = external_query.order_by(ExternalCalendarEvent.start_date.asc())
         booking_rows = list((await db.execute(booking_query)).scalars().all())
         manual_rows = list((await db.execute(manual_query)).scalars().all())
+        external_rows = list((await db.execute(external_query)).all())
 
         combined = [
             AvailabilityRange(
@@ -271,6 +309,18 @@ class PropertyService:
                 created_at=block.created_at,
             )
             for block in manual_rows
+        ] + [
+            AvailabilityRange(
+                id=event.id,
+                source=channel,
+                start_date=event.start_date,
+                end_date=event.end_date,
+                status='blocked',
+                label=event.summary or f'{channel}_import',
+                note=f'Imported from {channel} calendar',
+                created_at=event.created_at,
+            )
+            for event, channel in external_rows
         ]
         combined.sort(key=lambda item: (item.start_date, item.end_date, item.source))
         return combined

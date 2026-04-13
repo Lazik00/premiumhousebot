@@ -476,8 +476,8 @@ class AdminService:
             from_date=payload.start_date,
             to_date=payload.end_date,
         )
-        if any(item.source == 'booking' for item in existing_ranges):
-            raise ValueError('Selected dates overlap with an active booking')
+        if any(item.source != 'manual' for item in existing_ranges):
+            raise ValueError('Selected dates overlap with active booking/channel blocks')
 
         block = PropertyDateBlock(
             property_id=property_id,
